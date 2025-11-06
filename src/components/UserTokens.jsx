@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, Text, Stack, Title, Badge, Group, Loader, Alert, Button, ActionIcon, Tooltip, Modal } from '@mantine/core';
-import { IconClock, IconAlertCircle, IconTrash } from '@tabler/icons-react';
+import { IconClock, IconAlertCircle, IconTrash, IconCircleCheck } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { useAuth } from '../context/AuthContext';
 import { getMyTokens, deleteMyToken } from '../services/userService';
@@ -13,6 +13,33 @@ export default function UserTokens() {
   const [deleteModalOpened, setDeleteModalOpened] = useState(false);
   const [tokenToDelete, setTokenToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [currentParentTokenId, setCurrentParentTokenId] = useState(null);
+
+  // Parse JWT um parent_token_id zu extrahieren
+  const parseJwt = (token) => {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch (e) {
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    if (token) {
+      const payload = parseJwt(token);
+      if (payload && payload.parent_token_id) {
+        setCurrentParentTokenId(payload.parent_token_id);
+      }
+    }
+  }, [token]);
 
   const fetchTokens = async () => {
     if (!token) return;
@@ -102,20 +129,35 @@ export default function UserTokens() {
 
           {tokens.length > 0 ? (
             <Stack spacing="sm">
-              {tokens.map((tokenItem) => (
-              <Card key={tokenItem.id} withBorder padding="sm" radius="sm" bg="gray.0">
+              {tokens.map((tokenItem) => {
+                const isCurrentSession = tokenItem.type === 'REFRESH' && tokenItem.id === currentParentTokenId;
+                return (
+              <Card 
+                key={tokenItem.id} 
+                withBorder 
+                padding="sm" 
+                radius="sm" 
+                bg={isCurrentSession ? "blue.0" : "gray.0"}
+                style={isCurrentSession ? { borderColor: '#228be6', borderWidth: '2px' } : {}}
+              >
                 <Group position="apart" align="flex-start">
                   <Stack spacing="xs" style={{ flex: 1 }}>
-                    <Group position="apart">
+                    <Group spacing="xs">
                       <Badge color={tokenItem.type === 'REFRESH' ? 'blue' : tokenItem.type === 'ACCESS' ? 'green' : 'gray'}>
                         {tokenItem.type}
                       </Badge>
-                      {tokenItem.userAgent && (
-                        <Text size="xs" c="dimmed" truncate style={{ maxWidth: 200 }}>
-                          {tokenItem.userAgent}
-                        </Text>
+                      {isCurrentSession && (
+                        <Badge color="green" leftSection={<IconCircleCheck size={12} />}>
+                          Aktuelle Session
+                        </Badge>
                       )}
                     </Group>
+
+                    {tokenItem.userAgent && (
+                      <Text size="xs" c="dimmed" style={{ wordBreak: 'break-word' }}>
+                        <strong>User-Agent:</strong> {tokenItem.userAgent}
+                      </Text>
+                    )}
 
                     <Stack spacing={4}>
                       {tokenItem.issuedAt && (
@@ -152,7 +194,8 @@ export default function UserTokens() {
                   </Tooltip>
                 </Group>
               </Card>
-            ))}
+              );
+            })}
             </Stack>
           ) : (
             <Text c="dimmed" size="sm">Keine aktiven Sessions gefunden</Text>
