@@ -8,9 +8,12 @@ import {
   Container,
   Alert,
   Stack,
+  Group,
+  Text,
+  Divider,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconAlertCircle } from '@tabler/icons-react';
+import { IconAlertCircle, IconUser, IconUserShield } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
@@ -19,8 +22,8 @@ export default function Login() {
 
   const form = useForm({
     initialValues: {
-      username: 'devnull@frachtwerk.de',
-      password: 'adminAdminAdmin',
+      username: '',
+      password: '',
     },
     validate: {
       username: (value) => (!value ? 'Bitte E-Mail eingeben' : null),
@@ -31,6 +34,16 @@ export default function Login() {
   const handleSubmit = async (values) => {
     setError('');
     const result = await login(values.username, values.password);
+    
+    if (!result.success) {
+      setError(result.error || 'Login fehlgeschlagen');
+    }
+  };
+
+  const handleQuickLogin = async (username, password) => {
+    form.setValues({ username, password });
+    setError('');
+    const result = await login(username, password);
     
     if (!result.success) {
       setError(result.error || 'Login fehlgeschlagen');
@@ -69,6 +82,34 @@ export default function Login() {
             <Button type="submit" fullWidth loading={loading}>
               Anmelden
             </Button>
+
+            <Divider label="Oder" labelPosition="center" />
+
+            <Stack spacing="xs">
+              <Text size="sm" c="dimmed" ta="center">
+                Schnell-Login für Entwicklung:
+              </Text>
+              <Group grow>
+                <Button
+                  variant="light"
+                  color="blue"
+                  leftIcon={<IconUserShield size={16} />}
+                  onClick={() => handleQuickLogin('devnull@frachtwerk.de', 'adminAdminAdmin')}
+                  loading={loading}
+                >
+                  Admin-User
+                </Button>
+                <Button
+                  variant="light"
+                  color="grape"
+                  leftIcon={<IconUser size={16} />}
+                  onClick={() => handleQuickLogin('devnull_user@frachtwerk.de', 'userUserUser')}
+                  loading={loading}
+                >
+                  Default-User
+                </Button>
+              </Group>
+            </Stack>
           </Stack>
         </form>
       </Paper>
