@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { login as apiLogin, logout as apiLogout, renewToken } from '../services/authService';
 import { getMe } from '../services/userService';
 
-const AuthContext = createContext(null);
+export const AuthContext = createContext(null);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);

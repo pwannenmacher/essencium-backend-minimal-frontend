@@ -7,19 +7,19 @@ import {
   Stack,
   Group,
   Badge,
-  Card,
   SimpleGrid,
   Loader,
   Center,
   Tabs,
 } from '@mantine/core';
-import { IconLogout, IconKey, IconUser, IconUsers, IconShieldLock } from '@tabler/icons-react';
+import { IconLogout, IconKey, IconUser, IconUsers, IconShieldLock, IconApiApp } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
 import UserProfile from './UserProfile';
 import UserRolesRights from './UserRolesRights';
 import UserTokens from './UserTokens';
 import UserList from './UserList';
 import RoleList from './RoleList';
+import ApiTokenList from './ApiTokenList';
 
 export default function Dashboard() {
   const { user, logout, loading, token } = useAuth();
@@ -78,6 +78,9 @@ export default function Dashboard() {
               <Tabs.Tab value="roles" icon={<IconShieldLock size={14} />}>
                 Rollen-Verwaltung
               </Tabs.Tab>
+              <Tabs.Tab value="apitokens" icon={<IconApiApp size={14} />}>
+                API-Tokens
+              </Tabs.Tab>
             </Tabs.List>
 
             <Tabs.Panel value="profile" pt="lg">
@@ -91,23 +94,7 @@ export default function Dashboard() {
                 {/* Rechte Spalte: Tokens und Info */}
                 <Stack spacing="lg">
                   <UserTokens />
-                  
-                  <Card withBorder padding="lg" radius="md" bg="gray.0">
-                    <Stack spacing="xs">
-                      <Group>
-                        <IconKey size={20} />
-                        <Text weight={500}>API-Integration</Text>
-                      </Group>
-                      <Text size="sm">✓ GET /v1/users/me</Text>
-                      <Text size="sm">✓ GET /v1/users/me/roles</Text>
-                      <Text size="sm">✓ GET /v1/users/me/roles/rights</Text>
-                      <Text size="sm">✓ GET /v1/users/me/token</Text>
-                      <Text size="sm">✓ GET /v1/users</Text>
-                      <Text size="sm" c="dimmed" mt="md">
-                        Token wird automatisch alle 14 Minuten erneuert.
-                      </Text>
-                    </Stack>
-                  </Card>
+            
                 </Stack>
               </SimpleGrid>
             </Tabs.Panel>
@@ -118,6 +105,10 @@ export default function Dashboard() {
 
             <Tabs.Panel value="roles" pt="lg">
               <RoleList />
+            </Tabs.Panel>
+
+            <Tabs.Panel value="apitokens" pt="lg">
+              <ApiTokenList />
             </Tabs.Panel>
           </Tabs>
         </Paper>

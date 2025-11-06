@@ -11,10 +11,12 @@
   },
   "dependencies": {
     "@mantine/core": "^7.17.8",
+    "@mantine/dates": "^7.17.8",
     "@mantine/form": "^7.17.8",
     "@mantine/hooks": "^7.17.8",
     "@mantine/notifications": "^7.17.8",
     "@tabler/icons-react": "^3.35.0",
+    "dayjs": "^1.11.19",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
