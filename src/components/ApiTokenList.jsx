@@ -6,7 +6,7 @@ import { AuthContext } from '../context/AuthContext';
 import { getApiTokens, deleteApiToken } from '../services/apiTokenService';
 import ApiTokenFormModal from './ApiTokenFormModal';
 
-export default function ApiTokenList() {
+export default function ApiTokenList({ active }) {
   const { token } = useContext(AuthContext);
   const [apiTokens, setApiTokens] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -34,9 +34,12 @@ export default function ApiTokenList() {
     }
   };
 
+  // Lade Daten nur wenn Tab aktiv ist
   useEffect(() => {
-    loadApiTokens();
-  }, [token]);
+    if (active && token) {
+      loadApiTokens();
+    }
+  }, [active, token]);
 
   const handleDelete = async () => {
     try {

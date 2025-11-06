@@ -12,6 +12,7 @@ import {
   Center,
   Tabs,
 } from '@mantine/core';
+import { useState } from 'react';
 import { IconLogout, IconKey, IconUser, IconUsers, IconShieldLock, IconApiApp, IconShield } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
 import UserProfile from './UserProfile';
@@ -25,6 +26,7 @@ import JwtViewer from './JwtViewer';
 
 export default function Dashboard() {
   const { user, logout, loading, token } = useAuth();
+  const [activeTab, setActiveTab] = useState('profile');
 
   const handleProfileUpdate = () => {
     // User-Daten werden automatisch durch den AuthContext neu geladen
@@ -85,7 +87,7 @@ export default function Dashboard() {
             </Group>
           </Group>
 
-          <Tabs defaultValue="profile">
+          <Tabs value={activeTab} onChange={setActiveTab}>
             <Tabs.List>
               <Tabs.Tab value="profile" icon={<IconUser size={14} />}>
                 Mein Profil
@@ -127,24 +129,24 @@ export default function Dashboard() {
             </Tabs.Panel>
 
             <Tabs.Panel value="users" pt="lg">
-              <UserList />
+              <UserList active={activeTab === 'users'} />
             </Tabs.Panel>
 
             {hasRoleReadRight && (
               <Tabs.Panel value="roles" pt="lg">
-                <RoleList />
+                <RoleList active={activeTab === 'roles'} />
               </Tabs.Panel>
             )}
 
             {canManagePersonalTokens && (
               <Tabs.Panel value="apitokens" pt="lg">
-                <ApiTokenList />
+                <ApiTokenList active={activeTab === 'apitokens'} />
               </Tabs.Panel>
             )}
 
             {hasApiTokenAdminRight && (
               <Tabs.Panel value="apitokensadmin" pt="lg">
-                <ApiTokenAdminList />
+                <ApiTokenAdminList active={activeTab === 'apitokensadmin'} />
               </Tabs.Panel>
             )}
           </Tabs>

@@ -6,7 +6,7 @@ import { AuthContext } from '../context/AuthContext';
 import { getRoles, deleteRole } from '../services/roleService';
 import RoleFormModal from './RoleFormModal';
 
-export default function RoleList() {
+export default function RoleList({ active }) {
   const { token, user } = useContext(AuthContext);
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -45,9 +45,12 @@ export default function RoleList() {
     }
   };
 
+  // Lade Daten nur wenn Tab aktiv ist
   useEffect(() => {
-    loadRoles();
-  }, [token]);
+    if (active && token) {
+      loadRoles();
+    }
+  }, [active, token]);
 
   const handleDelete = async () => {
     try {

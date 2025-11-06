@@ -5,7 +5,7 @@ import { notifications } from '@mantine/notifications';
 import { AuthContext } from '../context/AuthContext';
 import { getAllApiTokensAdmin, deleteApiToken } from '../services/apiTokenService';
 
-export default function ApiTokenAdminList() {
+export default function ApiTokenAdminList({ active }) {
   const { token } = useContext(AuthContext);
   const [apiTokensByUser, setApiTokensByUser] = useState({});
   const [loading, setLoading] = useState(false);
@@ -29,9 +29,12 @@ export default function ApiTokenAdminList() {
     }
   };
 
+  // Lade Daten nur wenn Tab aktiv ist
   useEffect(() => {
-    loadApiTokens();
-  }, [token]);
+    if (active && token) {
+      loadApiTokens();
+    }
+  }, [active, token]);
 
   const handleDelete = async () => {
     try {

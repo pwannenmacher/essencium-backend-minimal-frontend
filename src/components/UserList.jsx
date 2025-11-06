@@ -32,7 +32,7 @@ import { getUsers, createUser, updateUser, deleteUser, terminateUserSessions } f
 import { getRoles } from '../services/roleService';
 import UserFormModal from './UserFormModal';
 
-export default function UserList() {
+export default function UserList({ active }) {
   const { token } = useAuth();
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
@@ -79,10 +79,13 @@ export default function UserList() {
     }
   };
 
+  // Lade Daten nur wenn Tab aktiv ist
   useEffect(() => {
-    fetchUsers(0);
-    fetchRoles();
-  }, [token]);
+    if (active && token) {
+      fetchUsers(0);
+      fetchRoles();
+    }
+  }, [active, token]);
 
   const fetchRoles = async () => {
     try {
