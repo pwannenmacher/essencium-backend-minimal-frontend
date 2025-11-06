@@ -20,6 +20,7 @@ import UserTokens from './UserTokens';
 import UserList from './UserList';
 import RoleList from './RoleList';
 import ApiTokenList from './ApiTokenList';
+import JwtViewer from './JwtViewer';
 
 export default function Dashboard() {
   const { user, logout, loading, token } = useAuth();
@@ -94,7 +95,7 @@ export default function Dashboard() {
                 {/* Rechte Spalte: Tokens und Info */}
                 <Stack spacing="lg">
                   <UserTokens />
-            
+                  <JwtViewer />
                 </Stack>
               </SimpleGrid>
             </Tabs.Panel>
