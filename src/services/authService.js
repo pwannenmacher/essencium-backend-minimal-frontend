@@ -9,6 +9,7 @@ export const login = async (username, password) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'User-Agent': navigator.userAgent || 'Mozilla/5.0',
       },
       credentials: 'include',
       body: JSON.stringify({
@@ -23,6 +24,10 @@ export const login = async (username, password) => {
     }
 
     const data = await response.json();
+    
+    // Debug: Prüfe ob Cookies gesetzt wurden
+    console.log('Login erfolgreich. Cookies:', document.cookie);
+    
     return data.token; // JWT Access Token
   } catch (error) {
     console.error('Login-Fehler:', error);
@@ -32,19 +37,26 @@ export const login = async (username, password) => {
 
 /**
  * Token erneuern mit Refresh Token aus HTTP-only Cookie
+ * Benötigt:
+ * - Refresh-Token (aus HTTP-only Cookie via credentials: 'include')
+ * - Aktuellen Access-Token (im Authorization Header)
+ * - User-Agent Header (required vom Backend)
  */
-export const renewToken = async () => {
+export const renewToken = async (currentToken) => {
   try {
     const response = await fetch(`${API_BASE_URL}/auth/renew`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${currentToken}`,
+        'User-Agent': navigator.userAgent || 'Mozilla/5.0',
       },
       credentials: 'include',
     });
 
     if (!response.ok) {
-      throw new Error('Token-Erneuerung fehlgeschlagen');
+      const errorText = await response.text();
+      throw new Error(errorText || 'Token-Erneuerung fehlgeschlagen');
     }
 
     const data = await response.json();

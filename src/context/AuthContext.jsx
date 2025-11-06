@@ -26,24 +26,70 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token]);
 
-  // Automatische Token-Erneuerung alle 14 Minuten (vor Ablauf des 15-Minuten-Tokens)
+  // Automatische Token-Erneuerung 20 Sekunden vor Ablauf (Token läuft nach 15 Minuten ab)
   useEffect(() => {
     if (!token) return;
 
-    const interval = setInterval(async () => {
+    // Parse JWT um Ablaufzeit zu ermitteln
+    const parseJwt = (token) => {
       try {
-        const newToken = await renewToken();
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(
+          atob(base64)
+            .split('')
+            .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('')
+        );
+        return JSON.parse(jsonPayload);
+      } catch (e) {
+        return null;
+      }
+    };
+
+    const payload = parseJwt(token);
+    if (!payload || !payload.exp) {
+      console.warn('Token hat keine Ablaufzeit');
+      return;
+    }
+
+    // Berechne wann der Token erneuert werden soll (20 Sekunden vor Ablauf)
+    const expirationTime = payload.exp * 1000; // in Millisekunden
+    const now = Date.now();
+    const renewTime = expirationTime - 20000; // 20 Sekunden vor Ablauf
+    const timeUntilRenew = renewTime - now;
+
+    if (timeUntilRenew <= 0) {
+      // Token ist bereits abgelaufen oder fast abgelaufen, sofort erneuern
+      const renewImmediately = async () => {
+        try {
+          const newToken = await renewToken(token);
+          setToken(newToken);
+          console.log('Token wurde sofort erneuert (war abgelaufen)');
+        } catch (error) {
+          console.error('Token-Erneuerung fehlgeschlagen:', error);
+          setToken(null);
+          setUser(null);
+        }
+      };
+      renewImmediately();
+      return;
+    }
+
+    // Setze Timer für automatische Erneuerung
+    const timeout = setTimeout(async () => {
+      try {
+        const newToken = await renewToken(token);
         setToken(newToken);
-        console.log('Token wurde erneuert');
+        console.log('Token wurde automatisch erneuert (20s vor Ablauf)');
       } catch (error) {
         console.error('Token-Erneuerung fehlgeschlagen:', error);
-        // Bei Fehler: Benutzer abmelden
         setToken(null);
         setUser(null);
       }
-    }, 14 * 60 * 1000); // 14 Minuten
+    }, timeUntilRenew);
 
-    return () => clearInterval(interval);
+    return () => clearTimeout(timeout);
   }, [token]);
 
   // User-Daten beim Token-Wechsel laden
