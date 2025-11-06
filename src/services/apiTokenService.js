@@ -166,3 +166,21 @@ export const deleteApiToken = async (token, id) => {
   // 204 No Content
   return;
 };
+
+/**
+ * GET /v1/api-tokens/all - Alle API-Tokens aller Nutzer abrufen (Admin)
+ * Gibt ein Object zurück mit User-Basic-Representation als Key und Array von Tokens als Value
+ */
+export const getAllApiTokensAdmin = async (token) => {
+  const response = await fetch(`${API_BASE_URL}/v1/api-tokens/all`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Fehler beim Laden der API-Tokens: ${response.status}`);
+  }
+
+  return response.json();
+};

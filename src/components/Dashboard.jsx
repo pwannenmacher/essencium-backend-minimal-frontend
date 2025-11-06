@@ -12,7 +12,7 @@ import {
   Center,
   Tabs,
 } from '@mantine/core';
-import { IconLogout, IconKey, IconUser, IconUsers, IconShieldLock, IconApiApp } from '@tabler/icons-react';
+import { IconLogout, IconKey, IconUser, IconUsers, IconShieldLock, IconApiApp, IconShield } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
 import UserProfile from './UserProfile';
 import UserRolesRights from './UserRolesRights';
@@ -20,6 +20,7 @@ import UserTokens from './UserTokens';
 import UserList from './UserList';
 import RoleList from './RoleList';
 import ApiTokenList from './ApiTokenList';
+import ApiTokenAdminList from './ApiTokenAdminList';
 import JwtViewer from './JwtViewer';
 
 export default function Dashboard() {
@@ -29,6 +30,11 @@ export default function Dashboard() {
     // User-Daten werden automatisch durch den AuthContext neu geladen
     window.location.reload();
   };
+
+  // Prüfe ob User das Recht API_TOKEN_ADMIN hat
+  const hasApiTokenAdminRight = user?.roles?.some(role => 
+    role.rights?.some(right => right.authority === 'API_TOKEN_ADMIN')
+  ) || false;
 
   if (!user && token) {
     return (
@@ -82,6 +88,11 @@ export default function Dashboard() {
               <Tabs.Tab value="apitokens" icon={<IconApiApp size={14} />}>
                 API-Tokens
               </Tabs.Tab>
+              {hasApiTokenAdminRight && (
+                <Tabs.Tab value="apitokensadmin" icon={<IconShield size={14} />}>
+                  API-Token Admin
+                </Tabs.Tab>
+              )}
             </Tabs.List>
 
             <Tabs.Panel value="profile" pt="lg">
@@ -111,6 +122,12 @@ export default function Dashboard() {
             <Tabs.Panel value="apitokens" pt="lg">
               <ApiTokenList />
             </Tabs.Panel>
+
+            {hasApiTokenAdminRight && (
+              <Tabs.Panel value="apitokensadmin" pt="lg">
+                <ApiTokenAdminList />
+              </Tabs.Panel>
+            )}
           </Tabs>
         </Paper>
       </Stack>
