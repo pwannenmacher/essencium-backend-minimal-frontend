@@ -1,28 +1,24 @@
 import { useEffect, useContext, useState } from 'react';
-import { Modal, TextInput, Button, Group, Checkbox, ScrollArea, Stack, Text } from '@mantine/core';
+import { Modal, TextInput, Button, Group, Checkbox, ScrollArea, Stack, Text, Alert } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
+import { IconAlertCircle } from '@tabler/icons-react';
 import { AuthContext } from '../context/AuthContext';
 import { createApiToken, updateApiToken } from '../services/apiTokenService';
 
-// Verfügbare Rechte für API-Tokens
-const AVAILABLE_RIGHTS = [
-  'USER_CREATE',
-  'USER_READ',
-  'USER_UPDATE',
-  'USER_DELETE',
-  'ROLE_CREATE',
-  'ROLE_READ',
-  'ROLE_UPDATE',
-  'ROLE_DELETE',
-  'RIGHT_READ',
-];
-
 export default function ApiTokenFormModal({ opened, onClose, apiToken }) {
-  const { token } = useContext(AuthContext);
+  const { token, user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const isEdit = !!apiToken;
+
+  // Verfügbare Rechte basierend auf den Rechten des aktuellen Users
+  const availableRights = user?.roles?.flatMap(role => 
+    role.rights?.map(right => right.authority) || []
+  ) || [];
+  
+  // Entferne Duplikate
+  const uniqueAvailableRights = [...new Set(availableRights)];
 
   const form = useForm({
     initialValues: {
@@ -109,7 +105,7 @@ export default function ApiTokenFormModal({ opened, onClose, apiToken }) {
   };
 
   const selectAllRights = () => {
-    form.setFieldValue('rights', [...AVAILABLE_RIGHTS]);
+    form.setFieldValue('rights', [...uniqueAvailableRights]);
   };
 
   const deselectAllRights = () => {
@@ -153,7 +149,7 @@ export default function ApiTokenFormModal({ opened, onClose, apiToken }) {
                 Rechte ({form.values.rights.length} ausgewählt)
               </Text>
               <Group gap="xs">
-                <Button size="xs" variant="light" onClick={selectAllRights}>
+                <Button size="xs" variant="light" onClick={selectAllRights} disabled={uniqueAvailableRights.length === 0}>
                   Alle auswählen
                 </Button>
                 <Button size="xs" variant="light" onClick={deselectAllRights}>
@@ -162,18 +158,24 @@ export default function ApiTokenFormModal({ opened, onClose, apiToken }) {
               </Group>
             </Group>
 
-            <ScrollArea h={250} style={{ border: '1px solid #dee2e6', borderRadius: 4, padding: 8 }}>
-              <Stack gap="xs">
-                {AVAILABLE_RIGHTS.map((right) => (
-                  <Checkbox
-                    key={right}
-                    label={right}
-                    checked={form.values.rights.includes(right)}
-                    onChange={() => toggleRight(right)}
-                  />
-                ))}
-              </Stack>
-            </ScrollArea>
+            {uniqueAvailableRights.length === 0 ? (
+              <Alert icon={<IconAlertCircle size={16} />} color="yellow" mb="md">
+                Sie haben keine Rechte, die Sie einem Token zuweisen können.
+              </Alert>
+            ) : (
+              <ScrollArea h={250} style={{ border: '1px solid #dee2e6', borderRadius: 4, padding: 8 }}>
+                <Stack gap="xs">
+                  {uniqueAvailableRights.map((right) => (
+                    <Checkbox
+                      key={right}
+                      label={right}
+                      checked={form.values.rights.includes(right)}
+                      onChange={() => toggleRight(right)}
+                    />
+                  ))}
+                </Stack>
+              </ScrollArea>
+            )}
           </div>
 
           {!isEdit && (

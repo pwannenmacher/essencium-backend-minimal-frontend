@@ -31,10 +31,17 @@ export default function Dashboard() {
     window.location.reload();
   };
 
-  // Prüfe ob User das Recht API_TOKEN_ADMIN hat
+  // Prüfe ob User die notwendigen Rechte hat
+  const hasApiTokenRight = user?.roles?.some(role => 
+    role.rights?.some(right => right.authority === 'API_TOKEN')
+  ) || false;
+  
   const hasApiTokenAdminRight = user?.roles?.some(role => 
     role.rights?.some(right => right.authority === 'API_TOKEN_ADMIN')
   ) || false;
+
+  // User mit API_TOKEN_ADMIN haben automatisch auch API_TOKEN Rechte
+  const canManagePersonalTokens = hasApiTokenRight || hasApiTokenAdminRight;
 
   if (!user && token) {
     return (
@@ -85,9 +92,11 @@ export default function Dashboard() {
               <Tabs.Tab value="roles" icon={<IconShieldLock size={14} />}>
                 Rollen-Verwaltung
               </Tabs.Tab>
-              <Tabs.Tab value="apitokens" icon={<IconApiApp size={14} />}>
-                API-Tokens
-              </Tabs.Tab>
+              {canManagePersonalTokens && (
+                <Tabs.Tab value="apitokens" icon={<IconApiApp size={14} />}>
+                  API-Tokens
+                </Tabs.Tab>
+              )}
               {hasApiTokenAdminRight && (
                 <Tabs.Tab value="apitokensadmin" icon={<IconShield size={14} />}>
                   API-Token Admin
@@ -119,9 +128,11 @@ export default function Dashboard() {
               <RoleList />
             </Tabs.Panel>
 
-            <Tabs.Panel value="apitokens" pt="lg">
-              <ApiTokenList />
-            </Tabs.Panel>
+            {canManagePersonalTokens && (
+              <Tabs.Panel value="apitokens" pt="lg">
+                <ApiTokenList />
+              </Tabs.Panel>
+            )}
 
             {hasApiTokenAdminRight && (
               <Tabs.Panel value="apitokensadmin" pt="lg">
