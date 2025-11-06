@@ -40,6 +40,10 @@ export default function Dashboard() {
     role.rights?.some(right => right.authority === 'API_TOKEN_ADMIN')
   ) || false;
 
+  const hasRoleReadRight = user?.roles?.some(role => 
+    role.rights?.some(right => right.authority === 'ROLE_READ')
+  ) || false;
+
   // User mit API_TOKEN_ADMIN haben automatisch auch API_TOKEN Rechte
   const canManagePersonalTokens = hasApiTokenRight || hasApiTokenAdminRight;
 
@@ -89,9 +93,11 @@ export default function Dashboard() {
               <Tabs.Tab value="users" icon={<IconUsers size={14} />}>
                 Alle Benutzer
               </Tabs.Tab>
-              <Tabs.Tab value="roles" icon={<IconShieldLock size={14} />}>
-                Rollen-Verwaltung
-              </Tabs.Tab>
+              {hasRoleReadRight && (
+                <Tabs.Tab value="roles" icon={<IconShieldLock size={14} />}>
+                  Rollen-Verwaltung
+                </Tabs.Tab>
+              )}
               {canManagePersonalTokens && (
                 <Tabs.Tab value="apitokens" icon={<IconApiApp size={14} />}>
                   API-Tokens
@@ -124,9 +130,11 @@ export default function Dashboard() {
               <UserList />
             </Tabs.Panel>
 
-            <Tabs.Panel value="roles" pt="lg">
-              <RoleList />
-            </Tabs.Panel>
+            {hasRoleReadRight && (
+              <Tabs.Panel value="roles" pt="lg">
+                <RoleList />
+              </Tabs.Panel>
+            )}
 
             {canManagePersonalTokens && (
               <Tabs.Panel value="apitokens" pt="lg">

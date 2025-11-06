@@ -1,26 +1,16 @@
 import { useEffect, useContext, useState } from 'react';
-import { Modal, TextInput, Textarea, Button, Group, Checkbox, ScrollArea, Stack, Text } from '@mantine/core';
+import { Modal, TextInput, Textarea, Button, Group, Checkbox, ScrollArea, Stack, Text, Alert, Loader } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
+import { IconAlertCircle } from '@tabler/icons-react';
 import { AuthContext } from '../context/AuthContext';
-import { createRole, updateRole } from '../services/roleService';
-
-// Verfügbare Rechte basierend auf der OpenAPI-Spezifikation
-const AVAILABLE_RIGHTS = [
-  'USER_CREATE',
-  'USER_READ',
-  'USER_UPDATE',
-  'USER_DELETE',
-  'ROLE_CREATE',
-  'ROLE_READ',
-  'ROLE_UPDATE',
-  'ROLE_DELETE',
-  'RIGHT_READ',
-];
+import { createRole, updateRole, getAllRights } from '../services/roleService';
 
 export default function RoleFormModal({ opened, onClose, role }) {
   const { token } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
+  const [availableRights, setAvailableRights] = useState([]);
+  const [loadingRights, setLoadingRights] = useState(false);
   const isEdit = !!role;
 
   const form = useForm({
@@ -34,6 +24,32 @@ export default function RoleFormModal({ opened, onClose, role }) {
       description: (value) => (!value ? 'Beschreibung ist erforderlich' : null),
     },
   });
+
+  // Lade alle verfügbaren Rechte vom Backend
+  useEffect(() => {
+    if (opened) {
+      loadRights();
+    }
+  }, [opened]);
+
+  const loadRights = async () => {
+    setLoadingRights(true);
+    try {
+      const response = await getAllRights(token, { size: 1000 });
+      const rights = response.content || [];
+      const rightAuthorities = rights.map(right => right.authority);
+      setAvailableRights(rightAuthorities);
+    } catch (error) {
+      notifications.show({
+        title: 'Fehler',
+        message: 'Rechte konnten nicht geladen werden',
+        color: 'red',
+      });
+      setAvailableRights([]);
+    } finally {
+      setLoadingRights(false);
+    }
+  };
 
   useEffect(() => {
     if (role) {
@@ -87,7 +103,7 @@ export default function RoleFormModal({ opened, onClose, role }) {
   };
 
   const selectAllRights = () => {
-    form.setFieldValue('rights', [...AVAILABLE_RIGHTS]);
+    form.setFieldValue('rights', [...availableRights]);
   };
 
   const deselectAllRights = () => {
@@ -125,7 +141,7 @@ export default function RoleFormModal({ opened, onClose, role }) {
                 Rechte ({form.values.rights.length} ausgewählt)
               </Text>
               <Group gap="xs">
-                <Button size="xs" variant="light" onClick={selectAllRights}>
+                <Button size="xs" variant="light" onClick={selectAllRights} disabled={loadingRights || availableRights.length === 0}>
                   Alle auswählen
                 </Button>
                 <Button size="xs" variant="light" onClick={deselectAllRights}>
@@ -134,18 +150,29 @@ export default function RoleFormModal({ opened, onClose, role }) {
               </Group>
             </Group>
 
-            <ScrollArea h={250} style={{ border: '1px solid #dee2e6', borderRadius: 4, padding: 8 }}>
-              <Stack gap="xs">
-                {AVAILABLE_RIGHTS.map((right) => (
-                  <Checkbox
-                    key={right}
-                    label={right}
-                    checked={form.values.rights.includes(right)}
-                    onChange={() => toggleRight(right)}
-                  />
-                ))}
-              </Stack>
-            </ScrollArea>
+            {loadingRights ? (
+              <Group justify="center" p="xl">
+                <Loader size="sm" />
+                <Text size="sm" c="dimmed">Lade Rechte...</Text>
+              </Group>
+            ) : availableRights.length === 0 ? (
+              <Alert icon={<IconAlertCircle size={16} />} color="yellow" mb="md">
+                Keine Rechte verfügbar.
+              </Alert>
+            ) : (
+              <ScrollArea h={250} style={{ border: '1px solid #dee2e6', borderRadius: 4, padding: 8 }}>
+                <Stack gap="xs">
+                  {availableRights.map((right) => (
+                    <Checkbox
+                      key={right}
+                      label={right}
+                      checked={form.values.rights.includes(right)}
+                      onChange={() => toggleRight(right)}
+                    />
+                  ))}
+                </Stack>
+              </ScrollArea>
+            )}
           </div>
 
           <Group justify="flex-end" mt="md">

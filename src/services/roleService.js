@@ -125,3 +125,29 @@ export const deleteRole = async (token, name) => {
   // 204 No Content
   return;
 };
+
+/**
+ * GET /v1/rights - Alle verfügbaren Rechte abrufen
+ */
+export const getAllRights = async (token, params = {}) => {
+  const queryParams = new URLSearchParams();
+  
+  if (params.page !== undefined) queryParams.append('page', params.page);
+  if (params.size !== undefined) queryParams.append('size', params.size);
+  if (params.sort) queryParams.append('sort', params.sort);
+  
+  const queryString = queryParams.toString();
+  const url = `${API_BASE_URL}/v1/rights${queryString ? `?${queryString}` : ''}`;
+
+  const response = await fetch(url, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Fehler beim Laden der Rechte: ${response.status}`);
+  }
+
+  return response.json();
+};

@@ -7,7 +7,7 @@ import { getRoles, deleteRole } from '../services/roleService';
 import RoleFormModal from './RoleFormModal';
 
 export default function RoleList() {
-  const { token } = useContext(AuthContext);
+  const { token, user } = useContext(AuthContext);
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchValue, setSearchValue] = useState('');
@@ -15,6 +15,19 @@ export default function RoleList() {
   const [roleToDelete, setRoleToDelete] = useState(null);
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [editRole, setEditRole] = useState(null);
+
+  // Prüfe Berechtigungen
+  const hasRoleCreateRight = user?.roles?.some(role => 
+    role.rights?.some(right => right.authority === 'ROLE_CREATE')
+  ) || false;
+
+  const hasRoleUpdateRight = user?.roles?.some(role => 
+    role.rights?.some(right => right.authority === 'ROLE_UPDATE')
+  ) || false;
+
+  const hasRoleDeleteRight = user?.roles?.some(role => 
+    role.rights?.some(right => right.authority === 'ROLE_DELETE')
+  ) || false;
 
   const loadRoles = async () => {
     setLoading(true);
@@ -93,33 +106,39 @@ export default function RoleList() {
         <Badge>{role.rights?.length || 0} Rechte</Badge>
       </Table.Td>
       <Table.Td>
-        <Menu shadow="md" width={200}>
-          <Menu.Target>
-            <ActionIcon variant="subtle">
-              <IconDots size={16} />
-            </ActionIcon>
-          </Menu.Target>
-          <Menu.Dropdown>
-            <Menu.Item
-              leftSection={<IconEdit size={14} />}
-              onClick={() => handleEdit(role)}
-              disabled={!role.editable}
-            >
-              Bearbeiten
-            </Menu.Item>
-            <Menu.Item
-              leftSection={<IconTrash size={14} />}
-              color="red"
-              onClick={() => {
-                setRoleToDelete(role);
-                setDeleteModalOpen(true);
-              }}
-              disabled={!role.editable}
-            >
-              Löschen
-            </Menu.Item>
-          </Menu.Dropdown>
-        </Menu>
+        {(hasRoleUpdateRight || hasRoleDeleteRight) && (
+          <Menu shadow="md" width={200}>
+            <Menu.Target>
+              <ActionIcon variant="subtle">
+                <IconDots size={16} />
+              </ActionIcon>
+            </Menu.Target>
+            <Menu.Dropdown>
+              {hasRoleUpdateRight && (
+                <Menu.Item
+                  leftSection={<IconEdit size={14} />}
+                  onClick={() => handleEdit(role)}
+                  disabled={!role.editable}
+                >
+                  Bearbeiten
+                </Menu.Item>
+              )}
+              {hasRoleDeleteRight && (
+                <Menu.Item
+                  leftSection={<IconTrash size={14} />}
+                  color="red"
+                  onClick={() => {
+                    setRoleToDelete(role);
+                    setDeleteModalOpen(true);
+                  }}
+                  disabled={!role.editable}
+                >
+                  Löschen
+                </Menu.Item>
+              )}
+            </Menu.Dropdown>
+          </Menu>
+        )}
       </Table.Td>
     </Table.Tr>
   ));
@@ -134,9 +153,11 @@ export default function RoleList() {
           onChange={(e) => setSearchValue(e.currentTarget.value)}
           style={{ width: 300 }}
         />
-        <Button leftSection={<IconPlus size={16} />} onClick={handleCreate}>
-          Neue Rolle
-        </Button>
+        {hasRoleCreateRight && (
+          <Button leftSection={<IconPlus size={16} />} onClick={handleCreate}>
+            Neue Rolle
+          </Button>
+        )}
       </Group>
 
       <Table striped highlightOnHover>
