@@ -1,22 +1,28 @@
 import { useState, useEffect, useContext } from 'react';
 import { Table, Button, TextInput, Group, Menu, ActionIcon, Text, Modal, Badge, Code, Box, Alert } from '@mantine/core';
-import { IconSearch, IconPlus, IconDots, IconEdit, IconTrash, IconKey, IconCopy, IconAlertCircle } from '@tabler/icons-react';
+import { IconSearch, IconPlus, IconDots, IconTrash, IconKey, IconCopy, IconAlertCircle, IconBan } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { AuthContext } from '../context/AuthContext';
-import { getApiTokens, deleteApiToken } from '../services/apiTokenService';
+import { getApiTokens, deleteApiToken, revokeApiToken } from '../services/apiTokenService';
 import ApiTokenFormModal from './ApiTokenFormModal';
 
 export default function ApiTokenList({ active }) {
-  const { token } = useContext(AuthContext);
+  const { token, user } = useContext(AuthContext);
   const [apiTokens, setApiTokens] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [revokeModalOpen, setRevokeModalOpen] = useState(false);
   const [tokenToDelete, setTokenToDelete] = useState(null);
+  const [tokenToRevoke, setTokenToRevoke] = useState(null);
   const [formModalOpen, setFormModalOpen] = useState(false);
-  const [editToken, setEditToken] = useState(null);
   const [showTokenModal, setShowTokenModal] = useState(false);
   const [newTokenData, setNewTokenData] = useState(null);
+
+  // Prüfe ob User API_TOKEN_ADMIN Recht hat
+  const hasApiTokenAdminRight = user?.roles?.some(role => 
+    role.rights?.some(right => right.authority === 'API_TOKEN_ADMIN')
+  );
 
   const loadApiTokens = async () => {
     setLoading(true);
@@ -62,19 +68,33 @@ export default function ApiTokenList({ active }) {
     }
   };
 
-  const handleEdit = (apiToken) => {
-    setEditToken(apiToken);
-    setFormModalOpen(true);
+  const handleRevoke = async () => {
+    try {
+      await revokeApiToken(token, tokenToRevoke.id);
+      notifications.show({
+        title: 'Erfolg',
+        message: 'API-Token wurde widerrufen',
+        color: 'green',
+      });
+      loadApiTokens();
+    } catch (error) {
+      notifications.show({
+        title: 'Fehler',
+        message: error.message || 'API-Token konnte nicht widerrufen werden',
+        color: 'red',
+      });
+    } finally {
+      setRevokeModalOpen(false);
+      setTokenToRevoke(null);
+    }
   };
 
   const handleCreate = () => {
-    setEditToken(null);
     setFormModalOpen(true);
   };
 
   const handleFormClose = (createdToken) => {
     setFormModalOpen(false);
-    setEditToken(null);
     loadApiTokens();
     
     // Wenn ein neuer Token erstellt wurde, zeige ihn an
@@ -98,26 +118,67 @@ export default function ApiTokenList({ active }) {
     return new Date(dateString).toLocaleDateString('de-DE');
   };
 
+  const formatDateTime = (dateString) => {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    return `${date.toLocaleDateString('de-DE')} ${date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}`;
+  };
+
   const isExpired = (validUntil) => {
     if (!validUntil) return false;
     return new Date(validUntil) < new Date();
   };
 
+  const getStatusBadge = (apiToken) => {
+    const status = apiToken.status;
+    
+    // Fallback wenn kein Status vorhanden ist
+    if (!status) {
+      if (isExpired(apiToken.validUntil)) {
+        return <Badge color="red">Abgelaufen ({formatDate(apiToken.validUntil)})</Badge>;
+      }
+      return <Badge color="green">Aktiv bis {formatDate(apiToken.validUntil)}</Badge>;
+    }
+    
+    switch (status) {
+      case 'ACTIVE':
+        if (isExpired(apiToken.validUntil)) {
+          return <Badge color="red">Abgelaufen ({formatDate(apiToken.validUntil)})</Badge>;
+        }
+        return <Badge color="green">Aktiv bis {formatDate(apiToken.validUntil)}</Badge>;
+      
+      case 'REVOKED':
+        return <Badge color="gray">Widerrufen ({formatDateTime(apiToken.updatedAt)})</Badge>;
+      
+      case 'REVOKED_ROLE_CHANGED':
+        return <Badge color="orange">Widerrufen (Rolle geändert, {formatDateTime(apiToken.updatedAt)})</Badge>;
+      
+      case 'REVOKED_RIGHTS_CHANGED':
+        return <Badge color="orange">Widerrufen (Rechte geändert, {formatDateTime(apiToken.updatedAt)})</Badge>;
+      
+      case 'REVOKED_USER_CHANGED':
+        return <Badge color="orange">Widerrufen (Nutzer geändert, {formatDateTime(apiToken.updatedAt)})</Badge>;
+      
+      case 'EXPIRED':
+        return <Badge color="red">Abgelaufen</Badge>;
+      
+      case 'USER_DELETED':
+        return <Badge color="red">Nutzer gelöscht</Badge>;
+      
+      default:
+        return <Badge color="gray">{status || 'Unbekannt'}</Badge>;
+    }
+  };
+
   const filteredTokens = apiTokens.filter(t => 
-    t.description?.toLowerCase().includes(searchValue.toLowerCase()) ||
-    t.createdBy?.toLowerCase().includes(searchValue.toLowerCase())
+    t.description?.toLowerCase().includes(searchValue.toLowerCase())
   );
 
   const rows = filteredTokens.map((apiToken) => (
     <Table.Tr key={apiToken.id}>
       <Table.Td>{apiToken.description}</Table.Td>
-      <Table.Td>{apiToken.createdBy || '-'}</Table.Td>
       <Table.Td>
-        {isExpired(apiToken.validUntil) ? (
-          <Badge color="red">Abgelaufen ({formatDate(apiToken.validUntil)})</Badge>
-        ) : (
-          <Badge color="green">Gültig bis {formatDate(apiToken.validUntil)}</Badge>
-        )}
+        {getStatusBadge(apiToken)}
       </Table.Td>
       <Table.Td>
         <Badge>{apiToken.rights?.length || 0} Rechte</Badge>
@@ -132,21 +193,28 @@ export default function ApiTokenList({ active }) {
           </Menu.Target>
           <Menu.Dropdown>
             <Menu.Item
-              leftSection={<IconEdit size={14} />}
-              onClick={() => handleEdit(apiToken)}
-            >
-              Bearbeiten
-            </Menu.Item>
-            <Menu.Item
-              leftSection={<IconTrash size={14} />}
-              color="red"
+              leftSection={<IconBan size={14} />}
+              color="orange"
               onClick={() => {
-                setTokenToDelete(apiToken);
-                setDeleteModalOpen(true);
+                setTokenToRevoke(apiToken);
+                setRevokeModalOpen(true);
               }}
+              disabled={apiToken.status !== 'ACTIVE'}
             >
-              Löschen
+              Widerrufen
             </Menu.Item>
+            {hasApiTokenAdminRight && (
+              <Menu.Item
+                leftSection={<IconTrash size={14} />}
+                color="red"
+                onClick={() => {
+                  setTokenToDelete(apiToken);
+                  setDeleteModalOpen(true);
+                }}
+              >
+                Löschen
+              </Menu.Item>
+            )}
           </Menu.Dropdown>
         </Menu>
       </Table.Td>
@@ -157,7 +225,7 @@ export default function ApiTokenList({ active }) {
     <>
       <Group justify="space-between" mb="md">
         <TextInput
-          placeholder="Suche nach Beschreibung oder Ersteller"
+          placeholder="Suche nach Beschreibung"
           leftSection={<IconSearch size={16} />}
           value={searchValue}
           onChange={(e) => setSearchValue(e.currentTarget.value)}
@@ -172,7 +240,6 @@ export default function ApiTokenList({ active }) {
         <Table.Thead>
           <Table.Tr>
             <Table.Th style={{ textAlign: 'left' }}>Beschreibung</Table.Th>
-            <Table.Th style={{ textAlign: 'left' }}>Erstellt von</Table.Th>
             <Table.Th style={{ textAlign: 'left' }}>Gültigkeit</Table.Th>
             <Table.Th style={{ textAlign: 'left' }}>Rechte</Table.Th>
             <Table.Th style={{ textAlign: 'left' }}>Erstellt am</Table.Th>
@@ -182,7 +249,7 @@ export default function ApiTokenList({ active }) {
         <Table.Tbody>
           {loading ? (
             <Table.Tr>
-              <Table.Td colSpan={6} style={{ textAlign: 'center' }}>
+              <Table.Td colSpan={5} style={{ textAlign: 'center' }}>
                 <Text>Lade...</Text>
               </Table.Td>
             </Table.Tr>
@@ -190,7 +257,7 @@ export default function ApiTokenList({ active }) {
             rows
           ) : (
             <Table.Tr>
-              <Table.Td colSpan={6} style={{ textAlign: 'center' }}>
+              <Table.Td colSpan={5} style={{ textAlign: 'center' }}>
                 <Text>Keine API-Tokens gefunden</Text>
               </Table.Td>
             </Table.Tr>
@@ -213,6 +280,25 @@ export default function ApiTokenList({ active }) {
           </Button>
           <Button color="red" onClick={handleDelete}>
             Löschen
+          </Button>
+        </Group>
+      </Modal>
+
+      {/* Revoke-Bestätigung */}
+      <Modal
+        opened={revokeModalOpen}
+        onClose={() => setRevokeModalOpen(false)}
+        title="API-Token widerrufen"
+      >
+        <Text mb="md">
+          Möchten Sie den API-Token "{tokenToRevoke?.description}" wirklich widerrufen? Diese Aktion kann nicht rückgängig gemacht werden.
+        </Text>
+        <Group justify="flex-end">
+          <Button variant="default" onClick={() => setRevokeModalOpen(false)}>
+            Abbrechen
+          </Button>
+          <Button color="orange" onClick={handleRevoke}>
+            Widerrufen
           </Button>
         </Group>
       </Modal>
@@ -265,7 +351,6 @@ export default function ApiTokenList({ active }) {
       <ApiTokenFormModal
         opened={formModalOpen}
         onClose={handleFormClose}
-        apiToken={editToken}
       />
     </>
   );

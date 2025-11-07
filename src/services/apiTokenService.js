@@ -127,7 +127,7 @@ export const updateApiToken = async (token, id, tokenData) => {
 
 /**
  * PATCH /v1/api-tokens/{id} - API-Token partiell aktualisieren
- * ID muss sowohl im Pfad als auch im Body mitgegeben werden
+ * Nur status kann gepatcht werden
  */
 export const patchApiToken = async (token, id, partialData) => {
   const response = await fetch(`${API_BASE_URL}/v1/api-tokens/${id}`, {
@@ -136,7 +136,7 @@ export const patchApiToken = async (token, id, partialData) => {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ ...partialData, id }),
+    body: JSON.stringify(partialData),
   });
 
   if (!response.ok) {
@@ -145,6 +145,13 @@ export const patchApiToken = async (token, id, partialData) => {
   }
 
   return response.json();
+};
+
+/**
+ * PATCH /v1/api-tokens/{id} - API-Token widerrufen (REVOKE)
+ */
+export const revokeApiToken = async (token, id) => {
+  return patchApiToken(token, id, { status: 'REVOKED' });
 };
 
 /**

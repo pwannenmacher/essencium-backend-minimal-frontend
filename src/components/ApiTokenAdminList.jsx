@@ -1,9 +1,9 @@
 import { useState, useEffect, useContext } from 'react';
 import { Table, TextInput, Group, Menu, ActionIcon, Text, Modal, Badge, Card, Stack, Button } from '@mantine/core';
-import { IconSearch, IconDots, IconTrash, IconUser } from '@tabler/icons-react';
+import { IconSearch, IconDots, IconTrash, IconUser, IconBan } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { AuthContext } from '../context/AuthContext';
-import { getAllApiTokensAdmin, deleteApiToken } from '../services/apiTokenService';
+import { getAllApiTokensAdmin, deleteApiToken, revokeApiToken } from '../services/apiTokenService';
 
 export default function ApiTokenAdminList({ active }) {
   const { token } = useContext(AuthContext);
@@ -11,7 +11,9 @@ export default function ApiTokenAdminList({ active }) {
   const [loading, setLoading] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [revokeModalOpen, setRevokeModalOpen] = useState(false);
   const [tokenToDelete, setTokenToDelete] = useState(null);
+  const [tokenToRevoke, setTokenToRevoke] = useState(null);
 
   const loadApiTokens = async () => {
     setLoading(true);
@@ -57,14 +59,82 @@ export default function ApiTokenAdminList({ active }) {
     }
   };
 
+  const handleRevoke = async () => {
+    try {
+      await revokeApiToken(token, tokenToRevoke.token.id);
+      notifications.show({
+        title: 'Erfolg',
+        message: 'API-Token wurde widerrufen',
+        color: 'green',
+      });
+      loadApiTokens();
+    } catch (error) {
+      notifications.show({
+        title: 'Fehler',
+        message: error.message || 'API-Token konnte nicht widerrufen werden',
+        color: 'red',
+      });
+    } finally {
+      setRevokeModalOpen(false);
+      setTokenToRevoke(null);
+    }
+  };
+
   const formatDate = (dateString) => {
     if (!dateString) return '-';
     return new Date(dateString).toLocaleDateString('de-DE');
   };
 
+  const formatDateTime = (dateString) => {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    return `${date.toLocaleDateString('de-DE')} ${date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}`;
+  };
+
   const isExpired = (validUntil) => {
     if (!validUntil) return false;
     return new Date(validUntil) < new Date();
+  };
+
+  const getStatusBadge = (apiToken) => {
+    const status = apiToken.status;
+    
+    // Fallback wenn kein Status vorhanden ist
+    if (!status) {
+      if (isExpired(apiToken.validUntil)) {
+        return <Badge color="red">Abgelaufen ({formatDate(apiToken.validUntil)})</Badge>;
+      }
+      return <Badge color="green">Aktiv bis {formatDate(apiToken.validUntil)}</Badge>;
+    }
+    
+    switch (status) {
+      case 'ACTIVE':
+        if (isExpired(apiToken.validUntil)) {
+          return <Badge color="red">Abgelaufen ({formatDate(apiToken.validUntil)})</Badge>;
+        }
+        return <Badge color="green">Aktiv bis {formatDate(apiToken.validUntil)}</Badge>;
+      
+      case 'REVOKED':
+        return <Badge color="gray">Widerrufen ({formatDateTime(apiToken.updatedAt)})</Badge>;
+      
+      case 'REVOKED_ROLE_CHANGED':
+        return <Badge color="orange">Widerrufen (Rolle geändert, {formatDateTime(apiToken.updatedAt)})</Badge>;
+      
+      case 'REVOKED_RIGHTS_CHANGED':
+        return <Badge color="orange">Widerrufen (Rechte geändert, {formatDateTime(apiToken.updatedAt)})</Badge>;
+      
+      case 'REVOKED_USER_CHANGED':
+        return <Badge color="orange">Widerrufen (Nutzer geändert, {formatDateTime(apiToken.updatedAt)})</Badge>;
+      
+      case 'EXPIRED':
+        return <Badge color="red">Abgelaufen</Badge>;
+      
+      case 'USER_DELETED':
+        return <Badge color="red">Nutzer gelöscht</Badge>;
+      
+      default:
+        return <Badge color="gray">{status || 'Unbekannt'}</Badge>;
+    }
   };
 
   // Filtere und flattene die Daten für die Tabelle
@@ -94,22 +164,17 @@ export default function ApiTokenAdminList({ active }) {
       <Table.Td>
         <Group gap="xs">
           <IconUser size={14} />
-          <Text size="sm">{row.userName}</Text>
+          <Text size="sm">{row.userName} ({row.token.createdBy || 'Unbekannt'})</Text>
         </Group>
       </Table.Td>
       <Table.Td>{row.token.description}</Table.Td>
       <Table.Td>
-        {isExpired(row.token.validUntil) ? (
-          <Badge color="red">Abgelaufen ({formatDate(row.token.validUntil)})</Badge>
-        ) : (
-          <Badge color="green">Gültig bis {formatDate(row.token.validUntil)}</Badge>
-        )}
+        {getStatusBadge(row.token)}
       </Table.Td>
       <Table.Td>
         <Badge>{row.token.rights?.length || 0} Rechte</Badge>
       </Table.Td>
       <Table.Td>{formatDate(row.token.createdAt)}</Table.Td>
-      <Table.Td>{row.token.createdBy || '-'}</Table.Td>
       <Table.Td>
         <Menu shadow="md" width={200}>
           <Menu.Target>
@@ -118,6 +183,17 @@ export default function ApiTokenAdminList({ active }) {
             </ActionIcon>
           </Menu.Target>
           <Menu.Dropdown>
+            <Menu.Item
+              leftSection={<IconBan size={14} />}
+              color="orange"
+              onClick={() => {
+                setTokenToRevoke(row);
+                setRevokeModalOpen(true);
+              }}
+              disabled={row.token.status !== 'ACTIVE'}
+            >
+              Widerrufen
+            </Menu.Item>
             <Menu.Item
               leftSection={<IconTrash size={14} />}
               color="red"
@@ -164,19 +240,18 @@ export default function ApiTokenAdminList({ active }) {
       <Table striped highlightOnHover>
         <Table.Thead>
           <Table.Tr>
-            <Table.Th style={{ textAlign: 'left' }}>Benutzer</Table.Th>
+            <Table.Th style={{ textAlign: 'left' }}>Benutzer (Benutzername)</Table.Th>
             <Table.Th style={{ textAlign: 'left' }}>Beschreibung</Table.Th>
             <Table.Th style={{ textAlign: 'left' }}>Gültigkeit</Table.Th>
             <Table.Th style={{ textAlign: 'left' }}>Rechte</Table.Th>
             <Table.Th style={{ textAlign: 'left' }}>Erstellt am</Table.Th>
-            <Table.Th style={{ textAlign: 'left' }}>Erstellt von</Table.Th>
             <Table.Th style={{ textAlign: 'left' }}>Aktionen</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
           {loading ? (
             <Table.Tr>
-              <Table.Td colSpan={7} style={{ textAlign: 'center' }}>
+              <Table.Td colSpan={6} style={{ textAlign: 'center' }}>
                 <Text>Lade...</Text>
               </Table.Td>
             </Table.Tr>
@@ -184,7 +259,7 @@ export default function ApiTokenAdminList({ active }) {
             rows
           ) : (
             <Table.Tr>
-              <Table.Td colSpan={7} style={{ textAlign: 'center' }}>
+              <Table.Td colSpan={6} style={{ textAlign: 'center' }}>
                 <Text>Keine API-Tokens gefunden</Text>
               </Table.Td>
             </Table.Tr>
@@ -207,6 +282,25 @@ export default function ApiTokenAdminList({ active }) {
           </Button>
           <Button color="red" onClick={handleDelete}>
             Löschen
+          </Button>
+        </Group>
+      </Modal>
+
+      {/* Revoke-Bestätigung */}
+      <Modal
+        opened={revokeModalOpen}
+        onClose={() => setRevokeModalOpen(false)}
+        title="API-Token widerrufen"
+      >
+        <Text mb="md">
+          Möchten Sie den API-Token "{tokenToRevoke?.token?.description}" von Benutzer "{tokenToRevoke?.userName}" wirklich widerrufen? Diese Aktion kann nicht rückgängig gemacht werden.
+        </Text>
+        <Group justify="flex-end">
+          <Button variant="default" onClick={() => setRevokeModalOpen(false)}>
+            Abbrechen
+          </Button>
+          <Button color="orange" onClick={handleRevoke}>
+            Widerrufen
           </Button>
         </Group>
       </Modal>

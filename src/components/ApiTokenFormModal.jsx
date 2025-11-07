@@ -5,12 +5,11 @@ import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { AuthContext } from '../context/AuthContext';
-import { createApiToken, updateApiToken } from '../services/apiTokenService';
+import { createApiToken } from '../services/apiTokenService';
 
-export default function ApiTokenFormModal({ opened, onClose, apiToken }) {
+export default function ApiTokenFormModal({ opened, onClose }) {
   const { token, user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
-  const isEdit = !!apiToken;
 
   // Verfügbare Rechte basierend auf den Rechten des aktuellen Users
   const availableRights = user?.roles?.flatMap(role => 
@@ -29,8 +28,9 @@ export default function ApiTokenFormModal({ opened, onClose, apiToken }) {
     validate: {
       description: (value) => (!value ? 'Beschreibung ist erforderlich' : null),
       validUntil: (value) => {
-        if (!value) return 'Gültigkeitsdatum ist erforderlich';
-        if (new Date(value) < new Date()) return 'Datum muss in der Zukunft liegen';
+        if (value && new Date(value) < new Date()) {
+          return 'Datum muss in der Zukunft liegen';
+        }
         return null;
       },
     },
@@ -38,20 +38,11 @@ export default function ApiTokenFormModal({ opened, onClose, apiToken }) {
 
   useEffect(() => {
     if (opened) {
-      // Reset loading state when modal opens
+      // Reset form and loading state when modal opens
       setLoading(false);
-      
-      if (apiToken) {
-        form.setValues({
-          description: apiToken.description || '',
-          validUntil: apiToken.validUntil ? new Date(apiToken.validUntil) : null,
-          rights: apiToken.rights?.map(r => r.authority || r) || [],
-        });
-      } else {
-        form.reset();
-      }
+      form.reset();
     }
-  }, [apiToken, opened]);
+  }, [opened]);
 
   const handleSubmit = async (values) => {
     setLoading(true);
@@ -62,22 +53,12 @@ export default function ApiTokenFormModal({ opened, onClose, apiToken }) {
         validUntil: values.validUntil ? values.validUntil.toISOString().split('T')[0] : null,
       };
 
-      let result;
-      if (isEdit) {
-        result = await updateApiToken(token, apiToken.id, formattedData);
-        notifications.show({
-          title: 'Erfolg',
-          message: 'API-Token wurde aktualisiert',
-          color: 'green',
-        });
-      } else {
-        result = await createApiToken(token, formattedData);
-        notifications.show({
-          title: 'Erfolg',
-          message: 'API-Token wurde erstellt',
-          color: 'green',
-        });
-      }
+      const result = await createApiToken(token, formattedData);
+      notifications.show({
+        title: 'Erfolg',
+        message: 'API-Token wurde erstellt',
+        color: 'green',
+      });
       
       // Reset loading state and form before closing
       setLoading(false);
@@ -88,7 +69,7 @@ export default function ApiTokenFormModal({ opened, onClose, apiToken }) {
     } catch (error) {
       notifications.show({
         title: 'Fehler',
-        message: error.message || 'API-Token konnte nicht gespeichert werden',
+        message: error.message || 'API-Token konnte nicht erstellt werden',
         color: 'red',
       });
       setLoading(false);
@@ -122,7 +103,7 @@ export default function ApiTokenFormModal({ opened, onClose, apiToken }) {
     <Modal
       opened={opened}
       onClose={handleClose}
-      title={isEdit ? 'API-Token bearbeiten' : 'Neuer API-Token'}
+      title="Neuer API-Token"
       size="lg"
     >
       <form onSubmit={form.onSubmit(handleSubmit)}>
@@ -136,10 +117,11 @@ export default function ApiTokenFormModal({ opened, onClose, apiToken }) {
 
           <DateInput
             label="Gültig bis"
-            placeholder="Datum auswählen"
-            required
+            placeholder="Datum auswählen (optional)"
+            description="Ohne Angabe wird eine variable Default-Laufzeit vergeben (siehe Backend-Konfiguration)"
             minDate={new Date()}
             valueFormat="DD.MM.YYYY"
+            clearable
             {...form.getInputProps('validUntil')}
           />
 
@@ -178,18 +160,16 @@ export default function ApiTokenFormModal({ opened, onClose, apiToken }) {
             )}
           </div>
 
-          {!isEdit && (
-            <Text size="sm" c="dimmed">
-              Hinweis: Der generierte Token wird nur einmal angezeigt. Speichern Sie ihn an einem sicheren Ort!
-            </Text>
-          )}
+          <Text size="sm" c="dimmed">
+            Hinweis: Der generierte Token wird nur einmal angezeigt. Speichern Sie ihn an einem sicheren Ort!
+          </Text>
 
           <Group justify="flex-end" mt="md">
             <Button variant="default" onClick={handleClose}>
               Abbrechen
             </Button>
             <Button type="submit" loading={loading}>
-              {isEdit ? 'Aktualisieren' : 'Erstellen'}
+              Erstellen
             </Button>
           </Group>
         </Stack>
