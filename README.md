@@ -11,6 +11,7 @@ Diese SPA bietet eine vollständige Verwaltungsoberfläche für User, Rollen, Re
 - **Rollen & Rechte**: Verwaltung von Rollen mit granularen Berechtigungen
 - **API-Tokens**: Erstellen und Widerrufen von API-Tokens (eigene + Admin-Ansicht)
 - **Sessions**: Übersicht über aktive Refresh-Tokens mit Markierung der aktuellen Session
+- **Session-Token Admin**: Admin-Ansicht aller Session-Tokens aller Benutzer mit Löschfunktion (erfordert `SESSION_TOKEN_ADMIN` Recht)
 - **JWT-Viewer**: Live-Anzeige des aktuellen Access-Tokens mit Payload-Dekodierung
 
 Die UI passt sich automatisch an die Berechtigungen des angemeldeten Users an. Tabs und Aktionen werden nur angezeigt, wenn die entsprechenden Rechte vorhanden sind.

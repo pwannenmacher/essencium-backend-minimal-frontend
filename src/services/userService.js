@@ -304,3 +304,32 @@ export const terminateUserSessions = async (token, id) => {
   // 204 No Content
   return;
 };
+
+/**
+ * GET /v1/users/token - Alle User mit ihren Tokens abrufen (Admin)
+ * Erfordert SESSION_TOKEN_ADMIN Recht
+ */
+export const getAllUsersWithTokens = async (token) => {
+  return authenticatedFetch(`${API_BASE_URL}/v1/users/token`, token);
+};
+
+/**
+ * DELETE /v1/users/{id}/token/{tokenId} - Einzelnen Token eines Users löschen (Admin)
+ * Erfordert SESSION_TOKEN_ADMIN Recht
+ */
+export const deleteUserToken = async (token, userId, tokenId) => {
+  const response = await fetch(`${API_BASE_URL}/v1/users/${userId}/token/${tokenId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(error || `Token-Löschung fehlgeschlagen: ${response.status}`);
+  }
+
+  // 204 No Content
+  return;
+};

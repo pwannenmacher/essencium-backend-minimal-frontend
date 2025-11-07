@@ -13,7 +13,7 @@ import {
   Tabs,
 } from '@mantine/core';
 import { useState } from 'react';
-import { IconLogout, IconKey, IconUser, IconUsers, IconShieldLock, IconApiApp, IconShield } from '@tabler/icons-react';
+import { IconLogout, IconKey, IconUser, IconUsers, IconShieldLock, IconApiApp, IconShield, IconDeviceDesktop } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
 import ThemeToggle from './ThemeToggle';
 import UserProfile from './UserProfile';
@@ -23,6 +23,7 @@ import UserList from './UserList';
 import RoleList from './RoleList';
 import ApiTokenList from './ApiTokenList';
 import ApiTokenAdminList from './ApiTokenAdminList';
+import SessionTokenAdminList from './SessionTokenAdminList';
 import JwtViewer from './JwtViewer';
 
 export default function Dashboard() {
@@ -45,6 +46,10 @@ export default function Dashboard() {
 
   const hasRoleReadRight = user?.roles?.some(role => 
     role.rights?.some(right => right.authority === 'ROLE_READ')
+  ) || false;
+
+  const hasSessionTokenAdminRight = user?.roles?.some(role => 
+    role.rights?.some(right => right.authority === 'SESSION_TOKEN_ADMIN')
   ) || false;
 
   // User mit API_TOKEN_ADMIN haben automatisch auch API_TOKEN Rechte
@@ -112,6 +117,11 @@ export default function Dashboard() {
                   API-Token Admin
                 </Tabs.Tab>
               )}
+              {hasSessionTokenAdminRight && (
+                <Tabs.Tab value="sessiontokensadmin" icon={<IconDeviceDesktop size={14} />}>
+                  Session-Token Admin
+                </Tabs.Tab>
+              )}
             </Tabs.List>
 
             <Tabs.Panel value="profile" pt="lg">
@@ -149,6 +159,12 @@ export default function Dashboard() {
             {hasApiTokenAdminRight && (
               <Tabs.Panel value="apitokensadmin" pt="lg">
                 <ApiTokenAdminList active={activeTab === 'apitokensadmin'} />
+              </Tabs.Panel>
+            )}
+
+            {hasSessionTokenAdminRight && (
+              <Tabs.Panel value="sessiontokensadmin" pt="lg">
+                <SessionTokenAdminList active={activeTab === 'sessiontokensadmin'} />
               </Tabs.Panel>
             )}
           </Tabs>
