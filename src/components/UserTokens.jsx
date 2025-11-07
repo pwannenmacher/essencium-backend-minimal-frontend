@@ -137,8 +137,7 @@ export default function UserTokens() {
                 withBorder 
                 padding="sm" 
                 radius="sm" 
-                bg={isCurrentSession ? "blue.0" : "gray.0"}
-                style={isCurrentSession ? { borderColor: '#228be6', borderWidth: '2px' } : {}}
+                style={isCurrentSession ? { borderColor: 'var(--mantine-color-blue-6)', borderWidth: '2px' } : {}}
               >
                 <Group position="apart" align="flex-start">
                   <Stack spacing="xs" style={{ flex: 1 }}>

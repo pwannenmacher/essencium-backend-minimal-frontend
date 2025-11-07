@@ -15,6 +15,7 @@ import {
 import { useState } from 'react';
 import { IconLogout, IconKey, IconUser, IconUsers, IconShieldLock, IconApiApp, IconShield } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
+import ThemeToggle from './ThemeToggle';
 import UserProfile from './UserProfile';
 import UserRolesRights from './UserRolesRights';
 import UserTokens from './UserTokens';
@@ -71,6 +72,7 @@ export default function Dashboard() {
           <Group position="apart" mb="lg">
             <Title order={2}>Dashboard</Title>
             <Group spacing="sm">
+              <ThemeToggle />
               <Badge color="green" size="lg">
                 Angemeldet
               </Badge>

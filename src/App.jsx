@@ -2,6 +2,7 @@ import { MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { DatesProvider } from '@mantine/dates';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 
@@ -20,13 +21,15 @@ function AppContent() {
 
 function App() {
   return (
-    <MantineProvider defaultColorScheme="light">
-      <DatesProvider settings={{ locale: 'de' }}>
-        <Notifications position="top-right" />
-        <AuthProvider>
-          <AppContent />
-        </AuthProvider>
-      </DatesProvider>
+    <MantineProvider defaultColorScheme="auto">
+      <ThemeProvider>
+        <DatesProvider settings={{ locale: 'de' }}>
+          <Notifications position="top-right" />
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
+        </DatesProvider>
+      </ThemeProvider>
     </MantineProvider>
   );
 }
