@@ -5,11 +5,13 @@ import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { AuthContext } from '../context/AuthContext';
-import { createApiToken } from '../services/apiTokenService';
+import { createApiToken, getTokenExpirationInfo } from '../services/apiTokenService';
 
 export default function ApiTokenFormModal({ opened, onClose }) {
   const { token, user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
+  const [expirationInfo, setExpirationInfo] = useState(null);
+  const [loadingExpiration, setLoadingExpiration] = useState(false);
 
   // Verfügbare Rechte basierend auf den Rechten des aktuellen Users
   const availableRights = user?.roles?.flatMap(role => 
@@ -41,8 +43,44 @@ export default function ApiTokenFormModal({ opened, onClose }) {
       // Reset form and loading state when modal opens
       setLoading(false);
       form.reset();
+      
+      // Lade Token-Expiration-Info
+      const fetchExpirationInfo = async () => {
+        setLoadingExpiration(true);
+        try {
+          const info = await getTokenExpirationInfo(token);
+          setExpirationInfo(info);
+        } catch (error) {
+          console.error('Fehler beim Laden der Token-Expiration-Info:', error);
+          setExpirationInfo(null);
+        } finally {
+          setLoadingExpiration(false);
+        }
+      };
+      
+      fetchExpirationInfo();
     }
-  }, [opened]);
+  }, [opened, token]);
+
+  // Hilfsfunktion zum Formatieren der Sekunden in eine lesbare Einheit
+  const formatDuration = (seconds) => {
+    if (!seconds) return null;
+    
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    
+    const parts = [];
+    if (days > 0) parts.push(`${days} Tag${days !== 1 ? 'e' : ''}`);
+    if (hours > 0) parts.push(`${hours} Stunde${hours !== 1 ? 'n' : ''}`);
+    if (minutes > 0) parts.push(`${minutes} Minute${minutes !== 1 ? 'n' : ''}`);
+    
+    if (parts.length === 0) {
+      return `${seconds} Sekunde${seconds !== 1 ? 'n' : ''}`;
+    }
+    
+    return parts.join(', ');
+  };
 
   const handleSubmit = async (values) => {
     setLoading(true);
@@ -118,7 +156,13 @@ export default function ApiTokenFormModal({ opened, onClose }) {
           <DateInput
             label="Gültig bis"
             placeholder="Datum auswählen (optional)"
-            description="Ohne Angabe wird eine variable Default-Laufzeit vergeben (siehe Backend-Konfiguration)"
+            description={
+              loadingExpiration 
+                ? 'Lade Default-Laufzeit...' 
+                : expirationInfo 
+                  ? `Ohne Angabe wird der Token für ${formatDuration(expirationInfo)} gültig sein`
+                  : 'Ohne Angabe wird eine variable Default-Laufzeit vergeben'
+            }
             minDate={new Date()}
             valueFormat="DD.MM.YYYY"
             clearable

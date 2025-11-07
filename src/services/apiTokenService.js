@@ -191,3 +191,20 @@ export const getAllApiTokensAdmin = async (token) => {
 
   return response.json();
 };
+
+/**
+ * GET /v1/api-tokens/token-expiration-info - Token-Ablaufzeit in Sekunden abrufen
+ */
+export const getTokenExpirationInfo = async (token) => {
+  const response = await fetch(`${API_BASE_URL}/v1/api-tokens/token-expiration-info`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Fehler beim Laden der Token-Expiration-Info: ${response.status}`);
+  }
+
+  return response.json();
+};
