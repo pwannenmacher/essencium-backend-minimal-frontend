@@ -148,6 +148,18 @@ export const AuthProvider = ({ children }) => {
     // User-Daten werden automatisch durch useEffect geladen
   };
 
+  const hasPermission = (permission) => {
+    if (!user || !user.roles) return false;
+    return user.roles.some(role => 
+      role.rights && role.rights.includes(permission)
+    );
+  };
+
+  const hasRole = (roleName) => {
+    if (!user || !user.roles) return false;
+    return user.roles.some(role => role.name === roleName);
+  };
+
   const value = {
     token,
     user,
@@ -156,6 +168,8 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     loginWithToken,
+    hasPermission,
+    hasRole,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
