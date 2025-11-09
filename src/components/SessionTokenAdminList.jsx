@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import { Table, TextInput, Group, Menu, ActionIcon, Text, Modal, Badge, Card, Stack, Button } from '@mantine/core';
 import { IconSearch, IconDots, IconTrash, IconUser, IconClock } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
@@ -13,7 +13,7 @@ export default function SessionTokenAdminList({ active }) {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [tokenToDelete, setTokenToDelete] = useState(null);
 
-  const loadSessionTokens = async () => {
+  const loadSessionTokens = useCallback(async () => {
     setLoading(true);
     try {
       const response = await getAllUsersWithTokens(token);
@@ -29,14 +29,14 @@ export default function SessionTokenAdminList({ active }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   // Lade Daten nur wenn Tab aktiv ist
   useEffect(() => {
     if (active && token) {
       loadSessionTokens();
     }
-  }, [active, token]);
+  }, [active, token, loadSessionTokens]);
 
   const handleDelete = async () => {
     try {
@@ -57,11 +57,6 @@ export default function SessionTokenAdminList({ active }) {
       setDeleteModalOpen(false);
       setTokenToDelete(null);
     }
-  };
-
-  const formatDate = (dateString) => {
-    if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('de-DE');
   };
 
   const formatDateTime = (dateString) => {

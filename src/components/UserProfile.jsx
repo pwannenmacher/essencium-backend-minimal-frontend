@@ -26,7 +26,7 @@ export default function UserProfile({ user, onUpdate }) {
               )}
               <Button
                 size="xs"
-                leftIcon={<IconEdit size={14} />}
+                leftSection={<IconEdit size={14} />}
                 variant="light"
                 onClick={() => setEditModalOpened(true)}
               >

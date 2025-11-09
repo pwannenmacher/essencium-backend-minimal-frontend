@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, Text, Stack, Title, Badge, Group, Loader, Alert, Button, ActionIcon, Tooltip, Modal } from '@mantine/core';
 import { IconClock, IconAlertCircle, IconTrash, IconCircleCheck } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
@@ -27,7 +27,7 @@ export default function UserTokens() {
           .join('')
       );
       return JSON.parse(jsonPayload);
-    } catch (e) {
+    } catch {
       return null;
     }
   };
@@ -41,7 +41,7 @@ export default function UserTokens() {
     }
   }, [token]);
 
-  const fetchTokens = async () => {
+  const fetchTokens = useCallback(async () => {
     if (!token) return;
 
     setLoading(true);
@@ -56,11 +56,11 @@ export default function UserTokens() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     fetchTokens();
-  }, [token]);
+  }, [token, fetchTokens]);
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';

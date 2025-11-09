@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import { Table, Button, TextInput, Group, Menu, ActionIcon, Text, Modal, Badge } from '@mantine/core';
 import { IconSearch, IconPlus, IconDots, IconEdit, IconTrash } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
@@ -29,12 +29,12 @@ export default function RoleList({ active }) {
     role.rights?.some(right => right.authority === 'ROLE_DELETE')
   ) || false;
 
-  const loadRoles = async () => {
+  const loadRoles = useCallback(async () => {
     setLoading(true);
     try {
       const response = await getRoles(token, { size: 100 });
       setRoles(response.content || []);
-    } catch (error) {
+    } catch {
       notifications.show({
         title: 'Fehler',
         message: 'Rollen konnten nicht geladen werden',
@@ -43,14 +43,14 @@ export default function RoleList({ active }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   // Lade Daten nur wenn Tab aktiv ist
   useEffect(() => {
     if (active && token) {
       loadRoles();
     }
-  }, [active, token]);
+  }, [active, token, loadRoles]);
 
   const handleDelete = async () => {
     try {

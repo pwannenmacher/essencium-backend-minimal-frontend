@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Card,
   Table,
@@ -49,7 +49,7 @@ export default function UserList({ active }) {
   const [deleteModalOpened, setDeleteModalOpened] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
 
-  const fetchUsers = async (pageNum = page) => {
+  const fetchUsers = useCallback(async (pageNum = page) => {
     if (!token) return;
 
     setLoading(true);
@@ -77,7 +77,16 @@ export default function UserList({ active }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, page, searchEmail, searchName]);
+
+  const fetchRoles = useCallback(async () => {
+    try {
+      const data = await getRoles(token, { size: 100 });
+      setRoles(data.content || []);
+    } catch (err) {
+      console.error('Fehler beim Laden der Rollen:', err);
+    }
+  }, [token]);
 
   // Lade Daten nur wenn Tab aktiv ist
   useEffect(() => {
@@ -85,16 +94,7 @@ export default function UserList({ active }) {
       fetchUsers(0);
       fetchRoles();
     }
-  }, [active, token]);
-
-  const fetchRoles = async () => {
-    try {
-      const data = await getRoles(token, { size: 100 });
-      setRoles(data.content || []);
-    } catch (err) {
-      console.error('Fehler beim Laden der Rollen:', err);
-    }
-  };
+  }, [active, token, fetchUsers, fetchRoles]);
 
   const handleSearch = () => {
     fetchUsers(0);
@@ -161,27 +161,23 @@ export default function UserList({ active }) {
   };
 
   const handleFormSubmit = async (userData) => {
-    try {
-      if (modalMode === 'create') {
-        await createUser(token, userData);
-        notifications.show({
-          title: 'Erfolg',
-          message: 'Benutzer wurde erstellt',
-          color: 'green',
-        });
-      } else {
-        await updateUser(token, selectedUser.id, userData);
-        notifications.show({
-          title: 'Erfolg',
-          message: 'Benutzer wurde aktualisiert',
-          color: 'green',
-        });
-      }
-      fetchUsers(page);
-      setModalOpened(false);
-    } catch (err) {
-      throw err; // Wird vom Modal behandelt
+    if (modalMode === 'create') {
+      await createUser(token, userData);
+      notifications.show({
+        title: 'Erfolg',
+        message: 'Benutzer wurde erstellt',
+        color: 'green',
+      });
+    } else {
+      await updateUser(token, selectedUser.id, userData);
+      notifications.show({
+        title: 'Erfolg',
+        message: 'Benutzer wurde aktualisiert',
+        color: 'green',
+      });
     }
+    fetchUsers(page);
+    setModalOpened(false);
   };
 
   if (loading && users.length === 0) {
@@ -216,7 +212,7 @@ export default function UserList({ active }) {
               <ActionIcon onClick={() => fetchUsers(page)} loading={loading}>
                 <IconRefresh size={16} />
               </ActionIcon>
-              <Button leftIcon={<IconPlus size={16} />} onClick={handleCreateUser}>
+              <Button leftSection={<IconPlus size={16} />} onClick={handleCreateUser}>
                 Neuer Benutzer
               </Button>
             </Group>

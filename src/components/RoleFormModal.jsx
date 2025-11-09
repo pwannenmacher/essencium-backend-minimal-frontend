@@ -1,4 +1,4 @@
-import { useEffect, useContext, useState } from 'react';
+import { useEffect, useContext, useState, useCallback } from 'react';
 import { Modal, TextInput, Textarea, Button, Group, Checkbox, ScrollArea, Stack, Text, Alert, Loader } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
@@ -25,21 +25,14 @@ export default function RoleFormModal({ opened, onClose, role }) {
     },
   });
 
-  // Lade alle verfügbaren Rechte vom Backend
-  useEffect(() => {
-    if (opened) {
-      loadRights();
-    }
-  }, [opened]);
-
-  const loadRights = async () => {
+  const loadRights = useCallback(async () => {
     setLoadingRights(true);
     try {
       const response = await getAllRights(token, { size: 1000 });
       const rights = response.content || [];
       const rightAuthorities = rights.map(right => right.authority);
       setAvailableRights(rightAuthorities);
-    } catch (error) {
+    } catch {
       notifications.show({
         title: 'Fehler',
         message: 'Rechte konnten nicht geladen werden',
@@ -49,7 +42,14 @@ export default function RoleFormModal({ opened, onClose, role }) {
     } finally {
       setLoadingRights(false);
     }
-  };
+  }, [token]);
+
+  // Lade alle verfügbaren Rechte vom Backend
+  useEffect(() => {
+    if (opened) {
+      loadRights();
+    }
+  }, [opened, loadRights]);
 
   useEffect(() => {
     if (role) {
@@ -61,7 +61,7 @@ export default function RoleFormModal({ opened, onClose, role }) {
     } else {
       form.reset();
     }
-  }, [role]);
+  }, [role]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSubmit = async (values) => {
     setLoading(true);
