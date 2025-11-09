@@ -66,7 +66,7 @@ export default function UserFormModal({ opened, onClose, onSubmit, user, roles, 
     } else if (mode === 'create') {
       form.reset();
     }
-  }, [user, mode, opened]);
+  }, [user, mode, opened]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSubmit = async (values) => {
     setLoading(true);

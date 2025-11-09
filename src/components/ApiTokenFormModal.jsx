@@ -60,7 +60,7 @@ export default function ApiTokenFormModal({ opened, onClose }) {
       
       fetchExpirationInfo();
     }
-  }, [opened, token]);
+  }, [opened, token]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Hilfsfunktion zum Formatieren der Sekunden in eine lesbare Einheit
   const formatDuration = (seconds) => {
@@ -85,10 +85,10 @@ export default function ApiTokenFormModal({ opened, onClose }) {
   const handleSubmit = async (values) => {
     setLoading(true);
     try {
-      // Formatiere das Datum als ISO-String (nur Datum, keine Zeit)
+      // In Mantine v8 liefert DateInput bereits einen String im Format YYYY-MM-DD
       const formattedData = {
         ...values,
-        validUntil: values.validUntil ? values.validUntil.toISOString().split('T')[0] : null,
+        validUntil: values.validUntil || null,
       };
 
       const result = await createApiToken(token, formattedData);

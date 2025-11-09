@@ -1,10 +1,19 @@
 import { Card, Text, Stack, Code, Box, Group, Badge, Divider } from '@mantine/core';
 import { IconKey, IconClock, IconUser } from '@tabler/icons-react';
-import { useContext } from 'react';
+import { useContext, useMemo, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 
 export default function JwtViewer() {
   const { token } = useContext(AuthContext);
+  const [currentTime, setCurrentTime] = useState(() => Date.now());
+
+  // Update current time every second for countdown
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const decodeJwt = (jwt) => {
     if (!jwt) return null;
@@ -29,20 +38,24 @@ export default function JwtViewer() {
     return date.toLocaleString('de-DE');
   };
 
-  const isExpired = (exp) => {
-    if (!exp) return false;
-    return Date.now() >= exp * 1000;
-  };
-
-  const getTimeRemaining = (exp) => {
-    if (!exp) return '-';
-    const remaining = exp * 1000 - Date.now();
-    if (remaining <= 0) return 'Abgelaufen';
+  const decoded = useMemo(() => decodeJwt(token), [token]);
+  
+  const tokenStatus = useMemo(() => {
+    if (!decoded?.payload?.exp) return { expired: false, timeRemaining: '-' };
     
+    const expTime = decoded.payload.exp * 1000;
+    const expired = currentTime >= expTime;
+    
+    if (expired) {
+      return { expired: true, timeRemaining: 'Abgelaufen' };
+    }
+    
+    const remaining = expTime - currentTime;
     const minutes = Math.floor(remaining / 60000);
     const seconds = Math.floor((remaining % 60000) / 1000);
-    return `${minutes}m ${seconds}s`;
-  };
+    
+    return { expired: false, timeRemaining: `${minutes}m ${seconds}s` };
+  }, [decoded, currentTime]);
 
   if (!token) {
     return (
@@ -57,8 +70,6 @@ export default function JwtViewer() {
       </Card>
     );
   }
-
-  const decoded = decodeJwt(token);
 
   if (!decoded) {
     return (
@@ -75,7 +86,7 @@ export default function JwtViewer() {
   }
 
   const { header, payload, signature } = decoded;
-  const expired = isExpired(payload.exp);
+  const { expired, timeRemaining } = tokenStatus;
 
   return (
     <Card withBorder padding="lg" radius="md">
@@ -131,7 +142,7 @@ export default function JwtViewer() {
                 <Text size="xs">{formatDate(payload.exp)}</Text>
                 {!expired && (
                   <Badge size="xs" color="orange">
-                    {getTimeRemaining(payload.exp)}
+                    {timeRemaining}
                   </Badge>
                 )}
               </Group>

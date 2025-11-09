@@ -84,8 +84,8 @@ export default function Login() {
     const backendUrl = 'http://localhost:8098';
     const fullUrl = `${backendUrl}${providerUrl}?redirect_uri=${encodeURIComponent(redirectUri)}`;
     
-    // Weiterleitung zum OAuth-Provider
-    window.location.href = fullUrl;
+    // Weiterleitung zum OAuth-Provider - wird in einem Event-Handler aufgerufen
+    window.location.assign(fullUrl);
   };
 
   return (

@@ -82,7 +82,7 @@ export default function Dashboard() {
                 Angemeldet
               </Badge>
               <Button
-                leftIcon={<IconLogout size={18} />}
+                leftSection={<IconLogout size={18} />}
                 color="red"
                 onClick={logout}
                 loading={loading}

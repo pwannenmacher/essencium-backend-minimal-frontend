@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import { Table, TextInput, Group, Menu, ActionIcon, Text, Modal, Badge, Card, Stack, Button } from '@mantine/core';
 import { IconSearch, IconDots, IconTrash, IconUser, IconBan } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
@@ -15,12 +15,12 @@ export default function ApiTokenAdminList({ active }) {
   const [tokenToDelete, setTokenToDelete] = useState(null);
   const [tokenToRevoke, setTokenToRevoke] = useState(null);
 
-  const loadApiTokens = async () => {
+  const loadApiTokens = useCallback(async () => {
     setLoading(true);
     try {
       const response = await getAllApiTokensAdmin(token);
       setApiTokensByUser(response || {});
-    } catch (error) {
+    } catch {
       notifications.show({
         title: 'Fehler',
         message: 'API-Tokens konnten nicht geladen werden',
@@ -29,14 +29,14 @@ export default function ApiTokenAdminList({ active }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   // Lade Daten nur wenn Tab aktiv ist
   useEffect(() => {
     if (active && token) {
       loadApiTokens();
     }
-  }, [active, token]);
+  }, [active, token, loadApiTokens]);
 
   const handleDelete = async () => {
     try {
