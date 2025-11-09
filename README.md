@@ -45,7 +45,7 @@ src/
 
 **Voraussetzungen:**
 
-- Node.js 18+
+- Node.js 24+
 - Laufendes Essencium-Backend auf `http://localhost:8098`
 
 **Installation:**
@@ -53,6 +53,20 @@ src/
 ```bash
 npm install
 ```
+
+**Umgebungsvariablen (optional):**
+
+Die Anwendung nutzt folgende Umgebungsvariablen, die über eine `.env`-Datei gesetzt werden können:
+
+```bash
+# Backend API URL (Standard: http://localhost:8098)
+VITE_API_URL=http://localhost:8098
+
+# Frontend URL für OAuth-Redirects (Standard: window.location.origin)
+VITE_FRONTEND_URL=http://localhost:5173
+```
+
+Eine `.env.example`-Datei mit allen verfügbaren Variablen ist im Repository enthalten. Für die Entwicklung können die Defaults verwendet werden.
 
 **Development Server starten:**
 
@@ -75,8 +89,42 @@ npm run build
 
 Build-Output landet in `dist/`.
 
+**Production-Build mit benutzerdefinierten URLs:**
+
+Für Docker oder Production-Deployments können die Umgebungsvariablen beim Build gesetzt werden:
+
+```bash
+VITE_API_URL=https://api.example.com VITE_FRONTEND_URL=https://app.example.com npm run build
+```
+
+## Docker
+
+**Image bauen:**
+
+```bash
+docker build -t essencium-frontend .
+```
+
+**Container starten:**
+
+```bash
+docker run -p 8080:80 \
+  -e VITE_API_URL=http://localhost:8098 \
+  -e VITE_FRONTEND_URL=http://localhost:8080 \
+  essencium-frontend
+```
+
+**Mit Docker Compose:**
+
+```bash
+docker-compose up -d
+```
+
+Die Umgebungsvariablen können in der `docker-compose.yml` angepasst werden. Die Konfiguration erfolgt zur **Laufzeit**, nicht zur Build-Zeit - das Image kann also mit unterschiedlichen URLs wiederverwendet werden.
+
 ## Hinweise
 
 - Das Backend muss für CORS konfiguriert sein (`Access-Control-Allow-Origin`, `Access-Control-Allow-Credentials`)
 - Bei Safari können Cookie-Probleme auftreten (Cross-Origin zwischen localhost-Ports) – in Production mit gleicher Domain kein Problem
-- Die `API_BASE_URL` in den Services zeigt aktuell auf `http://localhost:8098` – für Production anpassen
+- Backend- und Frontend-URLs können über Umgebungsvariablen konfiguriert werden (siehe Setup-Abschnitt)
+- Im Docker-Deployment werden die Umgebungsvariablen zur Laufzeit injiziert, sodass ein Image für verschiedene Umgebungen genutzt werden kann
