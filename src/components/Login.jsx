@@ -17,6 +17,7 @@ import { useForm } from '@mantine/form';
 import { IconAlertCircle, IconUser, IconUserShield } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
 import { getOAuthProviders } from '../services/authService';
+import { API_BASE_URL, FRONTEND_URL } from '../config.js';
 
 export default function Login() {
   const { login, loginWithToken, loading } = useAuth();
@@ -79,10 +80,9 @@ export default function Login() {
   };
 
   const handleOAuthLogin = (providerUrl) => {
-    // Redirect URI ist die aktuelle Frontend-URL
-    const redirectUri = window.location.origin;
-    const backendUrl = 'http://localhost:8098';
-    const fullUrl = `${backendUrl}${providerUrl}?redirect_uri=${encodeURIComponent(redirectUri)}`;
+    // Redirect URI ist die konfigurierte Frontend-URL
+    const redirectUri = FRONTEND_URL;
+    const fullUrl = `${API_BASE_URL}${providerUrl}?redirect_uri=${encodeURIComponent(redirectUri)}`;
     
     // Weiterleitung zum OAuth-Provider - wird in einem Event-Handler aufgerufen
     window.location.assign(fullUrl);
