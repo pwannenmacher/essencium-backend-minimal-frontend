@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  essencium-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    environment:
+      # Backend API URL
+      - VITE_API_URL=http://localhost:8098
+      # Frontend URL (für OAuth Redirects)
+      - VITE_FRONTEND_URL=http://localhost:8080
+    restart: unless-stopped
