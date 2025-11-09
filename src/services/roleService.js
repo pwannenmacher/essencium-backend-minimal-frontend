@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8098';
+import { API_BASE_URL } from '../config.js';
 
 /**
  * GET /v1/roles - Alle Rollen abrufen
