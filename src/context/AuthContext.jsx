@@ -143,6 +143,11 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const loginWithToken = (accessToken) => {
+    setToken(accessToken);
+    // User-Daten werden automatisch durch useEffect geladen
+  };
+
   const value = {
     token,
     user,
@@ -150,6 +155,7 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated: !!token,
     login,
     logout,
+    loginWithToken,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

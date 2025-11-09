@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Paper,
   TextInput,
@@ -11,14 +11,17 @@ import {
   Group,
   Text,
   Divider,
+  Box,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconAlertCircle, IconUser, IconUserShield } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
+import { getOAuthProviders } from '../services/authService';
 
 export default function Login() {
-  const { login, loading } = useAuth();
+  const { login, loginWithToken, loading } = useAuth();
   const [error, setError] = useState('');
+  const [oauthProviders, setOauthProviders] = useState({});
 
   const form = useForm({
     initialValues: {
@@ -30,6 +33,31 @@ export default function Login() {
       password: (value) => (!value ? 'Bitte Passwort eingeben' : null),
     },
   });
+
+  // OAuth-Provider beim Laden der Komponente abrufen
+  useEffect(() => {
+    const loadOAuthProviders = async () => {
+      const providers = await getOAuthProviders();
+      console.log('OAuth-Provider geladen:', providers);
+      setOauthProviders(providers);
+    };
+    loadOAuthProviders();
+  }, []);
+
+  // Token aus URL-Query-Parameter nach OAuth-Redirect verarbeiten
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    
+    if (token) {
+      // Token aus URL verwenden
+      loginWithToken(token);
+      
+      // Token aus URL entfernen (aus Sicherheitsgründen)
+      const newUrl = window.location.origin + window.location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
+    }
+  }, [loginWithToken]);
 
   const handleSubmit = async (values) => {
     setError('');
@@ -48,6 +76,16 @@ export default function Login() {
     if (!result.success) {
       setError(result.error || 'Login fehlgeschlagen');
     }
+  };
+
+  const handleOAuthLogin = (providerUrl) => {
+    // Redirect URI ist die aktuelle Frontend-URL
+    const redirectUri = window.location.origin;
+    const backendUrl = 'http://localhost:8098';
+    const fullUrl = `${backendUrl}${providerUrl}?redirect_uri=${encodeURIComponent(redirectUri)}`;
+    
+    // Weiterleitung zum OAuth-Provider
+    window.location.href = fullUrl;
   };
 
   return (
@@ -83,6 +121,52 @@ export default function Login() {
               Anmelden
             </Button>
 
+            {Object.keys(oauthProviders).length > 0 && (
+              <>
+                <Divider label="Oder anmelden mit" labelPosition="center" />
+
+                <Stack spacing="xs">
+                  {Object.entries(oauthProviders).map(([key, provider]) => (
+                    <Button
+                      key={key}
+                      variant="default"
+                      fullWidth
+                      leftSection={
+                        provider.imageUrl ? (
+                          <Box
+                            style={{
+                              width: 24,
+                              height: 24,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            <img
+                              src={provider.imageUrl}
+                              alt={provider.name}
+                              style={{
+                                width: '24px',
+                                height: '24px',
+                                objectFit: 'contain',
+                              }}
+                              onError={(e) => {
+                                console.error('Fehler beim Laden des Icons:', provider.imageUrl);
+                                e.target.style.display = 'none';
+                              }}
+                            />
+                          </Box>
+                        ) : null
+                      }
+                      onClick={() => handleOAuthLogin(provider.url)}
+                    >
+                      {provider.name}
+                    </Button>
+                  ))}
+                </Stack>
+              </>
+            )}
+
             <Divider label="Oder" labelPosition="center" />
 
             <Stack spacing="xs">
@@ -93,7 +177,7 @@ export default function Login() {
                 <Button
                   variant="light"
                   color="blue"
-                  leftIcon={<IconUserShield size={16} />}
+                  leftSection={<IconUserShield size={16} />}
                   onClick={() => handleQuickLogin('devnull@frachtwerk.de', 'adminAdminAdmin')}
                   loading={loading}
                 >
@@ -102,7 +186,7 @@ export default function Login() {
                 <Button
                   variant="light"
                   color="grape"
-                  leftIcon={<IconUser size={16} />}
+                  leftSection={<IconUser size={16} />}
                   onClick={() => handleQuickLogin('devnull_user@frachtwerk.de', 'userUserUser')}
                   loading={loading}
                 >

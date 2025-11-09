@@ -87,3 +87,28 @@ export const logout = async (token) => {
     console.error('Logout-Fehler:', error);
   }
 };
+
+/**
+ * OAuth-Provider abrufen
+ * Lädt die verfügbaren OAuth2-Provider von /auth/oauth-registrations
+ */
+export const getOAuthProviders = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/oauth-registrations`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Fehler beim Laden der OAuth-Provider');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fehler beim Laden der OAuth-Provider:', error);
+    return {};
+  }
+};
