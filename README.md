@@ -122,6 +122,41 @@ docker-compose up -d
 
 Die Umgebungsvariablen können in der `docker-compose.yml` angepasst werden. Die Konfiguration erfolgt zur **Laufzeit**, nicht zur Build-Zeit - das Image kann also mit unterschiedlichen URLs wiederverwendet werden.
 
+## Tests
+
+Das Projekt verwendet **Vitest** mit React Testing Library für Unit-, Integration- und Component-Tests.
+
+**Tests ausführen:**
+
+```bash
+# Watch-Modus (für Development)
+npm test
+
+# Einmalig ausführen
+npm run test:run
+
+# Mit Coverage-Report
+npm run test:coverage
+
+# Mit UI (Browser-basiert)
+npm run test:ui
+```
+
+**Test-Coverage:**
+
+Der Coverage-Report wird in `coverage/` generiert. Öffne `coverage/index.html` im Browser für einen detaillierten Bericht.
+
+**Was wird getestet:**
+
+- ✅ **Config-Tests**: Runtime-Konfiguration und Umgebungsvariablen-Fallbacks
+- ✅ **Service-Tests**: API-Calls, Fehlerbehandlung, Request-Formate (authService, userService, roleService)
+- ✅ **AuthContext-Tests**: Token-Renewal, Permissions, OAuth-Flow, Login/Logout
+- ✅ **Component-Tests**: Permission-basiertes Rendering (Dashboard, UserList, Login)
+
+**Neue Tests hinzufügen:**
+
+Erstelle `*.test.js` oder `*.test.jsx` Dateien neben den zu testenden Komponenten/Services. Vitest findet diese automatisch.
+
 ## Hinweise
 
 - Das Backend muss für CORS konfiguriert sein (`Access-Control-Allow-Origin`, `Access-Control-Allow-Credentials`)
