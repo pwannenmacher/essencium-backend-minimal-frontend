@@ -266,14 +266,14 @@ export default function UserList({ active }) {
                     </td>
                     <td>
                       <Group spacing={4}>
-                        {user.roles?.slice(0, 2).map((role) => (
+                        {user.roles?.slice(0, 3).map((role) => (
                           <Badge key={role.name} size="sm" variant="light">
                             {role.name}
                           </Badge>
                         ))}
-                        {user.roles?.length > 2 && (
+                        {user.roles?.length > 3 && (
                           <Badge size="sm" variant="light" color="gray">
-                            +{user.roles.length - 2}
+                            +{user.roles.length - 3}
                           </Badge>
                         )}
                       </Group>
