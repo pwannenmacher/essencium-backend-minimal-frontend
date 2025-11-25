@@ -13,7 +13,7 @@ import {
   Tabs,
 } from '@mantine/core';
 import { useState } from 'react';
-import { IconLogout, IconKey, IconUser, IconUsers, IconShieldLock, IconApiApp, IconShield, IconDeviceDesktop } from '@tabler/icons-react';
+import { IconLogout, IconKey, IconUser, IconUsers, IconShieldLock, IconApiApp, IconShield, IconDeviceDesktop, IconApi } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
 import ThemeToggle from './ThemeToggle';
 import UserProfile from './UserProfile';
@@ -25,6 +25,7 @@ import ApiTokenList from './ApiTokenList';
 import ApiTokenAdminList from './ApiTokenAdminList';
 import SessionTokenAdminList from './SessionTokenAdminList';
 import JwtViewer from './JwtViewer';
+import SwaggerUIViewer from './SwaggerUIViewer';
 
 export default function Dashboard() {
   const { user, logout, loading, token } = useAuth();
@@ -122,6 +123,9 @@ export default function Dashboard() {
                   Session-Token Admin
                 </Tabs.Tab>
               )}
+              <Tabs.Tab value="swagger" icon={<IconApi size={14} />}>
+                API-Dokumentation
+              </Tabs.Tab>
             </Tabs.List>
 
             <Tabs.Panel value="profile" pt="lg">
@@ -167,6 +171,10 @@ export default function Dashboard() {
                 <SessionTokenAdminList active={activeTab === 'sessiontokensadmin'} />
               </Tabs.Panel>
             )}
+
+            <Tabs.Panel value="swagger" pt="lg">
+              {activeTab === 'swagger' && <SwaggerUIViewer />}
+            </Tabs.Panel>
           </Tabs>
         </Paper>
       </Stack>
