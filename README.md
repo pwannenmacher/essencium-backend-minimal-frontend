@@ -7,12 +7,14 @@ React-basierte Admin-Oberfläche für [Essencium Backend](https://github.com/Fra
 Diese SPA bietet eine vollständige Verwaltungsoberfläche für User, Rollen, Rechte und API-Tokens. Der Funktionsumfang orientiert sich an den Essencium-Backend-APIs und deckt folgende Bereiche ab:
 
 - **Authentication**: Login, automatische Token-Renewal (20s vor Ablauf), Logout
+- **OAuth2**: Unterstützung für OAuth2-Login (Google, GitHub) mit Redirect-Handling
 - **User Management**: Anlegen, Bearbeiten, Löschen von Benutzern, Passwort-Änderung
 - **Rollen & Rechte**: Verwaltung von Rollen mit granularen Berechtigungen
 - **API-Tokens**: Erstellen und Widerrufen von API-Tokens (eigene + Admin-Ansicht)
 - **Sessions**: Übersicht über aktive Refresh-Tokens mit Markierung der aktuellen Session
 - **Session-Token Admin**: Admin-Ansicht aller Session-Tokens aller Benutzer mit Löschfunktion (erfordert `SESSION_TOKEN_ADMIN` Recht)
 - **JWT-Viewer**: Live-Anzeige des aktuellen Access-Tokens mit Payload-Dekodierung
+- **Swagger-UI**: Anzeige der API-Dokumentation des Backends
 
 Die UI passt sich automatisch an die Berechtigungen des angemeldeten Users an. Tabs und Aktionen werden nur angezeigt, wenn die entsprechenden Rechte vorhanden sind.
 
@@ -148,10 +150,10 @@ Der Coverage-Report wird in `coverage/` generiert. Öffne `coverage/index.html` 
 
 **Was wird getestet:**
 
-- ✅ **Config-Tests**: Runtime-Konfiguration und Umgebungsvariablen-Fallbacks
-- ✅ **Service-Tests**: API-Calls, Fehlerbehandlung, Request-Formate (authService, userService, roleService)
-- ✅ **AuthContext-Tests**: Token-Renewal, Permissions, OAuth-Flow, Login/Logout
-- ✅ **Component-Tests**: Permission-basiertes Rendering (Dashboard, UserList, Login)
+- **Config-Tests**: Runtime-Konfiguration und Umgebungsvariablen-Fallbacks
+- **Service-Tests**: API-Calls, Fehlerbehandlung, Request-Formate (authService, userService, roleService)
+- **AuthContext-Tests**: Token-Renewal, Permissions, OAuth-Flow, Login/Logout
+- **Component-Tests**: Permission-basiertes Rendering (Dashboard, UserList, Login)
 
 **Neue Tests hinzufügen:**
 
