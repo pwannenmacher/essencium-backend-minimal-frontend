@@ -246,6 +246,7 @@ export default function UserList({ active }) {
             <Table striped highlightOnHover>
               <thead>
                 <tr>
+                  <th style={{ textAlign: 'left' }}>ID</th>
                   <th style={{ textAlign: 'left' }}>Name</th>
                   <th style={{ textAlign: 'left' }}>E-Mail</th>
                   <th style={{ textAlign: 'left' }}>Rollen</th>
@@ -256,6 +257,11 @@ export default function UserList({ active }) {
               <tbody>
                 {users.map((user) => (
                   <tr key={user.id}>
+                    <td>
+                      <Text size="sm" c="dimmed" style={{ fontFamily: 'monospace', fontSize: '0.85em' }}>
+                        {user.id}
+                      </Text>
+                    </td>
                     <td>
                       <Text size="sm" weight={500}>
                         {user.firstName} {user.lastName}

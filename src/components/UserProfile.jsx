@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Card, Text, Group, Badge, Stack, Title, Divider, Button } from '@mantine/core';
-import { IconUser, IconMail, IconPhone, IconWorld, IconShield, IconEdit } from '@tabler/icons-react';
+import { IconUser, IconMail, IconPhone, IconWorld, IconShield, IconEdit, IconHash } from '@tabler/icons-react';
 import EditProfileModal from './EditProfileModal';
 
 export default function UserProfile({ user, onUpdate }) {
@@ -38,6 +38,12 @@ export default function UserProfile({ user, onUpdate }) {
         <Divider />
 
         <Stack spacing="sm">
+          <Group>
+            <IconHash size={20} />
+            <Text weight={500}>ID:</Text>
+            <Text>{user.id}</Text>
+          </Group>
+
           <Group>
             <IconUser size={20} />
             <Text weight={500}>Name:</Text>
