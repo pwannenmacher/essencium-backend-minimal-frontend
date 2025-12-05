@@ -17,15 +17,15 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@mantine/core": "^8.3.8",
-    "@mantine/dates": "^8.3.8",
-    "@mantine/form": "^8.3.8",
-    "@mantine/hooks": "^8.3.8",
-    "@mantine/notifications": "^8.3.8",
+    "@mantine/core": "^8.3.9",
+    "@mantine/dates": "^8.3.9",
+    "@mantine/form": "^8.3.9",
+    "@mantine/hooks": "^8.3.9",
+    "@mantine/notifications": "^8.3.9",
     "@tabler/icons-react": "^3.35.0",
     "dayjs": "^1.11.19",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
     "swagger-ui-react": "^5.30.3"
   },
   "devDependencies": {
@@ -36,14 +36,14 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
-    "@vitest/coverage-v8": "^4.0.14",
-    "@vitest/ui": "^4.0.8",
+    "@vitest/coverage-v8": "^4.0.15",
+    "@vitest/ui": "^4.0.15",
     "eslint": "^9.36.0",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.22",
     "globals": "^16.4.0",
     "jsdom": "^27.2.0",
     "vite": "^7.2.6",
-    "vitest": "^4.0.8"
+    "vitest": "^4.0.15"
   }
 }
