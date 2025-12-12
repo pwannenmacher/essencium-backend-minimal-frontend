@@ -17,7 +17,6 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Token im localStorage speichern/entfernen
   useEffect(() => {
     if (token) {
       localStorage.setItem('accessToken', token);
@@ -26,11 +25,9 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token]);
 
-  // Automatische Token-Erneuerung 20 Sekunden vor Ablauf (Token läuft nach 15 Minuten ab)
   useEffect(() => {
     if (!token) return;
 
-    // Parse JWT um Ablaufzeit zu ermitteln
     const parseJwt = (token) => {
       try {
         const base64Url = token.split('.')[1];
@@ -53,14 +50,12 @@ export const AuthProvider = ({ children }) => {
       return;
     }
 
-    // Berechne wann der Token erneuert werden soll (20 Sekunden vor Ablauf)
-    const expirationTime = payload.exp * 1000; // in Millisekunden
+    const expirationTime = payload.exp * 1000;
     const now = Date.now();
     const renewTime = expirationTime - 20000; // 20 Sekunden vor Ablauf
     const timeUntilRenew = renewTime - now;
 
     if (timeUntilRenew <= 0) {
-      // Token ist bereits abgelaufen oder fast abgelaufen, sofort erneuern
       const renewImmediately = async () => {
         try {
           const newToken = await renewToken(token);
@@ -76,7 +71,6 @@ export const AuthProvider = ({ children }) => {
       return;
     }
 
-    // Setze Timer für automatische Erneuerung
     const timeout = setTimeout(async () => {
       try {
         const newToken = await renewToken(token);
@@ -92,7 +86,6 @@ export const AuthProvider = ({ children }) => {
     return () => clearTimeout(timeout);
   }, [token]);
 
-  // User-Daten beim Token-Wechsel laden
   useEffect(() => {
     if (!token) {
       setUser(null);
@@ -105,7 +98,6 @@ export const AuthProvider = ({ children }) => {
         setUser(userData);
       } catch (error) {
         console.error('Fehler beim Laden der User-Daten:', error);
-        // Bei Fehler Token ungültig -> ausloggen
         setToken(null);
         setUser(null);
       }
@@ -119,7 +111,6 @@ export const AuthProvider = ({ children }) => {
     try {
       const accessToken = await apiLogin(username, password);
       setToken(accessToken);
-      // User-Daten werden automatisch durch useEffect geladen
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
@@ -145,7 +136,6 @@ export const AuthProvider = ({ children }) => {
 
   const loginWithToken = (accessToken) => {
     setToken(accessToken);
-    // User-Daten werden automatisch durch useEffect geladen
   };
 
   const hasPermission = (permission) => {

@@ -32,7 +32,6 @@ export default function ApiTokenAdminList({ active }) {
     }
   }, [token]);
 
-  // Lade Daten nur wenn Tab aktiv ist
   useEffect(() => {
     if (active && token) {
       loadApiTokens();
@@ -100,7 +99,6 @@ export default function ApiTokenAdminList({ active }) {
   const getStatusBadge = (apiToken) => {
     const status = apiToken.status;
     
-    // Fallback wenn kein Status vorhanden ist
     if (!status) {
       if (isExpired(apiToken.validUntil)) {
         return <Badge color="red">Abgelaufen ({formatDate(apiToken.validUntil)})</Badge>;
@@ -138,14 +136,12 @@ export default function ApiTokenAdminList({ active }) {
     }
   };
 
-  // Filtere und flattene die Daten für die Tabelle
   const filteredRows = [];
   Object.entries(apiTokensByUser).forEach(([userId, tokens]) => {
     if (!tokens || tokens.length === 0) return;
     
     const userName = tokens[0]?.linkedUser?.name || tokens[0]?.createdBy || 'Unbekannt';
     
-    // Filter anwenden
     if (searchValue && !userName.toLowerCase().includes(searchValue.toLowerCase()) &&
         !tokens.some(t => t.description?.toLowerCase().includes(searchValue.toLowerCase()))) {
       return;

@@ -1,8 +1,5 @@
 import { API_BASE_URL } from '../config.js';
 
-/**
- * Hilfsfunktion für authentifizierte API-Calls
- */
 const authenticatedFetch = async (url, token, options = {}) => {
   const response = await fetch(url, {
     ...options,
@@ -21,48 +18,29 @@ const authenticatedFetch = async (url, token, options = {}) => {
   return response.json();
 };
 
-/**
- * GET /v1/users/me - Aktuell eingeloggten User abrufen
- */
 export const getMe = async (token) => {
   return authenticatedFetch(`${API_BASE_URL}/v1/users/me`, token);
 };
 
-/**
- * GET /v1/users/me/roles - Rollen des aktuellen Users
- */
 export const getMyRoles = async (token) => {
   return authenticatedFetch(`${API_BASE_URL}/v1/users/me/roles`, token);
 };
 
-/**
- * GET /v1/users/me/roles/rights - Rechte des aktuellen Users
- */
 export const getMyRights = async (token) => {
   return authenticatedFetch(`${API_BASE_URL}/v1/users/me/roles/rights`, token);
 };
 
-/**
- * GET /v1/users/me/token - Refresh Tokens des aktuellen Users
- */
 export const getMyTokens = async (token) => {
   return authenticatedFetch(`${API_BASE_URL}/v1/users/me/token`, token);
 };
 
-/**
- * GET /v1/users/{id} - Einen spezifischen User abrufen
- */
 export const getUserById = async (token, id) => {
   return authenticatedFetch(`${API_BASE_URL}/v1/users/${id}`, token);
 };
 
-/**
- * GET /v1/users - Alle User abrufen (mit Paginierung und Filtern)
- */
 export const getUsers = async (token, params = {}) => {
   const queryParams = new URLSearchParams();
   
-  // Paginierung
   if (params.page !== undefined) queryParams.append('page', params.page);
   if (params.size !== undefined) queryParams.append('size', params.size);
   if (params.sort) {
@@ -73,7 +51,6 @@ export const getUsers = async (token, params = {}) => {
     }
   }
   
-  // Filter
   if (params.ids) queryParams.append('ids', params.ids);
   if (params.email) queryParams.append('email', params.email);
   if (params.name) queryParams.append('name', params.name);
@@ -91,13 +68,9 @@ export const getUsers = async (token, params = {}) => {
   return authenticatedFetch(url, token);
 };
 
-/**
- * GET /v1/users/basic - Alle User als Basic Representation
- */
 export const getUsersBasic = async (token, params = {}) => {
   const queryParams = new URLSearchParams();
   
-  // Filter (ohne Paginierung)
   if (params.ids) queryParams.append('ids', params.ids);
   if (params.email) queryParams.append('email', params.email);
   if (params.name) queryParams.append('name', params.name);
@@ -115,9 +88,6 @@ export const getUsersBasic = async (token, params = {}) => {
   return authenticatedFetch(url, token);
 };
 
-/**
- * POST /v1/users - Neuen User erstellen
- */
 export const createUser = async (token, userData) => {
   const response = await fetch(`${API_BASE_URL}/v1/users`, {
     method: 'POST',
@@ -136,10 +106,6 @@ export const createUser = async (token, userData) => {
   return response.json();
 };
 
-/**
- * PUT /v1/users/{id} - User vollständig aktualisieren
- * Hinweis: ID muss sowohl im Pfad als auch im Body übergeben werden
- */
 export const updateUser = async (token, id, userData) => {
   const response = await fetch(`${API_BASE_URL}/v1/users/${id}`, {
     method: 'PUT',
@@ -158,10 +124,6 @@ export const updateUser = async (token, id, userData) => {
   return response.json();
 };
 
-/**
- * PATCH /v1/users/{id} - User partiell aktualisieren
- * Hinweis: ID muss sowohl im Pfad als auch im Body übergeben werden
- */
 export const patchUser = async (token, id, partialData) => {
   const response = await fetch(`${API_BASE_URL}/v1/users/${id}`, {
     method: 'PATCH',
@@ -180,9 +142,6 @@ export const patchUser = async (token, id, partialData) => {
   return response.json();
 };
 
-/**
- * DELETE /v1/users/{id} - User löschen
- */
 export const deleteUser = async (token, id) => {
   const response = await fetch(`${API_BASE_URL}/v1/users/${id}`, {
     method: 'DELETE',
@@ -196,14 +155,9 @@ export const deleteUser = async (token, id) => {
     throw new Error(error || `User-Löschung fehlgeschlagen: ${response.status}`);
   }
 
-  // 204 No Content hat keinen Body
   return;
 };
 
-/**
- * PUT /v1/users/me - Eigenes Profil vollständig aktualisieren
- * Hinweis: ID muss im Body übergeben werden
- */
 export const updateMe = async (token, userData, userId) => {
   const response = await fetch(`${API_BASE_URL}/v1/users/me`, {
     method: 'PUT',
@@ -222,10 +176,6 @@ export const updateMe = async (token, userData, userId) => {
   return response.json();
 };
 
-/**
- * PATCH /v1/users/me - Eigenes Profil partiell aktualisieren
- * Hinweis: ID muss im Body übergeben werden
- */
 export const patchMe = async (token, partialData, userId) => {
   const response = await fetch(`${API_BASE_URL}/v1/users/me`, {
     method: 'PATCH',
@@ -244,9 +194,6 @@ export const patchMe = async (token, partialData, userId) => {
   return response.json();
 };
 
-/**
- * PUT /v1/users/me/password - Eigenes Passwort ändern
- */
 export const updateMyPassword = async (token, passwordData) => {
   const response = await fetch(`${API_BASE_URL}/v1/users/me/password`, {
     method: 'PUT',
@@ -301,22 +248,14 @@ export const terminateUserSessions = async (token, id) => {
     throw new Error(error || `Session-Terminierung fehlgeschlagen: ${response.status}`);
   }
 
-  // 204 No Content
+
   return;
 };
 
-/**
- * GET /v1/users/token - Alle User mit ihren Tokens abrufen (Admin)
- * Erfordert SESSION_TOKEN_ADMIN Recht
- */
 export const getAllUsersWithTokens = async (token) => {
   return authenticatedFetch(`${API_BASE_URL}/v1/users/token`, token);
 };
 
-/**
- * DELETE /v1/users/{id}/token/{tokenId} - Einzelnen Token eines Users löschen (Admin)
- * Erfordert SESSION_TOKEN_ADMIN Recht
- */
 export const deleteUserToken = async (token, userId, tokenId) => {
   const response = await fetch(`${API_BASE_URL}/v1/users/${userId}/token/${tokenId}`, {
     method: 'DELETE',

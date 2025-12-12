@@ -45,7 +45,6 @@ export default function RoleFormModal({ opened, onClose, role }) {
     }
   }, [token]);
 
-  // Lade alle verfügbaren Rechte vom Backend
   useEffect(() => {
     if (opened) {
       loadRights();

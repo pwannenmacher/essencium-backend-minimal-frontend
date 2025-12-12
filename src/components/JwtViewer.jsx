@@ -7,7 +7,6 @@ export default function JwtViewer() {
   const { token } = useContext(AuthContext);
   const [currentTime, setCurrentTime] = useState(() => Date.now());
 
-  // Update current time every second for countdown
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTime(Date.now());
@@ -103,7 +102,6 @@ export default function JwtViewer() {
       </Group>
 
       <Stack gap="md">
-        {/* Header */}
         <Box>
           <Text size="sm" fw={600} mb="xs" c="blue">
             Header
@@ -115,7 +113,6 @@ export default function JwtViewer() {
 
         <Divider />
 
-        {/* Payload */}
         <Box>
           <Text size="sm" fw={600} mb="xs" c="purple">
             Payload
@@ -167,7 +164,6 @@ export default function JwtViewer() {
 
         <Divider />
 
-        {/* Signature */}
         <Box>
           <Text size="sm" fw={600} mb="xs" c="teal">
             Signature
@@ -182,7 +178,6 @@ export default function JwtViewer() {
           </Code>
         </Box>
 
-        {/* Raw Token */}
         <Box>
           <Text size="sm" fw={600} mb="xs" c="gray">
             Raw Token

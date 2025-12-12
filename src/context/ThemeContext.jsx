@@ -14,32 +14,26 @@ export const useTheme = () => {
 export function ThemeProvider({ children }) {
   const { setColorScheme } = useMantineColorScheme();
   const [themeMode, setThemeMode] = useState(() => {
-    // Lade gespeicherte Präferenz aus localStorage
     return localStorage.getItem('themeMode') || 'auto';
   });
 
   useEffect(() => {
-    // Speichere Präferenz
     localStorage.setItem('themeMode', themeMode);
 
     if (themeMode === 'auto') {
-      // Verwende System-Präferenz
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       const handleChange = (e) => {
         setColorScheme(e.matches ? 'dark' : 'light');
       };
 
-      // Setze initialen Wert
       setColorScheme(mediaQuery.matches ? 'dark' : 'light');
 
-      // Höre auf Änderungen
       mediaQuery.addEventListener('change', handleChange);
 
       return () => {
         mediaQuery.removeEventListener('change', handleChange);
       };
     } else {
-      // Verwende manuelle Einstellung
       setColorScheme(themeMode);
     }
   }, [themeMode, setColorScheme]);
