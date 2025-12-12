@@ -22,7 +22,6 @@ export default function SwaggerUIViewer() {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState(null);
 
-  // Lade die OpenAPI-Spezifikation beim Mount
   useEffect(() => {
     loadSpec();
   }, []);
@@ -34,7 +33,6 @@ export default function SwaggerUIViewer() {
       const apiSpec = await getOpenApiSpec();
       setSpec(apiSpec);
       
-      // Setze den ersten Tab als aktiv
       const tags = extractTags(apiSpec);
       if (tags.length > 0) {
         setActiveTab(tags[0].name);
@@ -46,13 +44,11 @@ export default function SwaggerUIViewer() {
     }
   };
 
-  // Extrahiere Tags für die Tabs
   const tags = useMemo(() => {
     if (!spec) return [];
     return extractTags(spec);
   }, [spec]);
 
-  // Filtere die Spec basierend auf dem aktiven Tab
   const filteredSpec = useMemo(() => {
     if (!spec || !activeTab) return null;
     return filterSpecByTag(spec, activeTab);
@@ -127,12 +123,10 @@ export default function SwaggerUIViewer() {
                         filter={true}
                         tryItOutEnabled={true}
                         requestInterceptor={(req) => {
-                          // Füge Credentials hinzu, um Cookies zu senden
                           req.credentials = 'include';
                           return req;
                         }}
                         onComplete={() => {
-                          // Optional: Callback wenn SwaggerUI fertig geladen ist
                           console.log('SwaggerUI geladen für:', tag.name);
                         }}
                       />

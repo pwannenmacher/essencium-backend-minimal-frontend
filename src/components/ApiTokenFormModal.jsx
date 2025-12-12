@@ -14,12 +14,10 @@ export default function ApiTokenFormModal({ opened, onClose }) {
   const [expirationInfo, setExpirationInfo] = useState(null);
   const [loadingExpiration, setLoadingExpiration] = useState(false);
 
-  // Verfügbare Rechte basierend auf den Rechten des aktuellen Users
   const availableRights = user?.roles?.flatMap(role => 
     role.rights?.map(right => right.authority) || []
   ) || [];
   
-  // Entferne Duplikate
   const uniqueAvailableRights = [...new Set(availableRights)];
 
   const form = useForm({
@@ -41,11 +39,9 @@ export default function ApiTokenFormModal({ opened, onClose }) {
 
   useEffect(() => {
     if (opened) {
-      // Reset form and loading state when modal opens
       setLoading(false);
       form.reset();
       
-      // Lade Token-Expiration-Info
       const fetchExpirationInfo = async () => {
         setLoadingExpiration(true);
         try {
@@ -61,9 +57,8 @@ export default function ApiTokenFormModal({ opened, onClose }) {
       
       fetchExpirationInfo();
     }
-  }, [opened, token]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [opened, token]);
 
-  // Hilfsfunktion zum Formatieren der Sekunden in eine lesbare Einheit
   const formatDuration = (seconds) => {
     if (!seconds) return null;
     
@@ -86,7 +81,6 @@ export default function ApiTokenFormModal({ opened, onClose }) {
   const handleSubmit = async (values) => {
     setLoading(true);
     try {
-      // In Mantine v8 liefert DateInput bereits einen String im Format YYYY-MM-DD
       const formattedData = {
         ...values,
         validUntil: values.validUntil || null,
@@ -99,11 +93,9 @@ export default function ApiTokenFormModal({ opened, onClose }) {
         color: 'green',
       });
       
-      // Reset loading state and form before closing
       setLoading(false);
       form.reset();
       
-      // Übergebe den erstellten Token (mit JWT) an den Parent
       onClose(result);
     } catch (error) {
       notifications.show({

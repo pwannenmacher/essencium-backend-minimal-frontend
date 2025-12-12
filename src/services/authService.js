@@ -25,10 +25,9 @@ export const login = async (username, password) => {
 
     const data = await response.json();
     
-    // Debug: Prüfe ob Cookies gesetzt wurden
     console.log('Login erfolgreich. Cookies:', document.cookie);
     
-    return data.token; // JWT Access Token
+    return data.token;
   } catch (error) {
     console.error('Login-Fehler:', error);
     throw error;

@@ -15,7 +15,6 @@ export default function UserTokens() {
   const [deleting, setDeleting] = useState(false);
   const [currentParentTokenId, setCurrentParentTokenId] = useState(null);
 
-  // Parse JWT um parent_token_id zu extrahieren
   const parseJwt = (token) => {
     try {
       const base64Url = token.split('.')[1];
