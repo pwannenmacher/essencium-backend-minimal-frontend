@@ -3,7 +3,6 @@ import { API_BASE_URL, FRONTEND_URL } from './config';
 
 describe('config.js', () => {
   beforeEach(() => {
-    // Reset window.RUNTIME_CONFIG vor jedem Test
     window.RUNTIME_CONFIG = {};
     vi.resetModules();
   });
@@ -12,7 +11,6 @@ describe('config.js', () => {
     it('should use runtime config if available', async () => {
       window.RUNTIME_CONFIG = { VITE_API_URL: 'https://runtime-api.example.com' };
       
-      // Re-import um neue Config zu laden
       const { API_BASE_URL } = await import('./config.js?t=' + Date.now());
       
       expect(API_BASE_URL).toBe('https://runtime-api.example.com');
@@ -21,17 +19,14 @@ describe('config.js', () => {
     it('should fallback to import.meta.env if runtime config not set', async () => {
       window.RUNTIME_CONFIG = {};
       
-      // Vite env wird durch Vitest config gemockt
       const { API_BASE_URL } = await import('./config.js?t=' + Date.now());
       
-      // Sollte Default verwenden, da kein VITE_API_URL in Test-Env
       expect(API_BASE_URL).toBe('http://localhost:8098');
     });
 
     it('should use default if no config available', () => {
       window.RUNTIME_CONFIG = undefined;
       
-      // Default sollte verwendet werden
       expect(API_BASE_URL).toBe('http://localhost:8098');
     });
   });
@@ -50,14 +45,12 @@ describe('config.js', () => {
       
       const { FRONTEND_URL } = await import('./config.js?t=' + Date.now());
       
-      // jsdom default origin
       expect(FRONTEND_URL).toBe(window.location.origin);
     });
   });
 
   describe('priority chain', () => {
     it('should prioritize runtime > env > default', async () => {
-      // Runtime config hat höchste Priorität
       window.RUNTIME_CONFIG = { 
         VITE_API_URL: 'https://runtime.example.com',
         VITE_FRONTEND_URL: 'https://runtime-frontend.example.com'

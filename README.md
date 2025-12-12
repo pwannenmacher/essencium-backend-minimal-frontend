@@ -22,7 +22,7 @@ Die UI passt sich automatisch an die Berechtigungen des angemeldeten Users an. T
 
 ```text
 src/
-├── components/          # React-Komponenten (Dashboard, Listen, Formulare)
+├── components/         # React-Komponenten (Dashboard, Listen, Formulare)
 ├── context/            # React Context (Auth, Theme)
 ├── services/           # API-Layer (authService, userService, roleService, apiTokenService)
 ├── App.jsx             # Root-Komponente mit Providern

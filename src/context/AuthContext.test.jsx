@@ -3,7 +3,6 @@ import { render, screen, waitFor, act } from '@testing-library/react';
 import { AuthProvider, useAuth } from './AuthContext';
 import { createMockToken, createMockTokenWithoutExpiration, mockUsers } from '../test/helpers';
 
-// Mock der Services - Funktionen müssen vor vi.mock() deklariert werden
 vi.mock('../services/authService', () => ({
   login: vi.fn(),
   logout: vi.fn(),
@@ -14,7 +13,6 @@ vi.mock('../services/userService', () => ({
   getMe: vi.fn(),
 }));
 
-// Import after mock
 import * as authService from '../services/authService';
 import * as userService from '../services/userService';
 
@@ -24,7 +22,6 @@ describe('AuthContext', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     
-    // Mock localStorage
     mockLocalStorage = {
       getItem: vi.fn(),
       setItem: vi.fn(),

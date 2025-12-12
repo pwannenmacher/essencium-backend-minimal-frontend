@@ -6,7 +6,6 @@ import { ThemeProvider } from './context/ThemeContext';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 
-// Importiere Mantine CSS
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 import '@mantine/dates/styles.css';

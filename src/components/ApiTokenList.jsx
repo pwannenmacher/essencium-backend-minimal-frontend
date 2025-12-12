@@ -20,7 +20,6 @@ export default function ApiTokenList({ active }) {
   const [showTokenModal, setShowTokenModal] = useState(false);
   const [newTokenData, setNewTokenData] = useState(null);
 
-  // Prüfe ob User API_TOKEN_ADMIN Recht hat
   const hasApiTokenAdminRight = user?.roles?.some(role => 
     role.rights?.some(right => right.authority === 'API_TOKEN_ADMIN')
   );
@@ -41,7 +40,6 @@ export default function ApiTokenList({ active }) {
     }
   }, [token]);
 
-  // Lade Daten nur wenn Tab aktiv ist
   useEffect(() => {
     if (active && token) {
       loadApiTokens();
@@ -98,7 +96,6 @@ export default function ApiTokenList({ active }) {
     setFormModalOpen(false);
     loadApiTokens();
     
-    // Wenn ein neuer Token erstellt wurde, zeige ihn an
     if (createdToken?.token) {
       setNewTokenData(createdToken);
       setShowTokenModal(true);
@@ -133,7 +130,6 @@ export default function ApiTokenList({ active }) {
   const getStatusBadge = (apiToken) => {
     const status = apiToken.status;
     
-    // Fallback wenn kein Status vorhanden ist
     if (!status) {
       if (isExpired(apiToken.validUntil)) {
         return <Badge color="red">Abgelaufen ({formatDate(apiToken.validUntil)})</Badge>;

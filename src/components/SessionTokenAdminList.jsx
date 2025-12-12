@@ -32,7 +32,6 @@ export default function SessionTokenAdminList({ active }) {
     }
   }, [token]);
 
-  // Lade Daten nur wenn Tab aktiv ist
   useEffect(() => {
     if (active && token) {
       loadSessionTokens();
@@ -84,19 +83,14 @@ export default function SessionTokenAdminList({ active }) {
     }
   };
 
-  // Filtere und flattene die Daten für die Tabelle
   const filteredRows = [];
   
-  // Die API gibt ein Objekt zurück: Map<userId, List<TokenRepresentation>>
-  // Der Username ist als Eigenschaft in der TokenRepresentation enthalten
   if (sessionTokensByUser && typeof sessionTokensByUser === 'object') {
     Object.entries(sessionTokensByUser).forEach(([userId, tokens]) => {
       if (!tokens || tokens.length === 0) return;
       
-      // Extrahiere den Username aus dem ersten Token (alle Tokens haben den gleichen User)
       const userName = tokens[0]?.username || 'Unbekannt';
       
-      // Filter anwenden
       if (searchValue && !userName.toLowerCase().includes(searchValue.toLowerCase())) {
         return;
       }

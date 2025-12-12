@@ -35,7 +35,6 @@ export default function Login() {
     },
   });
 
-  // OAuth-Provider beim Laden der Komponente abrufen
   useEffect(() => {
     const loadOAuthProviders = async () => {
       const providers = await getOAuthProviders();
@@ -45,16 +44,13 @@ export default function Login() {
     loadOAuthProviders();
   }, []);
 
-  // Token aus URL-Query-Parameter nach OAuth-Redirect verarbeiten
   useEffect(() => {
     const urlParams = new URLSearchParams(globalThis.location.search);
     const token = urlParams.get('token');
     
     if (token) {
-      // Token aus URL verwenden
       loginWithToken(token);
       
-      // Token aus URL entfernen (aus Sicherheitsgründen)
       const newUrl = globalThis.location.origin + globalThis.location.pathname;
       globalThis.history.replaceState({}, document.title, newUrl);
     }
@@ -80,11 +76,9 @@ export default function Login() {
   };
 
   const handleOAuthLogin = (providerUrl) => {
-    // Redirect URI ist die konfigurierte Frontend-URL
     const redirectUri = FRONTEND_URL;
     const fullUrl = `${API_BASE_URL}${providerUrl}?redirect_uri=${encodeURIComponent(redirectUri)}`;
     
-    // Weiterleitung zum OAuth-Provider - wird in einem Event-Handler aufgerufen
     globalThis.location.assign(fullUrl);
   };
 

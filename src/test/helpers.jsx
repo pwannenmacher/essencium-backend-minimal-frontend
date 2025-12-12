@@ -4,9 +4,6 @@ import { Notifications } from '@mantine/notifications';
 import { AuthProvider, AuthContext } from '../context/AuthContext';
 import { ThemeProvider } from '../context/ThemeContext';
 
-/**
- * Render-Wrapper mit allen notwendigen Providern
- */
 export function renderWithProviders(ui, options = {}) {
   const {
     authContext = null,
@@ -35,9 +32,6 @@ export function renderWithProviders(ui, options = {}) {
   return render(ui, { wrapper: Wrapper, ...renderOptions });
 }
 
-/**
- * Mock-User mit verschiedenen Permissions
- */
 export const mockUsers = {
   admin: {
     firstName: 'Admin',
@@ -79,9 +73,6 @@ export const mockUsers = {
   },
 };
 
-/**
- * Generiere Mock-JWT-Token
- */
 export function createMockToken(user, expiresIn = 3600) {
   const now = Math.floor(Date.now() / 1000);
   const payload = {
@@ -91,7 +82,6 @@ export function createMockToken(user, expiresIn = 3600) {
     user: user,
   };
   
-  // Einfaches Base64-Encoding für Tests (nicht kryptographisch sicher)
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
   const body = btoa(JSON.stringify(payload));
   const signature = 'mock-signature';
@@ -110,7 +100,6 @@ export function createMockTokenWithoutExpiration(user = { email: 'test@example.c
     name: user.firstName ? `${user.firstName} ${user.lastName}` : 'John Doe',
   };
   
-  // Einfaches Base64-Encoding für Tests (nicht kryptographisch sicher)
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
   const body = btoa(JSON.stringify(payload));
   const signature = 'mock-signature-without-exp';
@@ -118,9 +107,6 @@ export function createMockTokenWithoutExpiration(user = { email: 'test@example.c
   return `${header}.${body}.${signature}`;
 }
 
-/**
- * Setup fetch mock mit Response
- */
 export function mockFetch(responseData, options = {}) {
   const {
     status = 200,
@@ -138,9 +124,6 @@ export function mockFetch(responseData, options = {}) {
   );
 }
 
-/**
- * Mock für localStorage
- */
 export function mockLocalStorage() {
   const store = {};
   
