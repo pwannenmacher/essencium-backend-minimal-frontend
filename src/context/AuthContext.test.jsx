@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import { AuthProvider, useAuth } from './AuthContext';
-import { createMockToken, mockUsers } from '../test/helpers';
+import { createMockToken, createMockTokenWithoutExpiration, mockUsers } from '../test/helpers';
 
 // Mock der Services - Funktionen müssen vor vi.mock() deklariert werden
 vi.mock('../services/authService', () => ({
@@ -318,8 +318,8 @@ describe('AuthContext', () => {
 
   describe('token expiration handling', () => {
     it('should handle token without expiration claim', async () => {
-      // Token ohne exp-Claim
-      const tokenWithoutExp = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+      // Token ohne exp-Claim zur Laufzeit generieren
+      const tokenWithoutExp = createMockTokenWithoutExpiration(mockUsers.admin);
       
       mockLocalStorage.getItem.mockReturnValue(tokenWithoutExp);
       userService.getMe.mockResolvedValue(mockUsers.admin);
