@@ -170,4 +170,129 @@ describe('roleService', () => {
       );
     });
   });
+
+  describe('patchRole', () => {
+    it('should patch role with partial data', async () => {
+      const partialData = { description: 'Updated description' };
+      const roleName = 'ADMIN';
+      const mockResponse = { 
+        name: roleName, 
+        description: 'Updated description',
+        rights: ['USER_ADMIN', 'ROLE_ADMIN']
+      };
+
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockResponse,
+      });
+
+      const result = await import('./roleService').then(m => 
+        m.patchRole('token', roleName, partialData)
+      );
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        `http://localhost:8098/v1/roles/${roleName}`,
+        expect.objectContaining({
+          method: 'PATCH',
+          headers: {
+            'Authorization': 'Bearer token',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ ...partialData, name: roleName }),
+        })
+      );
+
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should handle patch errors', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        text: async () => 'Invalid data',
+      });
+
+      await expect(
+        import('./roleService').then(m => 
+          m.patchRole('token', 'ADMIN', { description: '' })
+        )
+      ).rejects.toThrow();
+    });
+  });
+
+  describe('getAllRights', () => {
+    it('should fetch all rights without parameters', async () => {
+      const mockRights = {
+        content: [
+          { authority: 'USER_READ' },
+          { authority: 'USER_WRITE' },
+          { authority: 'USER_ADMIN' }
+        ],
+        totalElements: 3
+      };
+
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockRights,
+      });
+
+      const result = await import('./roleService').then(m => 
+        m.getAllRights('token')
+      );
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:8098/v1/rights',
+        expect.objectContaining({
+          headers: {
+            'Authorization': 'Bearer token',
+          },
+        })
+      );
+
+      expect(result).toEqual(mockRights);
+    });
+
+    it('should fetch all rights with pagination', async () => {
+      const mockRights = {
+        content: [
+          { authority: 'USER_READ' },
+          { authority: 'USER_WRITE' }
+        ],
+        totalElements: 10,
+        page: 0,
+        size: 2
+      };
+
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockRights,
+      });
+
+      const result = await import('./roleService').then(m => 
+        m.getAllRights('token', { page: 0, size: 2, sort: 'authority,asc' })
+      );
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:8098/v1/rights?page=0&size=2&sort=authority%2Casc',
+        expect.objectContaining({
+          headers: {
+            'Authorization': 'Bearer token',
+          },
+        })
+      );
+
+      expect(result).toEqual(mockRights);
+    });
+
+    it('should handle getAllRights errors', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 403,
+      });
+
+      await expect(
+        import('./roleService').then(m => m.getAllRights('token'))
+      ).rejects.toThrow('Fehler beim Laden der Rechte: 403');
+    });
+  });
 });

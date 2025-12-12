@@ -4,6 +4,7 @@ import { DateInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { IconAlertCircle } from '@tabler/icons-react';
+import PropTypes from 'prop-types';
 import { AuthContext } from '../context/AuthContext';
 import { createApiToken, getTokenExpirationInfo } from '../services/apiTokenService';
 
@@ -221,3 +222,8 @@ export default function ApiTokenFormModal({ opened, onClose }) {
     </Modal>
   );
 }
+
+ApiTokenFormModal.propTypes = {
+  opened: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired
+};

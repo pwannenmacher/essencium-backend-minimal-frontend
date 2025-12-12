@@ -100,6 +100,25 @@ export function createMockToken(user, expiresIn = 3600) {
 }
 
 /**
+ * Generiere Mock-JWT-Token ohne Expiration Claim
+ */
+export function createMockTokenWithoutExpiration(user = { email: 'test@example.com' }) {
+  const now = Math.floor(Date.now() / 1000);
+  const payload = {
+    sub: user.email,
+    iat: now,
+    name: user.firstName ? `${user.firstName} ${user.lastName}` : 'John Doe',
+  };
+  
+  // Einfaches Base64-Encoding für Tests (nicht kryptographisch sicher)
+  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+  const body = btoa(JSON.stringify(payload));
+  const signature = 'mock-signature-without-exp';
+  
+  return `${header}.${body}.${signature}`;
+}
+
+/**
  * Setup fetch mock mit Response
  */
 export function mockFetch(responseData, options = {}) {

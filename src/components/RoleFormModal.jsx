@@ -3,6 +3,7 @@ import { Modal, TextInput, Textarea, Button, Group, Checkbox, ScrollArea, Stack,
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { IconAlertCircle } from '@tabler/icons-react';
+import PropTypes from 'prop-types';
 import { AuthContext } from '../context/AuthContext';
 import { createRole, updateRole, getAllRights } from '../services/roleService';
 
@@ -188,3 +189,13 @@ export default function RoleFormModal({ opened, onClose, role }) {
     </Modal>
   );
 }
+
+RoleFormModal.propTypes = {
+  opened: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  role: PropTypes.shape({
+    name: PropTypes.string,
+    description: PropTypes.string,
+    rights: PropTypes.arrayOf(PropTypes.string)
+  })
+};

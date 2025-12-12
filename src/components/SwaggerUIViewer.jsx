@@ -15,7 +15,6 @@ import SwaggerUI from 'swagger-ui-react';
 import 'swagger-ui-react/swagger-ui.css';
 import './SwaggerUIViewer.css';
 import { getOpenApiSpec, extractTags, filterSpecByTag } from '../services/openApiService';
-import { API_BASE_URL } from '../config';
 
 export default function SwaggerUIViewer() {
   const [spec, setSpec] = useState(null);
@@ -132,7 +131,7 @@ export default function SwaggerUIViewer() {
                           req.credentials = 'include';
                           return req;
                         }}
-                        onComplete={(swaggerApi) => {
+                        onComplete={() => {
                           // Optional: Callback wenn SwaggerUI fertig geladen ist
                           console.log('SwaggerUI geladen für:', tag.name);
                         }}
