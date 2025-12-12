@@ -7,6 +7,11 @@ import * as authService from '../services/authService';
 
 vi.mock('../services/authService');
 
+// Test-Passwörter zur Laufzeit generieren
+const generateTestPassword = () => `testPwd_${Math.random().toString(36).substring(2, 15)}_${Date.now()}`;
+const TEST_PASSWORD = generateTestPassword();
+const TEST_PASSWORD_WRONG = generateTestPassword();
+
 describe('Login Component', () => {
   const mockLogin = vi.fn();
   const mockCompleteOAuthLogin = vi.fn();
@@ -48,11 +53,11 @@ describe('Login Component', () => {
     const submitButton = screen.getByRole('button', { name: /anmelden/i });
 
     await user.type(emailInput, 'test@example.com');
-    await user.type(passwordInput, 'password123');
+    await user.type(passwordInput, TEST_PASSWORD);
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockLogin).toHaveBeenCalledWith('test@example.com', 'password123');
+      expect(mockLogin).toHaveBeenCalledWith('test@example.com', TEST_PASSWORD);
     });
   });
 
@@ -127,13 +132,13 @@ describe('Login Component', () => {
     const submitButton = screen.getByRole('button', { name: /anmelden/i });
 
     await user.type(usernameInput, 'wronguser');
-    await user.type(passwordInput, 'wrongpassword');
+    await user.type(passwordInput, TEST_PASSWORD_WRONG);
     await user.click(submitButton);
 
     await waitFor(() => {
       expect(screen.getByText(/login fehlgeschlagen/i)).toBeInTheDocument();
     });
 
-    expect(mockLogin).toHaveBeenCalledWith('wronguser', 'wrongpassword');
+    expect(mockLogin).toHaveBeenCalledWith('wronguser', TEST_PASSWORD_WRONG);
   });
 });

@@ -6,6 +6,11 @@ vi.mock('../config.js', () => ({
   API_BASE_URL: 'http://localhost:8098',
 }));
 
+// Test-Passwörter zur Laufzeit generieren
+const generateTestPassword = () => `testPwd_${Math.random().toString(36).substring(2, 15)}_${Date.now()}`;
+const TEST_PASSWORD = generateTestPassword();
+const TEST_PASSWORD_WRONG = generateTestPassword();
+
 describe('authService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -23,7 +28,7 @@ describe('authService', () => {
         json: async () => mockResponse,
       });
 
-      const result = await login('test@example.com', 'password123');
+      const result = await login('test@example.com', TEST_PASSWORD);
 
       expect(global.fetch).toHaveBeenCalledWith(
         'http://localhost:8098/auth/token',
@@ -32,7 +37,7 @@ describe('authService', () => {
           credentials: 'include',
           body: JSON.stringify({
             username: 'test@example.com',
-            password: 'password123',
+            password: TEST_PASSWORD,
           }),
         })
       );
@@ -53,7 +58,7 @@ describe('authService', () => {
     it('should handle network errors', async () => {
       global.fetch.mockRejectedValueOnce(new Error('Network error'));
 
-      await expect(login('test@example.com', 'password')).rejects.toThrow('Network error');
+      await expect(login('test@example.com', TEST_PASSWORD_WRONG)).rejects.toThrow('Network error');
     });
   });
 

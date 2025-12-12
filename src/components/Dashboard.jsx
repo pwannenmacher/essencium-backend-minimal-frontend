@@ -13,7 +13,7 @@ import {
   Tabs,
 } from '@mantine/core';
 import { useState } from 'react';
-import { IconLogout, IconKey, IconUser, IconUsers, IconShieldLock, IconApiApp, IconShield, IconDeviceDesktop, IconApi } from '@tabler/icons-react';
+import { IconLogout, IconUser, IconUsers, IconShieldLock, IconApiApp, IconShield, IconDeviceDesktop, IconApi } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
 import ThemeToggle from './ThemeToggle';
 import UserProfile from './UserProfile';
@@ -33,7 +33,7 @@ export default function Dashboard() {
 
   const handleProfileUpdate = () => {
     // User-Daten werden automatisch durch den AuthContext neu geladen
-    window.location.reload();
+    globalThis.location.reload();
   };
 
   // Prüfe ob User die notwendigen Rechte hat

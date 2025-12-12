@@ -47,7 +47,7 @@ export default function Login() {
 
   // Token aus URL-Query-Parameter nach OAuth-Redirect verarbeiten
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(globalThis.location.search);
     const token = urlParams.get('token');
     
     if (token) {
@@ -55,8 +55,8 @@ export default function Login() {
       loginWithToken(token);
       
       // Token aus URL entfernen (aus Sicherheitsgründen)
-      const newUrl = window.location.origin + window.location.pathname;
-      window.history.replaceState({}, document.title, newUrl);
+      const newUrl = globalThis.location.origin + globalThis.location.pathname;
+      globalThis.history.replaceState({}, document.title, newUrl);
     }
   }, [loginWithToken]);
 
@@ -85,7 +85,7 @@ export default function Login() {
     const fullUrl = `${API_BASE_URL}${providerUrl}?redirect_uri=${encodeURIComponent(redirectUri)}`;
     
     // Weiterleitung zum OAuth-Provider - wird in einem Event-Handler aufgerufen
-    window.location.assign(fullUrl);
+    globalThis.location.assign(fullUrl);
   };
 
   return (

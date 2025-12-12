@@ -12,6 +12,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconAlertCircle, IconUser, IconLock } from '@tabler/icons-react';
+import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
 import { patchMe, updateMyPassword } from '../services/userService';
 import { notifications } from '@mantine/notifications';
@@ -219,3 +220,9 @@ export default function EditProfileModal({ opened, onClose, onSuccess }) {
     </Modal>
   );
 }
+
+EditProfileModal.propTypes = {
+  opened: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSuccess: PropTypes.func.isRequired
+};
