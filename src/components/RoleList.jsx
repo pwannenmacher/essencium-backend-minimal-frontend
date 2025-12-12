@@ -2,6 +2,7 @@ import { useState, useEffect, useContext, useCallback } from 'react';
 import { Table, Button, TextInput, Group, Menu, ActionIcon, Text, Modal, Badge } from '@mantine/core';
 import { IconSearch, IconPlus, IconDots, IconEdit, IconTrash } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
+import PropTypes from 'prop-types';
 import { AuthContext } from '../context/AuthContext';
 import { getRoles, deleteRole } from '../services/roleService';
 import RoleFormModal from './RoleFormModal';
@@ -218,3 +219,7 @@ export default function RoleList({ active }) {
     </>
   );
 }
+
+RoleList.propTypes = {
+  active: PropTypes.bool
+};

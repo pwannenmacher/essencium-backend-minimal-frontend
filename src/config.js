@@ -9,7 +9,7 @@
  */
 
 // Runtime-Konfiguration (wird vom Docker-Entrypoint gesetzt)
-const runtimeConfig = typeof window !== 'undefined' && window.RUNTIME_CONFIG;
+const runtimeConfig = typeof globalThis.window !== 'undefined' && globalThis.window.RUNTIME_CONFIG;
 
 // Backend API Base URL
 // Priorität: Runtime-Config > Build-Zeit-Env > Default

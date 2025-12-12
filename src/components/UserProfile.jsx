@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Card, Text, Group, Badge, Stack, Title, Divider, Button } from '@mantine/core';
 import { IconUser, IconMail, IconPhone, IconWorld, IconShield, IconEdit, IconHash } from '@tabler/icons-react';
+import PropTypes from 'prop-types';
 import EditProfileModal from './EditProfileModal';
 
 export default function UserProfile({ user, onUpdate }) {
@@ -121,3 +122,22 @@ export default function UserProfile({ user, onUpdate }) {
     </>
   );
 }
+
+UserProfile.propTypes = {
+  user: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    firstName: PropTypes.string,
+    lastName: PropTypes.string,
+    email: PropTypes.string,
+    phone: PropTypes.string,
+    mobile: PropTypes.string,
+    locale: PropTypes.string,
+    source: PropTypes.string,
+    roles: PropTypes.arrayOf(PropTypes.shape({
+      name: PropTypes.string
+    })),
+    enabled: PropTypes.bool,
+    loginDisabled: PropTypes.bool
+  }).isRequired,
+  onUpdate: PropTypes.func.isRequired
+};

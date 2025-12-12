@@ -13,6 +13,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconAlertCircle } from '@tabler/icons-react';
+import PropTypes from 'prop-types';
 
 export default function UserFormModal({ opened, onClose, onSubmit, user, roles, mode = 'create' }) {
   const [loading, setLoading] = useState(false);
@@ -221,3 +222,26 @@ export default function UserFormModal({ opened, onClose, onSubmit, user, roles, 
     </Modal>
   );
 }
+
+UserFormModal.propTypes = {
+  opened: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  user: PropTypes.shape({
+    email: PropTypes.string,
+    firstName: PropTypes.string,
+    lastName: PropTypes.string,
+    locale: PropTypes.string,
+    roles: PropTypes.arrayOf(PropTypes.shape({
+      name: PropTypes.string
+    })),
+    enabled: PropTypes.bool,
+    loginDisabled: PropTypes.bool,
+    phone: PropTypes.string,
+    mobile: PropTypes.string
+  }),
+  roles: PropTypes.arrayOf(PropTypes.shape({
+    name: PropTypes.string
+  })).isRequired,
+  mode: PropTypes.oneOf(['create', 'edit'])
+};

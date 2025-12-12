@@ -27,6 +27,7 @@ import {
   IconUserOff,
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
+import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
 import { getUsers, createUser, updateUser, deleteUser, terminateUserSessions } from '../services/userService';
 import { getRoles } from '../services/roleService';
@@ -225,7 +226,7 @@ export default function UserList({ active }) {
             icon={<IconSearch size={14} />}
             value={searchEmail}
             onChange={(e) => setSearchEmail(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             style={{ flex: 1 }}
           />
           <TextInput
@@ -233,7 +234,7 @@ export default function UserList({ active }) {
             icon={<IconSearch size={14} />}
             value={searchName}
             onChange={(e) => setSearchName(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             style={{ flex: 1 }}
           />
           <Button onClick={handleSearch} loading={loading}>
@@ -379,3 +380,7 @@ export default function UserList({ active }) {
     </>
   );
 }
+
+UserList.propTypes = {
+  active: PropTypes.bool
+};

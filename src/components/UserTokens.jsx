@@ -19,7 +19,7 @@ export default function UserTokens() {
   const parseJwt = (token) => {
     try {
       const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const base64 = base64Url.replaceAll('-', '+').replaceAll('_', '/');
       const jsonPayload = decodeURIComponent(
         atob(base64)
           .split('')
