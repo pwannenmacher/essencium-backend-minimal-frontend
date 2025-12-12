@@ -2,6 +2,7 @@ import { useState, useEffect, useContext, useCallback } from 'react';
 import { Table, TextInput, Group, Menu, ActionIcon, Text, Modal, Badge, Card, Stack, Button } from '@mantine/core';
 import { IconSearch, IconDots, IconTrash, IconUser, IconBan } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
+import PropTypes from 'prop-types';
 import { AuthContext } from '../context/AuthContext';
 import { getAllApiTokensAdmin, deleteApiToken, revokeApiToken } from '../services/apiTokenService';
 
@@ -307,3 +308,7 @@ export default function ApiTokenAdminList({ active }) {
     </>
   );
 }
+
+ApiTokenAdminList.propTypes = {
+  active: PropTypes.bool
+};

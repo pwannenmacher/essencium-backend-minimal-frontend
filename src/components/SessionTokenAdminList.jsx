@@ -2,6 +2,7 @@ import { useState, useEffect, useContext, useCallback } from 'react';
 import { Table, TextInput, Group, Menu, ActionIcon, Text, Modal, Badge, Card, Stack, Button } from '@mantine/core';
 import { IconSearch, IconDots, IconTrash, IconUser, IconClock } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
+import PropTypes from 'prop-types';
 import { AuthContext } from '../context/AuthContext';
 import { getAllUsersWithTokens, deleteUserToken } from '../services/userService';
 
@@ -246,3 +247,7 @@ export default function SessionTokenAdminList({ active }) {
     </>
   );
 }
+
+SessionTokenAdminList.propTypes = {
+  active: PropTypes.bool
+};

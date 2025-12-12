@@ -1,7 +1,8 @@
 import { useState, useEffect, useContext, useCallback } from 'react';
 import { Table, Button, TextInput, Group, Menu, ActionIcon, Text, Modal, Badge, Code, Box, Alert } from '@mantine/core';
-import { IconSearch, IconPlus, IconDots, IconTrash, IconKey, IconCopy, IconAlertCircle, IconBan } from '@tabler/icons-react';
+import { IconSearch, IconPlus, IconDots, IconTrash, IconCopy, IconAlertCircle, IconBan } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
+import PropTypes from 'prop-types';
 import { AuthContext } from '../context/AuthContext';
 import { getApiTokens, deleteApiToken, revokeApiToken } from '../services/apiTokenService';
 import ApiTokenFormModal from './ApiTokenFormModal';
@@ -98,7 +99,7 @@ export default function ApiTokenList({ active }) {
     loadApiTokens();
     
     // Wenn ein neuer Token erstellt wurde, zeige ihn an
-    if (createdToken && createdToken.token) {
+    if (createdToken?.token) {
       setNewTokenData(createdToken);
       setShowTokenModal(true);
     }
@@ -355,3 +356,7 @@ export default function ApiTokenList({ active }) {
     </>
   );
 }
+
+ApiTokenList.propTypes = {
+  active: PropTypes.bool
+};

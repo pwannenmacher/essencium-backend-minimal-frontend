@@ -1,7 +1,6 @@
-import { ActionIcon, Menu, Group, Text } from '@mantine/core';
+import { ActionIcon, Menu, Group, Text, useMantineColorScheme } from '@mantine/core';
 import { IconSun, IconMoon, IconDeviceDesktop } from '@tabler/icons-react';
 import { useTheme } from '../context/ThemeContext';
-import { useMantineColorScheme } from '@mantine/core';
 
 export default function ThemeToggle() {
   const { themeMode, toggleTheme } = useTheme();
