@@ -262,5 +262,166 @@ describe('AuthContext', () => {
         expect(screen.getByTestId('has-user')).toHaveTextContent('No');
       });
     });
+
+    it('should return false when user is null', async () => {
+      mockLocalStorage.getItem.mockReturnValue(null);
+
+      function TestComponent() {
+        const { hasPermission, hasRole } = useAuth();
+        
+        return (
+          <div>
+            <div data-testid="has-permission">{hasPermission('USER_ADMIN') ? 'Yes' : 'No'}</div>
+            <div data-testid="has-role">{hasRole('ADMIN') ? 'Yes' : 'No'}</div>
+          </div>
+        );
+      }
+
+      render(
+        <AuthProvider>
+          <TestComponent />
+        </AuthProvider>
+      );
+
+      expect(screen.getByTestId('has-permission')).toHaveTextContent('No');
+      expect(screen.getByTestId('has-role')).toHaveTextContent('No');
+    });
+
+    it('should check when user has no roles array', async () => {
+      mockLocalStorage.getItem.mockReturnValue('token');
+      const userWithoutRoles = { email: 'test@example.com' };
+      userService.getMe.mockResolvedValue(userWithoutRoles);
+
+      function TestComponent() {
+        const { hasPermission, hasRole } = useAuth();
+        
+        return (
+          <div>
+            <div data-testid="has-permission">{hasPermission('USER_ADMIN') ? 'Yes' : 'No'}</div>
+            <div data-testid="has-role">{hasRole('ADMIN') ? 'Yes' : 'No'}</div>
+          </div>
+        );
+      }
+
+      render(
+        <AuthProvider>
+          <TestComponent />
+        </AuthProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('has-permission')).toHaveTextContent('No');
+        expect(screen.getByTestId('has-role')).toHaveTextContent('No');
+      });
+    });
+  });
+
+  describe('token expiration handling', () => {
+    it('should handle token without expiration claim', async () => {
+      // Token ohne exp-Claim
+      const tokenWithoutExp = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+      
+      mockLocalStorage.getItem.mockReturnValue(tokenWithoutExp);
+      userService.getMe.mockResolvedValue(mockUsers.admin);
+
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      function TestComponent() {
+        const { token } = useAuth();
+        return <div data-testid="token">{token ? 'Has token' : 'No token'}</div>;
+      }
+
+      render(
+        <AuthProvider>
+          <TestComponent />
+        </AuthProvider>
+      );
+
+      await waitFor(() => {
+        expect(userService.getMe).toHaveBeenCalled();
+      });
+
+      expect(consoleWarnSpy).toHaveBeenCalledWith('Token hat keine Ablaufzeit');
+      expect(authService.renewToken).not.toHaveBeenCalled();
+
+      consoleWarnSpy.mockRestore();
+    });
+
+    it('should handle invalid JWT format and logout', async () => {
+      const invalidToken = 'invalid.token.format';
+      
+      mockLocalStorage.getItem.mockReturnValue(invalidToken);
+      userService.getMe.mockRejectedValue(new Error('Invalid token'));
+
+      function TestComponent() {
+        const { token } = useAuth();
+        return <div data-testid="token">{token ? 'Has token' : 'No token'}</div>;
+      }
+
+      render(
+        <AuthProvider>
+          <TestComponent />
+        </AuthProvider>
+      );
+
+      // Token sollte entfernt werden bei Fehler
+      await waitFor(() => {
+        expect(screen.getByTestId('token')).toHaveTextContent('No token');
+      });
+    });
+  });
+
+  describe('user data loading', () => {
+    it('should load user data when token is present', async () => {
+      const mockToken = createMockToken(mockUsers.admin);
+      
+      mockLocalStorage.getItem.mockReturnValue(mockToken);
+      userService.getMe.mockResolvedValue(mockUsers.admin);
+
+      function TestComponent() {
+        const { user } = useAuth();
+        return <div data-testid="user">{user?.email || 'No user'}</div>;
+      }
+
+      render(
+        <AuthProvider>
+          <TestComponent />
+        </AuthProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('user')).toHaveTextContent('admin@example.com');
+      });
+
+      expect(userService.getMe).toHaveBeenCalledWith(mockToken);
+    });
+
+    it('should logout on failed user data fetch', async () => {
+      const mockToken = createMockToken(mockUsers.admin);
+      
+      mockLocalStorage.getItem.mockReturnValue(mockToken);
+      userService.getMe.mockRejectedValue(new Error('Unauthorized'));
+
+      function TestComponent() {
+        const { token, user } = useAuth();
+        return (
+          <div>
+            <div data-testid="token">{token ? 'Has token' : 'No token'}</div>
+            <div data-testid="user">{user?.email || 'No user'}</div>
+          </div>
+        );
+      }
+
+      render(
+        <AuthProvider>
+          <TestComponent />
+        </AuthProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('token')).toHaveTextContent('No token');
+        expect(screen.getByTestId('user')).toHaveTextContent('No user');
+      });
+    });
   });
 });
