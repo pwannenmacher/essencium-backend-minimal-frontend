@@ -13,6 +13,10 @@ vi.mock('../config.js', () => ({
   API_BASE_URL: 'http://localhost:8098',
 }));
 
+// Test-Passwort zur Laufzeit generieren
+const generateTestPassword = () => `testPwd_${Math.random().toString(36).substring(2, 15)}_${Date.now()}`;
+const TEST_PASSWORD = generateTestPassword();
+
 describe('userService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -65,7 +69,7 @@ describe('userService', () => {
         email: 'new@example.com',
         firstName: 'New',
         lastName: 'User',
-        password: 'password123',
+        password: TEST_PASSWORD,
         locale: 'de',
         roles: ['USER'],
       };
