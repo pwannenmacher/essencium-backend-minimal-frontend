@@ -32,7 +32,6 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('profile');
 
   const handleProfileUpdate = () => {
-    // User-Daten werden automatisch durch den AuthContext neu geladen
     globalThis.location.reload();
   };
 
@@ -53,7 +52,6 @@ export default function Dashboard() {
     role.rights?.some(right => right.authority === 'SESSION_TOKEN_ADMIN')
   ) || false;
 
-  // User mit API_TOKEN_ADMIN haben automatisch auch API_TOKEN Rechte
   const canManagePersonalTokens = hasApiTokenRight || hasApiTokenAdminRight;
 
   if (!user && token) {
@@ -130,13 +128,11 @@ export default function Dashboard() {
 
             <Tabs.Panel value="profile" pt="lg">
               <SimpleGrid cols={2} spacing="lg" breakpoints={[{ maxWidth: 'md', cols: 1 }]}>
-                {/* Linke Spalte: Benutzerprofil */}
                 <Stack spacing="lg">
                   <UserProfile user={user} onUpdate={handleProfileUpdate} />
                   <UserRolesRights />
                 </Stack>
 
-                {/* Rechte Spalte: Tokens und Info */}
                 <Stack spacing="lg">
                   <UserTokens />
                   <JwtViewer />

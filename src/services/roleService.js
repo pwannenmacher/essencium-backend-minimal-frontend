@@ -1,8 +1,5 @@
 import { API_BASE_URL } from '../config.js';
 
-/**
- * GET /v1/roles - Alle Rollen abrufen
- */
 export const getRoles = async (token, params = {}) => {
   const queryParams = new URLSearchParams();
   
@@ -26,9 +23,6 @@ export const getRoles = async (token, params = {}) => {
   return response.json();
 };
 
-/**
- * GET /v1/roles/{name} - Einzelne Rolle abrufen
- */
 export const getRoleByName = async (token, name) => {
   const response = await fetch(`${API_BASE_URL}/v1/roles/${name}`, {
     headers: {
@@ -43,9 +37,6 @@ export const getRoleByName = async (token, name) => {
   return response.json();
 };
 
-/**
- * POST /v1/roles - Neue Rolle erstellen
- */
 export const createRole = async (token, roleData) => {
   const response = await fetch(`${API_BASE_URL}/v1/roles`, {
     method: 'POST',
@@ -64,9 +55,6 @@ export const createRole = async (token, roleData) => {
   return response.json();
 };
 
-/**
- * PUT /v1/roles/{name} - Rolle vollständig aktualisieren
- */
 export const updateRole = async (token, name, roleData) => {
   const response = await fetch(`${API_BASE_URL}/v1/roles/${name}`, {
     method: 'PUT',
@@ -85,9 +73,6 @@ export const updateRole = async (token, name, roleData) => {
   return response.json();
 };
 
-/**
- * PATCH /v1/roles/{name} - Rolle partiell aktualisieren
- */
 export const patchRole = async (token, name, partialData) => {
   const response = await fetch(`${API_BASE_URL}/v1/roles/${name}`, {
     method: 'PATCH',
@@ -106,9 +91,6 @@ export const patchRole = async (token, name, partialData) => {
   return response.json();
 };
 
-/**
- * DELETE /v1/roles/{name} - Rolle löschen
- */
 export const deleteRole = async (token, name) => {
   const response = await fetch(`${API_BASE_URL}/v1/roles/${name}`, {
     method: 'DELETE',
@@ -122,13 +104,9 @@ export const deleteRole = async (token, name) => {
     throw new Error(error || `Rollen-Löschung fehlgeschlagen: ${response.status}`);
   }
 
-  // 204 No Content
   return;
 };
 
-/**
- * GET /v1/rights - Alle verfügbaren Rechte abrufen
- */
 export const getAllRights = async (token, params = {}) => {
   const queryParams = new URLSearchParams();
   

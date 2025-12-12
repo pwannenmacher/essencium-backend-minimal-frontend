@@ -6,8 +6,6 @@ import { renderWithProviders } from '../test/helpers';
 import * as authService from '../services/authService';
 
 vi.mock('../services/authService');
-
-// Test-Passwörter zur Laufzeit generieren
 const generateTestPassword = () => `testPwd_${Math.random().toString(36).substring(2, 15)}_${Date.now()}`;
 const TEST_PASSWORD = generateTestPassword();
 const TEST_PASSWORD_WRONG = generateTestPassword();
@@ -70,7 +68,6 @@ describe('Login Component', () => {
     
     await user.click(submitButton);
 
-    // Mantine form validation sollte verhindern, dass Login aufgerufen wird
     expect(mockLogin).not.toHaveBeenCalled();
   });
 
@@ -92,7 +89,6 @@ describe('Login Component', () => {
     const user = userEvent.setup();
     const assignMock = vi.fn();
     
-    // Mock window.location.assign
     delete window.location;
     window.location = { assign: assignMock, origin: 'http://localhost:5173' };
 

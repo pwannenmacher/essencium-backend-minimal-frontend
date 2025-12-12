@@ -49,14 +49,13 @@ export default function UserFormModal({ opened, onClose, onSubmit, user, roles, 
     },
   });
 
-  // Formular mit User-Daten füllen im Edit-Modus
   useEffect(() => {
     if (user && mode === 'edit') {
       form.setValues({
         email: user.email || '',
         firstName: user.firstName || '',
         lastName: user.lastName || '',
-        password: '', // Passwort nicht vorausfüllen
+        password: '',
         locale: user.locale || 'de',
         roles: user.roles?.map(r => r.name) || [],
         enabled: user.enabled ?? true,
@@ -67,14 +66,13 @@ export default function UserFormModal({ opened, onClose, onSubmit, user, roles, 
     } else if (mode === 'create') {
       form.reset();
     }
-  }, [user, mode, opened]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user, mode, opened]);
 
   const handleSubmit = async (values) => {
     setLoading(true);
     setError(null);
 
     try {
-      // Im Edit-Modus Passwort nur senden, wenn es gefüllt ist
       const submitData = { ...values };
       if (mode === 'edit' && !submitData.password) {
         delete submitData.password;

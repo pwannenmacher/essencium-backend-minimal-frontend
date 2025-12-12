@@ -89,7 +89,6 @@ export default function UserList({ active }) {
     }
   }, [token]);
 
-  // Lade Daten nur wenn Tab aktiv ist
   useEffect(() => {
     if (active && token) {
       fetchUsers(0);

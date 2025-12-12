@@ -1,8 +1,5 @@
 import { API_BASE_URL } from '../config.js';
 
-/**
- * GET /v1/api-tokens - Alle API-Tokens abrufen (paginiert)
- */
 export const getApiTokens = async (token, params = {}) => {
   const queryParams = new URLSearchParams();
   
@@ -34,9 +31,6 @@ export const getApiTokens = async (token, params = {}) => {
   return response.json();
 };
 
-/**
- * GET /v1/api-tokens/basic - Alle API-Tokens als Basic-Repräsentation
- */
 export const getApiTokensBasic = async (token, params = {}) => {
   const queryParams = new URLSearchParams();
   
@@ -65,9 +59,6 @@ export const getApiTokensBasic = async (token, params = {}) => {
   return response.json();
 };
 
-/**
- * GET /v1/api-tokens/{id} - Einzelnen API-Token abrufen
- */
 export const getApiTokenById = async (token, id) => {
   const response = await fetch(`${API_BASE_URL}/v1/api-tokens/${id}`, {
     headers: {
@@ -82,9 +73,6 @@ export const getApiTokenById = async (token, id) => {
   return response.json();
 };
 
-/**
- * POST /v1/api-tokens - Neuen API-Token erstellen
- */
 export const createApiToken = async (token, tokenData) => {
   const response = await fetch(`${API_BASE_URL}/v1/api-tokens`, {
     method: 'POST',
@@ -103,10 +91,6 @@ export const createApiToken = async (token, tokenData) => {
   return response.json();
 };
 
-/**
- * PUT /v1/api-tokens/{id} - API-Token vollständig aktualisieren
- * ID muss sowohl im Pfad als auch im Body mitgegeben werden
- */
 export const updateApiToken = async (token, id, tokenData) => {
   const response = await fetch(`${API_BASE_URL}/v1/api-tokens/${id}`, {
     method: 'PUT',
@@ -125,10 +109,6 @@ export const updateApiToken = async (token, id, tokenData) => {
   return response.json();
 };
 
-/**
- * PATCH /v1/api-tokens/{id} - API-Token partiell aktualisieren
- * Nur status kann gepatcht werden
- */
 export const patchApiToken = async (token, id, partialData) => {
   const response = await fetch(`${API_BASE_URL}/v1/api-tokens/${id}`, {
     method: 'PATCH',
@@ -147,16 +127,10 @@ export const patchApiToken = async (token, id, partialData) => {
   return response.json();
 };
 
-/**
- * PATCH /v1/api-tokens/{id} - API-Token widerrufen (REVOKE)
- */
 export const revokeApiToken = async (token, id) => {
   return patchApiToken(token, id, { status: 'REVOKED' });
 };
 
-/**
- * DELETE /v1/api-tokens/{id} - API-Token löschen
- */
 export const deleteApiToken = async (token, id) => {
   const response = await fetch(`${API_BASE_URL}/v1/api-tokens/${id}`, {
     method: 'DELETE',
@@ -170,14 +144,9 @@ export const deleteApiToken = async (token, id) => {
     throw new Error(error || `API-Token-Löschung fehlgeschlagen: ${response.status}`);
   }
 
-  // 204 No Content
   return;
 };
 
-/**
- * GET /v1/api-tokens/all - Alle API-Tokens aller Nutzer abrufen (Admin)
- * Gibt ein Object zurück mit User-Basic-Representation als Key und Array von Tokens als Value
- */
 export const getAllApiTokensAdmin = async (token) => {
   const response = await fetch(`${API_BASE_URL}/v1/api-tokens/all`, {
     headers: {
@@ -192,9 +161,6 @@ export const getAllApiTokensAdmin = async (token) => {
   return response.json();
 };
 
-/**
- * GET /v1/api-tokens/token-expiration-info - Token-Ablaufzeit in Sekunden abrufen
- */
 export const getTokenExpirationInfo = async (token) => {
   const response = await fetch(`${API_BASE_URL}/v1/api-tokens/token-expiration-info`, {
     headers: {

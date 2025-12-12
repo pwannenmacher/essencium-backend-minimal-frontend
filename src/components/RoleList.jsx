@@ -17,7 +17,6 @@ export default function RoleList({ active }) {
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [editRole, setEditRole] = useState(null);
 
-  // Prüfe Berechtigungen
   const hasRoleCreateRight = user?.roles?.some(role => 
     role.rights?.some(right => right.authority === 'ROLE_CREATE')
   ) || false;
@@ -46,7 +45,6 @@ export default function RoleList({ active }) {
     }
   }, [token]);
 
-  // Lade Daten nur wenn Tab aktiv ist
   useEffect(() => {
     if (active && token) {
       loadRoles();
