@@ -385,7 +385,7 @@ describe('userService', () => {
       await import('./userService').then(m => m.deleteMyToken('token', tokenId));
 
       expect(global.fetch).toHaveBeenCalledWith(
-        `http://localhost:8098/v1/users/me/token/${tokenId}`,
+        `http://localhost:8098/v1/users/me/tokens/${tokenId}`,
         expect.objectContaining({
           method: 'DELETE',
           headers: {
@@ -459,7 +459,7 @@ describe('userService', () => {
       );
 
       expect(global.fetch).toHaveBeenCalledWith(
-        'http://localhost:8098/v1/users/token',
+        'http://localhost:8098/v1/users/tokens',
         expect.objectContaining({
           headers: expect.objectContaining({
             'Authorization': 'Bearer admin-token',
@@ -485,7 +485,7 @@ describe('userService', () => {
       );
 
       expect(global.fetch).toHaveBeenCalledWith(
-        `http://localhost:8098/v1/users/${userId}/token/${tokenId}`,
+        `http://localhost:8098/v1/users/${userId}/tokens/${tokenId}`,
         expect.objectContaining({
           method: 'DELETE',
           headers: {
