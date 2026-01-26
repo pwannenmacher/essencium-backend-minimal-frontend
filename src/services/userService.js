@@ -31,7 +31,7 @@ export const getMyRights = async (token) => {
 };
 
 export const getMyTokens = async (token) => {
-  return authenticatedFetch(`${API_BASE_URL}/v1/users/me/token`, token);
+  return authenticatedFetch(`${API_BASE_URL}/v1/users/me/tokens`, token);
 };
 
 export const getUserById = async (token, id) => {
@@ -213,10 +213,10 @@ export const updateMyPassword = async (token, passwordData) => {
 };
 
 /**
- * DELETE /v1/users/me/token/{id} - Einzelnen Token/Session löschen
+ * DELETE /v1/users/me/tokens/{id} - Einzelnen Token/Session löschen
  */
 export const deleteMyToken = async (token, tokenId) => {
-  const response = await fetch(`${API_BASE_URL}/v1/users/me/token/${tokenId}`, {
+  const response = await fetch(`${API_BASE_URL}/v1/users/me/tokens/${tokenId}`, {
     method: 'DELETE',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -253,11 +253,11 @@ export const terminateUserSessions = async (token, id) => {
 };
 
 export const getAllUsersWithTokens = async (token) => {
-  return authenticatedFetch(`${API_BASE_URL}/v1/users/token`, token);
+  return authenticatedFetch(`${API_BASE_URL}/v1/users/tokens`, token);
 };
 
 export const deleteUserToken = async (token, userId, tokenId) => {
-  const response = await fetch(`${API_BASE_URL}/v1/users/${userId}/token/${tokenId}`, {
+  const response = await fetch(`${API_BASE_URL}/v1/users/${userId}/tokens/${tokenId}`, {
     method: 'DELETE',
     headers: {
       'Authorization': `Bearer ${token}`,
