@@ -1,6 +1,27 @@
 import { useState, useEffect, useContext, useCallback } from 'react';
-import { Table, Button, TextInput, Group, Menu, ActionIcon, Text, Modal, Badge, Code, Box, Alert } from '@mantine/core';
-import { IconSearch, IconPlus, IconDots, IconTrash, IconCopy, IconAlertCircle, IconBan } from '@tabler/icons-react';
+import {
+  Table,
+  Button,
+  TextInput,
+  Group,
+  Menu,
+  ActionIcon,
+  Text,
+  Modal,
+  Badge,
+  Code,
+  Box,
+  Alert,
+} from '@mantine/core';
+import {
+  IconSearch,
+  IconPlus,
+  IconDots,
+  IconTrash,
+  IconCopy,
+  IconAlertCircle,
+  IconBan,
+} from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import PropTypes from 'prop-types';
 import { AuthContext } from '../context/AuthContext';
@@ -20,8 +41,8 @@ export default function ApiTokenList({ active }) {
   const [showTokenModal, setShowTokenModal] = useState(false);
   const [newTokenData, setNewTokenData] = useState(null);
 
-  const hasApiTokenAdminRight = user?.roles?.some(role => 
-    role.rights?.some(right => right.authority === 'API_TOKEN_ADMIN')
+  const hasApiTokenAdminRight = user?.roles?.some((role) =>
+    role.rights?.some((right) => right.authority === 'API_TOKEN_ADMIN')
   );
 
   const loadApiTokens = useCallback(async () => {
@@ -95,7 +116,7 @@ export default function ApiTokenList({ active }) {
   const handleFormClose = (createdToken) => {
     setFormModalOpen(false);
     loadApiTokens();
-    
+
     if (createdToken?.token) {
       setNewTokenData(createdToken);
       setShowTokenModal(true);
@@ -129,54 +150,64 @@ export default function ApiTokenList({ active }) {
 
   const getStatusBadge = (apiToken) => {
     const status = apiToken.status;
-    
+
     if (!status) {
       if (isExpired(apiToken.validUntil)) {
         return <Badge color="red">Abgelaufen ({formatDate(apiToken.validUntil)})</Badge>;
       }
       return <Badge color="green">Aktiv bis {formatDate(apiToken.validUntil)}</Badge>;
     }
-    
+
     switch (status) {
       case 'ACTIVE':
         if (isExpired(apiToken.validUntil)) {
           return <Badge color="red">Abgelaufen ({formatDate(apiToken.validUntil)})</Badge>;
         }
         return <Badge color="green">Aktiv bis {formatDate(apiToken.validUntil)}</Badge>;
-      
+
       case 'REVOKED':
         return <Badge color="gray">Widerrufen ({formatDateTime(apiToken.updatedAt)})</Badge>;
-      
+
       case 'REVOKED_ROLE_CHANGED':
-        return <Badge color="orange">Widerrufen (Rolle geändert, {formatDateTime(apiToken.updatedAt)})</Badge>;
-      
+        return (
+          <Badge color="orange">
+            Widerrufen (Rolle geändert, {formatDateTime(apiToken.updatedAt)})
+          </Badge>
+        );
+
       case 'REVOKED_RIGHTS_CHANGED':
-        return <Badge color="orange">Widerrufen (Rechte geändert, {formatDateTime(apiToken.updatedAt)})</Badge>;
-      
+        return (
+          <Badge color="orange">
+            Widerrufen (Rechte geändert, {formatDateTime(apiToken.updatedAt)})
+          </Badge>
+        );
+
       case 'REVOKED_USER_CHANGED':
-        return <Badge color="orange">Widerrufen (Nutzer geändert, {formatDateTime(apiToken.updatedAt)})</Badge>;
-      
+        return (
+          <Badge color="orange">
+            Widerrufen (Nutzer geändert, {formatDateTime(apiToken.updatedAt)})
+          </Badge>
+        );
+
       case 'EXPIRED':
         return <Badge color="red">Abgelaufen</Badge>;
-      
+
       case 'USER_DELETED':
         return <Badge color="red">Nutzer gelöscht</Badge>;
-      
+
       default:
         return <Badge color="gray">{status || 'Unbekannt'}</Badge>;
     }
   };
 
-  const filteredTokens = apiTokens.filter(t => 
+  const filteredTokens = apiTokens.filter((t) =>
     t.description?.toLowerCase().includes(searchValue.toLowerCase())
   );
 
   const rows = filteredTokens.map((apiToken) => (
     <Table.Tr key={apiToken.id}>
       <Table.Td>{apiToken.description}</Table.Td>
-      <Table.Td>
-        {getStatusBadge(apiToken)}
-      </Table.Td>
+      <Table.Td>{getStatusBadge(apiToken)}</Table.Td>
       <Table.Td>
         <Badge>{apiToken.rights?.length || 0} Rechte</Badge>
       </Table.Td>
@@ -288,7 +319,8 @@ export default function ApiTokenList({ active }) {
         title="API-Token widerrufen"
       >
         <Text mb="md">
-          Möchten Sie den API-Token "{tokenToRevoke?.description}" wirklich widerrufen? Diese Aktion kann nicht rückgängig gemacht werden.
+          Möchten Sie den API-Token "{tokenToRevoke?.description}" wirklich widerrufen? Diese Aktion
+          kann nicht rückgängig gemacht werden.
         </Text>
         <Group justify="flex-end">
           <Button variant="default" onClick={() => setRevokeModalOpen(false)}>
@@ -313,15 +345,15 @@ export default function ApiTokenList({ active }) {
         <Alert icon={<IconAlertCircle size={16} />} color="yellow" mb="md">
           Wichtig: Dieser Token wird nur einmal angezeigt. Speichern Sie ihn an einem sicheren Ort!
         </Alert>
-        
+
         <Text size="sm" fw={500} mb="xs">
           Beschreibung: {newTokenData?.description}
         </Text>
-        
+
         <Text size="sm" mb="xs">
           Token:
         </Text>
-        
+
         <Box mb="md">
           <Code block style={{ wordBreak: 'break-all', fontSize: '11px' }}>
             {newTokenData?.token}
@@ -336,23 +368,22 @@ export default function ApiTokenList({ active }) {
           >
             In Zwischenablage kopieren
           </Button>
-          <Button onClick={() => {
-            setShowTokenModal(false);
-            setNewTokenData(null);
-          }}>
+          <Button
+            onClick={() => {
+              setShowTokenModal(false);
+              setNewTokenData(null);
+            }}
+          >
             Schließen
           </Button>
         </Group>
       </Modal>
 
-      <ApiTokenFormModal
-        opened={formModalOpen}
-        onClose={handleFormClose}
-      />
+      <ApiTokenFormModal opened={formModalOpen} onClose={handleFormClose} />
     </>
   );
 }
 
 ApiTokenList.propTypes = {
-  active: PropTypes.bool
+  active: PropTypes.bool,
 };

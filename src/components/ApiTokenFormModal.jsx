@@ -1,5 +1,15 @@
 import { useEffect, useContext, useState } from 'react';
-import { Modal, TextInput, Button, Group, Checkbox, ScrollArea, Stack, Text, Alert } from '@mantine/core';
+import {
+  Modal,
+  TextInput,
+  Button,
+  Group,
+  Checkbox,
+  ScrollArea,
+  Stack,
+  Text,
+  Alert,
+} from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
@@ -14,10 +24,9 @@ export default function ApiTokenFormModal({ opened, onClose }) {
   const [expirationInfo, setExpirationInfo] = useState(null);
   const [loadingExpiration, setLoadingExpiration] = useState(false);
 
-  const availableRights = user?.roles?.flatMap(role => 
-    role.rights?.map(right => right.authority) || []
-  ) || [];
-  
+  const availableRights =
+    user?.roles?.flatMap((role) => role.rights?.map((right) => right.authority) || []) || [];
+
   const uniqueAvailableRights = [...new Set(availableRights)];
 
   const form = useForm({
@@ -41,7 +50,7 @@ export default function ApiTokenFormModal({ opened, onClose }) {
     if (opened) {
       setLoading(false);
       form.reset();
-      
+
       const fetchExpirationInfo = async () => {
         setLoadingExpiration(true);
         try {
@@ -54,27 +63,27 @@ export default function ApiTokenFormModal({ opened, onClose }) {
           setLoadingExpiration(false);
         }
       };
-      
+
       fetchExpirationInfo();
     }
   }, [opened, token]);
 
   const formatDuration = (seconds) => {
     if (!seconds) return null;
-    
+
     const days = Math.floor(seconds / 86400);
     const hours = Math.floor((seconds % 86400) / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
-    
+
     const parts = [];
     if (days > 0) parts.push(`${days} Tag${days !== 1 ? 'e' : ''}`);
     if (hours > 0) parts.push(`${hours} Stunde${hours !== 1 ? 'n' : ''}`);
     if (minutes > 0) parts.push(`${minutes} Minute${minutes !== 1 ? 'n' : ''}`);
-    
+
     if (parts.length === 0) {
       return `${seconds} Sekunde${seconds !== 1 ? 'n' : ''}`;
     }
-    
+
     return parts.join(', ');
   };
 
@@ -92,10 +101,10 @@ export default function ApiTokenFormModal({ opened, onClose }) {
         message: 'API-Token wurde erstellt',
         color: 'green',
       });
-      
+
       setLoading(false);
       form.reset();
-      
+
       onClose(result);
     } catch (error) {
       notifications.show({
@@ -110,7 +119,10 @@ export default function ApiTokenFormModal({ opened, onClose }) {
   const toggleRight = (right) => {
     const currentRights = form.values.rights;
     if (currentRights.includes(right)) {
-      form.setFieldValue('rights', currentRights.filter(r => r !== right));
+      form.setFieldValue(
+        'rights',
+        currentRights.filter((r) => r !== right)
+      );
     } else {
       form.setFieldValue('rights', [...currentRights, right]);
     }
@@ -131,12 +143,7 @@ export default function ApiTokenFormModal({ opened, onClose }) {
   };
 
   return (
-    <Modal
-      opened={opened}
-      onClose={handleClose}
-      title="Neuer API-Token"
-      size="lg"
-    >
+    <Modal opened={opened} onClose={handleClose} title="Neuer API-Token" size="lg">
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack gap="md">
           <TextInput
@@ -150,9 +157,9 @@ export default function ApiTokenFormModal({ opened, onClose }) {
             label="Gültig bis"
             placeholder="Datum auswählen (optional)"
             description={
-              loadingExpiration 
-                ? 'Lade Default-Laufzeit...' 
-                : expirationInfo 
+              loadingExpiration
+                ? 'Lade Default-Laufzeit...'
+                : expirationInfo
                   ? `Ohne Angabe wird der Token für ${formatDuration(expirationInfo)} gültig sein`
                   : 'Ohne Angabe wird eine variable Default-Laufzeit vergeben'
             }
@@ -168,7 +175,12 @@ export default function ApiTokenFormModal({ opened, onClose }) {
                 Rechte ({form.values.rights.length} ausgewählt)
               </Text>
               <Group gap="xs">
-                <Button size="xs" variant="light" onClick={selectAllRights} disabled={uniqueAvailableRights.length === 0}>
+                <Button
+                  size="xs"
+                  variant="light"
+                  onClick={selectAllRights}
+                  disabled={uniqueAvailableRights.length === 0}
+                >
                   Alle auswählen
                 </Button>
                 <Button size="xs" variant="light" onClick={deselectAllRights}>
@@ -182,7 +194,14 @@ export default function ApiTokenFormModal({ opened, onClose }) {
                 Sie haben keine Rechte, die Sie einem Token zuweisen können.
               </Alert>
             ) : (
-              <ScrollArea h={250} style={{ border: '1px solid #dee2e6', borderRadius: 4, padding: 8 }}>
+              <ScrollArea
+                h={250}
+                style={{
+                  border: '1px solid #dee2e6',
+                  borderRadius: 4,
+                  padding: 8,
+                }}
+              >
                 <Stack gap="xs">
                   {uniqueAvailableRights.map((right) => (
                     <Checkbox
@@ -198,7 +217,8 @@ export default function ApiTokenFormModal({ opened, onClose }) {
           </div>
 
           <Text size="sm" c="dimmed">
-            Hinweis: Der generierte Token wird nur einmal angezeigt. Speichern Sie ihn an einem sicheren Ort!
+            Hinweis: Der generierte Token wird nur einmal angezeigt. Speichern Sie ihn an einem
+            sicheren Ort!
           </Text>
 
           <Group justify="flex-end" mt="md">
@@ -217,5 +237,5 @@ export default function ApiTokenFormModal({ opened, onClose }) {
 
 ApiTokenFormModal.propTypes = {
   opened: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired
+  onClose: PropTypes.func.isRequired,
 };

@@ -1,18 +1,19 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { 
-  getUsers, 
-  createUser, 
-  updateUser, 
+import {
+  getUsers,
+  createUser,
+  updateUser,
   deleteUser,
   getUserById,
   getMyRoles,
-  getMyRights 
+  getMyRights,
 } from './userService';
 
 vi.mock('../config.js', () => ({
   API_BASE_URL: 'http://localhost:8098',
 }));
-const generateTestPassword = () => `testPwd_${Math.random().toString(36).substring(2, 15)}_${Date.now()}`;
+const generateTestPassword = () =>
+  `testPwd_${Math.random().toString(36).substring(2, 15)}_${Date.now()}`;
 const TEST_PASSWORD = generateTestPassword();
 
 describe('userService', () => {
@@ -42,7 +43,7 @@ describe('userService', () => {
         'http://localhost:8098/v1/users?page=0&size=20',
         expect.objectContaining({
           headers: expect.objectContaining({
-            'Authorization': 'Bearer token',
+            Authorization: 'Bearer token',
           }),
         })
       );
@@ -86,7 +87,7 @@ describe('userService', () => {
         expect.objectContaining({
           method: 'POST',
           headers: {
-            'Authorization': 'Bearer token',
+            Authorization: 'Bearer token',
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(newUser),
@@ -124,7 +125,7 @@ describe('userService', () => {
         expect.objectContaining({
           method: 'PUT',
           headers: {
-            'Authorization': 'Bearer token',
+            Authorization: 'Bearer token',
             'Content-Type': 'application/json',
           },
         })
@@ -149,7 +150,7 @@ describe('userService', () => {
         'http://localhost:8098/v1/users/1',
         expect.objectContaining({
           headers: expect.objectContaining({
-            'Authorization': 'Bearer token',
+            Authorization: 'Bearer token',
           }),
         })
       );
@@ -173,7 +174,7 @@ describe('userService', () => {
         'http://localhost:8098/v1/users/me/roles',
         expect.objectContaining({
           headers: expect.objectContaining({
-            'Authorization': 'Bearer token',
+            Authorization: 'Bearer token',
           }),
         })
       );
@@ -197,7 +198,7 @@ describe('userService', () => {
         'http://localhost:8098/v1/users/me/roles/rights',
         expect.objectContaining({
           headers: expect.objectContaining({
-            'Authorization': 'Bearer token',
+            Authorization: 'Bearer token',
           }),
         })
       );
@@ -219,7 +220,7 @@ describe('userService', () => {
         expect.objectContaining({
           method: 'DELETE',
           headers: {
-            'Authorization': 'Bearer token',
+            Authorization: 'Bearer token',
           },
         })
       );
@@ -240,7 +241,7 @@ describe('userService', () => {
     it('should fetch users basic without parameters', async () => {
       const mockUsers = [
         { id: 1, email: 'user1@example.com' },
-        { id: 2, email: 'user2@example.com' }
+        { id: 2, email: 'user2@example.com' },
       ];
 
       global.fetch.mockResolvedValueOnce({
@@ -248,13 +249,13 @@ describe('userService', () => {
         json: async () => mockUsers,
       });
 
-      const result = await import('./userService').then(m => m.getUsersBasic('token'));
+      const result = await import('./userService').then((m) => m.getUsersBasic('token'));
 
       expect(global.fetch).toHaveBeenCalledWith(
         'http://localhost:8098/v1/users/basic',
         expect.objectContaining({
           headers: expect.objectContaining({
-            'Authorization': 'Bearer token',
+            Authorization: 'Bearer token',
           }),
         })
       );
@@ -270,7 +271,7 @@ describe('userService', () => {
         json: async () => mockUsers,
       });
 
-      const result = await import('./userService').then(m => 
+      const result = await import('./userService').then((m) =>
         m.getUsersBasic('token', { email: 'test@example.com', roles: 'ADMIN' })
       );
 
@@ -278,7 +279,7 @@ describe('userService', () => {
         'http://localhost:8098/v1/users/basic?email=test%40example.com&roles=ADMIN',
         expect.objectContaining({
           headers: expect.objectContaining({
-            'Authorization': 'Bearer token',
+            Authorization: 'Bearer token',
           }),
         })
       );
@@ -291,14 +292,18 @@ describe('userService', () => {
     it('should patch current user profile', async () => {
       const partialData = { firstName: 'Updated' };
       const userId = 123;
-      const mockResponse = { id: userId, firstName: 'Updated', email: 'test@example.com' };
+      const mockResponse = {
+        id: userId,
+        firstName: 'Updated',
+        email: 'test@example.com',
+      };
 
       global.fetch.mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponse,
       });
 
-      const result = await import('./userService').then(m => 
+      const result = await import('./userService').then((m) =>
         m.patchMe('token', partialData, userId)
       );
 
@@ -307,7 +312,7 @@ describe('userService', () => {
         expect.objectContaining({
           method: 'PATCH',
           headers: {
-            'Authorization': 'Bearer token',
+            Authorization: 'Bearer token',
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ ...partialData, id: userId }),
@@ -325,14 +330,17 @@ describe('userService', () => {
       });
 
       await expect(
-        import('./userService').then(m => m.patchMe('token', {}, 123))
+        import('./userService').then((m) => m.patchMe('token', {}, 123))
       ).rejects.toThrow();
     });
   });
 
   describe('updateMyPassword', () => {
     it('should update current user password', async () => {
-      const passwordData = { password: TEST_PASSWORD, verification: TEST_PASSWORD };
+      const passwordData = {
+        password: TEST_PASSWORD,
+        verification: TEST_PASSWORD,
+      };
       const mockResponse = { success: true };
 
       global.fetch.mockResolvedValueOnce({
@@ -340,7 +348,7 @@ describe('userService', () => {
         json: async () => mockResponse,
       });
 
-      const result = await import('./userService').then(m => 
+      const result = await import('./userService').then((m) =>
         m.updateMyPassword('token', passwordData)
       );
 
@@ -349,7 +357,7 @@ describe('userService', () => {
         expect.objectContaining({
           method: 'PUT',
           headers: {
-            'Authorization': 'Bearer token',
+            Authorization: 'Bearer token',
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(passwordData),
@@ -367,9 +375,7 @@ describe('userService', () => {
       });
 
       await expect(
-        import('./userService').then(m => 
-          m.updateMyPassword('token', { password: 'weak' })
-        )
+        import('./userService').then((m) => m.updateMyPassword('token', { password: 'weak' }))
       ).rejects.toThrow();
     });
   });
@@ -382,14 +388,14 @@ describe('userService', () => {
         ok: true,
       });
 
-      await import('./userService').then(m => m.deleteMyToken('token', tokenId));
+      await import('./userService').then((m) => m.deleteMyToken('token', tokenId));
 
       expect(global.fetch).toHaveBeenCalledWith(
         `http://localhost:8098/v1/users/me/tokens/${tokenId}`,
         expect.objectContaining({
           method: 'DELETE',
           headers: {
-            'Authorization': 'Bearer token',
+            Authorization: 'Bearer token',
           },
         })
       );
@@ -403,7 +409,7 @@ describe('userService', () => {
       });
 
       await expect(
-        import('./userService').then(m => m.deleteMyToken('token', 'invalid'))
+        import('./userService').then((m) => m.deleteMyToken('token', 'invalid'))
       ).rejects.toThrow();
     });
   });
@@ -416,14 +422,14 @@ describe('userService', () => {
         ok: true,
       });
 
-      await import('./userService').then(m => m.terminateUserSessions('token', userId));
+      await import('./userService').then((m) => m.terminateUserSessions('token', userId));
 
       expect(global.fetch).toHaveBeenCalledWith(
         `http://localhost:8098/v1/users/${userId}/terminate`,
         expect.objectContaining({
           method: 'POST',
           headers: {
-            'Authorization': 'Bearer token',
+            Authorization: 'Bearer token',
           },
         })
       );
@@ -437,7 +443,7 @@ describe('userService', () => {
       });
 
       await expect(
-        import('./userService').then(m => m.terminateUserSessions('token', 123))
+        import('./userService').then((m) => m.terminateUserSessions('token', 123))
       ).rejects.toThrow();
     });
   });
@@ -446,7 +452,7 @@ describe('userService', () => {
     it('should fetch all users with their tokens (admin)', async () => {
       const mockUsers = [
         { id: 1, email: 'user1@example.com', tokens: [] },
-        { id: 2, email: 'user2@example.com', tokens: [{ id: 'token-1' }] }
+        { id: 2, email: 'user2@example.com', tokens: [{ id: 'token-1' }] },
       ];
 
       global.fetch.mockResolvedValueOnce({
@@ -454,7 +460,7 @@ describe('userService', () => {
         json: async () => mockUsers,
       });
 
-      const result = await import('./userService').then(m => 
+      const result = await import('./userService').then((m) =>
         m.getAllUsersWithTokens('admin-token')
       );
 
@@ -462,7 +468,7 @@ describe('userService', () => {
         'http://localhost:8098/v1/users/tokens',
         expect.objectContaining({
           headers: expect.objectContaining({
-            'Authorization': 'Bearer admin-token',
+            Authorization: 'Bearer admin-token',
           }),
         })
       );
@@ -480,16 +486,14 @@ describe('userService', () => {
         ok: true,
       });
 
-      await import('./userService').then(m => 
-        m.deleteUserToken('admin-token', userId, tokenId)
-      );
+      await import('./userService').then((m) => m.deleteUserToken('admin-token', userId, tokenId));
 
       expect(global.fetch).toHaveBeenCalledWith(
         `http://localhost:8098/v1/users/${userId}/tokens/${tokenId}`,
         expect.objectContaining({
           method: 'DELETE',
           headers: {
-            'Authorization': 'Bearer admin-token',
+            Authorization: 'Bearer admin-token',
           },
         })
       );
@@ -503,9 +507,7 @@ describe('userService', () => {
       });
 
       await expect(
-        import('./userService').then(m => 
-          m.deleteUserToken('token', 123, 'token-id')
-        )
+        import('./userService').then((m) => m.deleteUserToken('token', 123, 'token-id'))
       ).rejects.toThrow();
     });
   });

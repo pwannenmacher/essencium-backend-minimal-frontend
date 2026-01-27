@@ -2,7 +2,7 @@ import { API_BASE_URL } from '../config.js';
 
 export const getApiTokens = async (token, params = {}) => {
   const queryParams = new URLSearchParams();
-  
+
   if (params.page !== undefined) queryParams.append('page', params.page);
   if (params.size !== undefined) queryParams.append('size', params.size);
   if (params.sort) queryParams.append('sort', params.sort);
@@ -14,13 +14,13 @@ export const getApiTokens = async (token, params = {}) => {
   if (params.updatedAtFrom) queryParams.append('updatedAtFrom', params.updatedAtFrom);
   if (params.updatedAtTo) queryParams.append('updatedAtTo', params.updatedAtTo);
 
-  const url = queryParams.toString() 
+  const url = queryParams.toString()
     ? `${API_BASE_URL}/v1/api-tokens?${queryParams}`
     : `${API_BASE_URL}/v1/api-tokens`;
 
   const response = await fetch(url, {
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
   });
 
@@ -33,7 +33,7 @@ export const getApiTokens = async (token, params = {}) => {
 
 export const getApiTokensBasic = async (token, params = {}) => {
   const queryParams = new URLSearchParams();
-  
+
   if (params.ids) queryParams.append('ids', params.ids);
   if (params.createdBy) queryParams.append('createdBy', params.createdBy);
   if (params.updatedBy) queryParams.append('updatedBy', params.updatedBy);
@@ -42,13 +42,13 @@ export const getApiTokensBasic = async (token, params = {}) => {
   if (params.updatedAtFrom) queryParams.append('updatedAtFrom', params.updatedAtFrom);
   if (params.updatedAtTo) queryParams.append('updatedAtTo', params.updatedAtTo);
 
-  const url = queryParams.toString() 
+  const url = queryParams.toString()
     ? `${API_BASE_URL}/v1/api-tokens/basic?${queryParams}`
     : `${API_BASE_URL}/v1/api-tokens/basic`;
 
   const response = await fetch(url, {
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
   });
 
@@ -62,7 +62,7 @@ export const getApiTokensBasic = async (token, params = {}) => {
 export const getApiTokenById = async (token, id) => {
   const response = await fetch(`${API_BASE_URL}/v1/api-tokens/${id}`, {
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
   });
 
@@ -77,7 +77,7 @@ export const createApiToken = async (token, tokenData) => {
   const response = await fetch(`${API_BASE_URL}/v1/api-tokens`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(tokenData),
@@ -95,7 +95,7 @@ export const updateApiToken = async (token, id, tokenData) => {
   const response = await fetch(`${API_BASE_URL}/v1/api-tokens/${id}`, {
     method: 'PUT',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ ...tokenData, id }),
@@ -113,7 +113,7 @@ export const patchApiToken = async (token, id, partialData) => {
   const response = await fetch(`${API_BASE_URL}/v1/api-tokens/${id}`, {
     method: 'PATCH',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(partialData),
@@ -135,7 +135,7 @@ export const deleteApiToken = async (token, id) => {
   const response = await fetch(`${API_BASE_URL}/v1/api-tokens/${id}`, {
     method: 'DELETE',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
   });
 
@@ -150,7 +150,7 @@ export const deleteApiToken = async (token, id) => {
 export const getAllApiTokensAdmin = async (token) => {
   const response = await fetch(`${API_BASE_URL}/v1/api-tokens/all`, {
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
   });
 
@@ -164,7 +164,7 @@ export const getAllApiTokensAdmin = async (token) => {
 export const getTokenExpirationInfo = async (token) => {
   const response = await fetch(`${API_BASE_URL}/v1/api-tokens/token-expiration-info`, {
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
   });
 

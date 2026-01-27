@@ -1,5 +1,17 @@
 import { useEffect, useContext, useState, useCallback } from 'react';
-import { Modal, TextInput, Textarea, Button, Group, Checkbox, ScrollArea, Stack, Text, Alert, Loader } from '@mantine/core';
+import {
+  Modal,
+  TextInput,
+  Textarea,
+  Button,
+  Group,
+  Checkbox,
+  ScrollArea,
+  Stack,
+  Text,
+  Alert,
+  Loader,
+} from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { IconAlertCircle } from '@tabler/icons-react';
@@ -31,7 +43,7 @@ export default function RoleFormModal({ opened, onClose, role }) {
     try {
       const response = await getAllRights(token, { size: 1000 });
       const rights = response.content || [];
-      const rightAuthorities = rights.map(right => right.authority);
+      const rightAuthorities = rights.map((right) => right.authority);
       setAvailableRights(rightAuthorities);
     } catch {
       notifications.show({
@@ -96,7 +108,10 @@ export default function RoleFormModal({ opened, onClose, role }) {
   const toggleRight = (right) => {
     const currentRights = form.values.rights;
     if (currentRights.includes(right)) {
-      form.setFieldValue('rights', currentRights.filter(r => r !== right));
+      form.setFieldValue(
+        'rights',
+        currentRights.filter((r) => r !== right)
+      );
     } else {
       form.setFieldValue('rights', [...currentRights, right]);
     }
@@ -141,7 +156,12 @@ export default function RoleFormModal({ opened, onClose, role }) {
                 Rechte ({form.values.rights.length} ausgewählt)
               </Text>
               <Group gap="xs">
-                <Button size="xs" variant="light" onClick={selectAllRights} disabled={loadingRights || availableRights.length === 0}>
+                <Button
+                  size="xs"
+                  variant="light"
+                  onClick={selectAllRights}
+                  disabled={loadingRights || availableRights.length === 0}
+                >
                   Alle auswählen
                 </Button>
                 <Button size="xs" variant="light" onClick={deselectAllRights}>
@@ -153,14 +173,23 @@ export default function RoleFormModal({ opened, onClose, role }) {
             {loadingRights ? (
               <Group justify="center" p="xl">
                 <Loader size="sm" />
-                <Text size="sm" c="dimmed">Lade Rechte...</Text>
+                <Text size="sm" c="dimmed">
+                  Lade Rechte...
+                </Text>
               </Group>
             ) : availableRights.length === 0 ? (
               <Alert icon={<IconAlertCircle size={16} />} color="yellow" mb="md">
                 Keine Rechte verfügbar.
               </Alert>
             ) : (
-              <ScrollArea h={250} style={{ border: '1px solid #dee2e6', borderRadius: 4, padding: 8 }}>
+              <ScrollArea
+                h={250}
+                style={{
+                  border: '1px solid #dee2e6',
+                  borderRadius: 4,
+                  padding: 8,
+                }}
+              >
                 <Stack gap="xs">
                   {availableRights.map((right) => (
                     <Checkbox
@@ -195,6 +224,6 @@ RoleFormModal.propTypes = {
   role: PropTypes.shape({
     name: PropTypes.string,
     description: PropTypes.string,
-    rights: PropTypes.arrayOf(PropTypes.string)
-  })
+    rights: PropTypes.arrayOf(PropTypes.string),
+  }),
 };

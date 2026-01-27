@@ -16,14 +16,14 @@ export default function JwtViewer() {
 
   const decodeJwt = (jwt) => {
     if (!jwt) return null;
-    
+
     try {
       const parts = jwt.split('.');
       if (parts.length !== 3) return null;
 
       const header = JSON.parse(atob(parts[0]));
       const payload = JSON.parse(atob(parts[1]));
-      
+
       return { header, payload, signature: parts[2] };
     } catch (error) {
       console.error('JWT decode error:', error);
@@ -38,21 +38,21 @@ export default function JwtViewer() {
   };
 
   const decoded = useMemo(() => decodeJwt(token), [token]);
-  
+
   const tokenStatus = useMemo(() => {
     if (!decoded?.payload?.exp) return { expired: false, timeRemaining: '-' };
-    
+
     const expTime = decoded.payload.exp * 1000;
     const expired = currentTime >= expTime;
-    
+
     if (expired) {
       return { expired: true, timeRemaining: 'Abgelaufen' };
     }
-    
+
     const remaining = expTime - currentTime;
     const minutes = Math.floor(remaining / 60000);
     const seconds = Math.floor((remaining % 60000) / 1000);
-    
+
     return { expired: false, timeRemaining: `${minutes}m ${seconds}s` };
   }, [decoded, currentTime]);
 
@@ -94,11 +94,7 @@ export default function JwtViewer() {
           <IconKey size={20} />
           <Text fw={500}>Aktueller Access-Token (JWT)</Text>
         </Group>
-        {expired ? (
-          <Badge color="red">Abgelaufen</Badge>
-        ) : (
-          <Badge color="green">Gültig</Badge>
-        )}
+        {expired ? <Badge color="red">Abgelaufen</Badge> : <Badge color="green">Gültig</Badge>}
       </Group>
 
       <Stack gap="md">
@@ -121,21 +117,27 @@ export default function JwtViewer() {
             {payload.sub && (
               <Group gap="xs">
                 <IconUser size={14} />
-                <Text size="xs" fw={500}>Subject:</Text>
+                <Text size="xs" fw={500}>
+                  Subject:
+                </Text>
                 <Text size="xs">{payload.sub}</Text>
               </Group>
             )}
             {payload.iat && (
               <Group gap="xs">
                 <IconClock size={14} />
-                <Text size="xs" fw={500}>Ausgestellt:</Text>
+                <Text size="xs" fw={500}>
+                  Ausgestellt:
+                </Text>
                 <Text size="xs">{formatDate(payload.iat)}</Text>
               </Group>
             )}
             {payload.exp && (
               <Group gap="xs">
                 <IconClock size={14} />
-                <Text size="xs" fw={500}>Läuft ab:</Text>
+                <Text size="xs" fw={500}>
+                  Läuft ab:
+                </Text>
                 <Text size="xs">{formatDate(payload.exp)}</Text>
                 {!expired && (
                   <Badge size="xs" color="orange">
@@ -146,7 +148,9 @@ export default function JwtViewer() {
             )}
             {payload.authorities && (
               <Box>
-                <Text size="xs" fw={500} mb={4}>Authorities:</Text>
+                <Text size="xs" fw={500} mb={4}>
+                  Authorities:
+                </Text>
                 <Group gap={4}>
                   {payload.authorities.map((auth, idx) => (
                     <Badge key={idx} size="xs" variant="light">
@@ -168,12 +172,15 @@ export default function JwtViewer() {
           <Text size="sm" fw={600} mb="xs" c="teal">
             Signature
           </Text>
-          <Code block style={{ 
-            fontSize: '9px', 
-            wordBreak: 'break-all',
-            maxHeight: '60px',
-            overflow: 'auto'
-          }}>
+          <Code
+            block
+            style={{
+              fontSize: '9px',
+              wordBreak: 'break-all',
+              maxHeight: '60px',
+              overflow: 'auto',
+            }}
+          >
             {signature}
           </Code>
         </Box>
@@ -182,12 +189,15 @@ export default function JwtViewer() {
           <Text size="sm" fw={600} mb="xs" c="gray">
             Raw Token
           </Text>
-          <Code block style={{ 
-            fontSize: '9px', 
-            wordBreak: 'break-all',
-            maxHeight: '80px',
-            overflow: 'auto'
-          }}>
+          <Code
+            block
+            style={{
+              fontSize: '9px',
+              wordBreak: 'break-all',
+              maxHeight: '80px',
+              overflow: 'auto',
+            }}
+          >
             {token}
           </Code>
         </Box>

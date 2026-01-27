@@ -6,7 +6,8 @@ import { renderWithProviders } from '../test/helpers';
 import * as authService from '../services/authService';
 
 vi.mock('../services/authService');
-const generateTestPassword = () => `testPwd_${Math.random().toString(36).substring(2, 15)}_${Date.now()}`;
+const generateTestPassword = () =>
+  `testPwd_${Math.random().toString(36).substring(2, 15)}_${Date.now()}`;
 const TEST_PASSWORD = generateTestPassword();
 const TEST_PASSWORD_WRONG = generateTestPassword();
 
@@ -38,12 +39,12 @@ describe('Login Component', () => {
   it('should call login with username and password', async () => {
     const mockLogin = vi.fn().mockResolvedValue({ success: true });
     const user = userEvent.setup();
-    
-    renderWithProviders(<Login />, { 
-      authContext: { 
-        login: mockLogin, 
-        isAuthenticated: false 
-      } 
+
+    renderWithProviders(<Login />, {
+      authContext: {
+        login: mockLogin,
+        isAuthenticated: false,
+      },
     });
 
     const emailInput = screen.getByLabelText(/E-Mail/i);
@@ -61,11 +62,11 @@ describe('Login Component', () => {
 
   it('should validate required fields', async () => {
     const user = userEvent.setup();
-    
+
     renderWithProviders(<Login />, { authContext: authContextValue });
 
     const submitButton = screen.getByRole('button', { name: /anmelden/i });
-    
+
     await user.click(submitButton);
 
     expect(mockLogin).not.toHaveBeenCalled();
@@ -88,7 +89,7 @@ describe('Login Component', () => {
   it('should handle OAuth login click', async () => {
     const user = userEvent.setup();
     const assignMock = vi.fn();
-    
+
     delete window.location;
     window.location = { assign: assignMock, origin: 'http://localhost:5173' };
 
@@ -112,16 +113,15 @@ describe('Login Component', () => {
   });
 
   it('should display error message on failed login', async () => {
-    const mockLogin = vi.fn().mockResolvedValue({ 
-      success: false, 
-      error: 'Login fehlgeschlagen' 
+    const mockLogin = vi.fn().mockResolvedValue({
+      success: false,
+      error: 'Login fehlgeschlagen',
     });
     const user = userEvent.setup();
 
-    renderWithProviders(
-      <Login />,
-      { authContext: { login: mockLogin, isAuthenticated: false } }
-    );
+    renderWithProviders(<Login />, {
+      authContext: { login: mockLogin, isAuthenticated: false },
+    });
 
     const usernameInput = screen.getByLabelText(/E-Mail/i);
     const passwordInput = screen.getByLabelText(/passwort/i);

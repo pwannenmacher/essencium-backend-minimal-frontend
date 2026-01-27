@@ -1,5 +1,5 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -16,13 +16,11 @@ export default defineConfig({
             '@mantine/hooks',
             '@mantine/form',
             '@mantine/notifications',
-            '@mantine/dates'
+            '@mantine/dates',
           ],
-          // SwaggerUI (sehr groß) in separaten Chunk
-          'swagger-vendor': ['swagger-ui-react']
-        }
-      }
+        },
+      },
     },
-    chunkSizeWarningLimit: 1400 // SwaggerUI ist eine große Bibliothek
-  }
-})
+    chunkSizeWarningLimit: 1400,
+  },
+});
