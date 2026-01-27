@@ -5,7 +5,7 @@ const authenticatedFetch = async (url, token, options = {}) => {
     ...options,
     headers: {
       ...options.headers,
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
   });
@@ -40,17 +40,17 @@ export const getUserById = async (token, id) => {
 
 export const getUsers = async (token, params = {}) => {
   const queryParams = new URLSearchParams();
-  
+
   if (params.page !== undefined) queryParams.append('page', params.page);
   if (params.size !== undefined) queryParams.append('size', params.size);
   if (params.sort) {
     if (Array.isArray(params.sort)) {
-      params.sort.forEach(s => queryParams.append('sort', s));
+      params.sort.forEach((s) => queryParams.append('sort', s));
     } else {
       queryParams.append('sort', params.sort);
     }
   }
-  
+
   if (params.ids) queryParams.append('ids', params.ids);
   if (params.email) queryParams.append('email', params.email);
   if (params.name) queryParams.append('name', params.name);
@@ -61,16 +61,16 @@ export const getUsers = async (token, params = {}) => {
   if (params.createdAtTo) queryParams.append('createdAtTo', params.createdAtTo);
   if (params.updatedAtFrom) queryParams.append('updatedAtFrom', params.updatedAtFrom);
   if (params.updatedAtTo) queryParams.append('updatedAtTo', params.updatedAtTo);
-  
+
   const queryString = queryParams.toString();
   const url = `${API_BASE_URL}/v1/users${queryString ? `?${queryString}` : ''}`;
-  
+
   return authenticatedFetch(url, token);
 };
 
 export const getUsersBasic = async (token, params = {}) => {
   const queryParams = new URLSearchParams();
-  
+
   if (params.ids) queryParams.append('ids', params.ids);
   if (params.email) queryParams.append('email', params.email);
   if (params.name) queryParams.append('name', params.name);
@@ -81,10 +81,10 @@ export const getUsersBasic = async (token, params = {}) => {
   if (params.createdAtTo) queryParams.append('createdAtTo', params.createdAtTo);
   if (params.updatedAtFrom) queryParams.append('updatedAtFrom', params.updatedAtFrom);
   if (params.updatedAtTo) queryParams.append('updatedAtTo', params.updatedAtTo);
-  
+
   const queryString = queryParams.toString();
   const url = `${API_BASE_URL}/v1/users/basic${queryString ? `?${queryString}` : ''}`;
-  
+
   return authenticatedFetch(url, token);
 };
 
@@ -92,7 +92,7 @@ export const createUser = async (token, userData) => {
   const response = await fetch(`${API_BASE_URL}/v1/users`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(userData),
@@ -110,7 +110,7 @@ export const updateUser = async (token, id, userData) => {
   const response = await fetch(`${API_BASE_URL}/v1/users/${id}`, {
     method: 'PUT',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ ...userData, id }),
@@ -128,7 +128,7 @@ export const patchUser = async (token, id, partialData) => {
   const response = await fetch(`${API_BASE_URL}/v1/users/${id}`, {
     method: 'PATCH',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ ...partialData, id }),
@@ -146,7 +146,7 @@ export const deleteUser = async (token, id) => {
   const response = await fetch(`${API_BASE_URL}/v1/users/${id}`, {
     method: 'DELETE',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
   });
 
@@ -162,7 +162,7 @@ export const updateMe = async (token, userData, userId) => {
   const response = await fetch(`${API_BASE_URL}/v1/users/me`, {
     method: 'PUT',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ ...userData, id: userId }),
@@ -180,7 +180,7 @@ export const patchMe = async (token, partialData, userId) => {
   const response = await fetch(`${API_BASE_URL}/v1/users/me`, {
     method: 'PATCH',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ ...partialData, id: userId }),
@@ -198,7 +198,7 @@ export const updateMyPassword = async (token, passwordData) => {
   const response = await fetch(`${API_BASE_URL}/v1/users/me/password`, {
     method: 'PUT',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(passwordData),
@@ -219,7 +219,7 @@ export const deleteMyToken = async (token, tokenId) => {
   const response = await fetch(`${API_BASE_URL}/v1/users/me/tokens/${tokenId}`, {
     method: 'DELETE',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
   });
 
@@ -239,7 +239,7 @@ export const terminateUserSessions = async (token, id) => {
   const response = await fetch(`${API_BASE_URL}/v1/users/${id}/terminate`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
   });
 
@@ -247,7 +247,6 @@ export const terminateUserSessions = async (token, id) => {
     const error = await response.text();
     throw new Error(error || `Session-Terminierung fehlgeschlagen: ${response.status}`);
   }
-
 
   return;
 };
@@ -260,7 +259,7 @@ export const deleteUserToken = async (token, userId, tokenId) => {
   const response = await fetch(`${API_BASE_URL}/v1/users/${userId}/tokens/${tokenId}`, {
     method: 'DELETE',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
   });
 

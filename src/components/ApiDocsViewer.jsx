@@ -18,7 +18,7 @@ export default function ApiDocsViewer() {
 
   useEffect(() => {
     if (rapidocRef.current && spec) {
-        rapidocRef.current.loadSpec(spec);
+      rapidocRef.current.loadSpec(spec);
     }
   }, [spec]);
 
@@ -54,10 +54,13 @@ export default function ApiDocsViewer() {
   // RapiDoc configuration for better integration
   // render-style="read" gives a clean look similar to Redoc/Stoplight
   return (
-    <div className="api-docs-viewer-container" style={{ height: 'calc(100vh - 60px)', overflow: 'hidden' }}>
+    <div
+      className="api-docs-viewer-container"
+      style={{ height: 'calc(100vh - 60px)', overflow: 'hidden' }}
+    >
       <rapi-doc
         ref={rapidocRef}
-        render-style="read" 
+        render-style="read"
         style={{ height: '100%', width: '100%' }}
         theme={colorScheme}
         show-header="false"

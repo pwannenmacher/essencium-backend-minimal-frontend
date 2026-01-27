@@ -1,5 +1,15 @@
 import { useState, useEffect, useContext, useCallback } from 'react';
-import { Table, Button, TextInput, Group, Menu, ActionIcon, Text, Modal, Badge } from '@mantine/core';
+import {
+  Table,
+  Button,
+  TextInput,
+  Group,
+  Menu,
+  ActionIcon,
+  Text,
+  Modal,
+  Badge,
+} from '@mantine/core';
 import { IconSearch, IconPlus, IconDots, IconEdit, IconTrash } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import PropTypes from 'prop-types';
@@ -17,17 +27,17 @@ export default function RoleList({ active }) {
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [editRole, setEditRole] = useState(null);
 
-  const hasRoleCreateRight = user?.roles?.some(role => 
-    role.rights?.some(right => right.authority === 'ROLE_CREATE')
-  ) || false;
+  const hasRoleCreateRight =
+    user?.roles?.some((role) => role.rights?.some((right) => right.authority === 'ROLE_CREATE')) ||
+    false;
 
-  const hasRoleUpdateRight = user?.roles?.some(role => 
-    role.rights?.some(right => right.authority === 'ROLE_UPDATE')
-  ) || false;
+  const hasRoleUpdateRight =
+    user?.roles?.some((role) => role.rights?.some((right) => right.authority === 'ROLE_UPDATE')) ||
+    false;
 
-  const hasRoleDeleteRight = user?.roles?.some(role => 
-    role.rights?.some(right => right.authority === 'ROLE_DELETE')
-  ) || false;
+  const hasRoleDeleteRight =
+    user?.roles?.some((role) => role.rights?.some((right) => right.authority === 'ROLE_DELETE')) ||
+    false;
 
   const loadRoles = useCallback(async () => {
     setLoading(true);
@@ -88,9 +98,10 @@ export default function RoleList({ active }) {
     loadRoles();
   };
 
-  const filteredRoles = roles.filter(role => 
-    role.name?.toLowerCase().includes(searchValue.toLowerCase()) ||
-    role.description?.toLowerCase().includes(searchValue.toLowerCase())
+  const filteredRoles = roles.filter(
+    (role) =>
+      role.name?.toLowerCase().includes(searchValue.toLowerCase()) ||
+      role.description?.toLowerCase().includes(searchValue.toLowerCase())
   );
 
   const rows = filteredRoles.map((role) => (
@@ -196,9 +207,7 @@ export default function RoleList({ active }) {
         onClose={() => setDeleteModalOpen(false)}
         title="Rolle löschen"
       >
-        <Text mb="md">
-          Möchten Sie die Rolle "{roleToDelete?.name}" wirklich löschen?
-        </Text>
+        <Text mb="md">Möchten Sie die Rolle "{roleToDelete?.name}" wirklich löschen?</Text>
         <Group justify="flex-end">
           <Button variant="default" onClick={() => setDeleteModalOpen(false)}>
             Abbrechen
@@ -209,15 +218,11 @@ export default function RoleList({ active }) {
         </Group>
       </Modal>
 
-      <RoleFormModal
-        opened={formModalOpen}
-        onClose={handleFormClose}
-        role={editRole}
-      />
+      <RoleFormModal opened={formModalOpen} onClose={handleFormClose} role={editRole} />
     </>
   );
 }
 
 RoleList.propTypes = {
-  active: PropTypes.bool
+  active: PropTypes.bool,
 };

@@ -1,5 +1,17 @@
 import { useState, useEffect, useContext, useCallback } from 'react';
-import { Table, TextInput, Group, Menu, ActionIcon, Text, Modal, Badge, Card, Stack, Button } from '@mantine/core';
+import {
+  Table,
+  TextInput,
+  Group,
+  Menu,
+  ActionIcon,
+  Text,
+  Modal,
+  Badge,
+  Card,
+  Stack,
+  Button,
+} from '@mantine/core';
 import { IconSearch, IconDots, IconTrash, IconUser, IconBan } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import PropTypes from 'prop-types';
@@ -98,39 +110,51 @@ export default function ApiTokenAdminList({ active }) {
 
   const getStatusBadge = (apiToken) => {
     const status = apiToken.status;
-    
+
     if (!status) {
       if (isExpired(apiToken.validUntil)) {
         return <Badge color="red">Abgelaufen ({formatDate(apiToken.validUntil)})</Badge>;
       }
       return <Badge color="green">Aktiv bis {formatDate(apiToken.validUntil)}</Badge>;
     }
-    
+
     switch (status) {
       case 'ACTIVE':
         if (isExpired(apiToken.validUntil)) {
           return <Badge color="red">Abgelaufen ({formatDate(apiToken.validUntil)})</Badge>;
         }
         return <Badge color="green">Aktiv bis {formatDate(apiToken.validUntil)}</Badge>;
-      
+
       case 'REVOKED':
         return <Badge color="gray">Widerrufen ({formatDateTime(apiToken.updatedAt)})</Badge>;
-      
+
       case 'REVOKED_ROLE_CHANGED':
-        return <Badge color="orange">Widerrufen (Rolle geändert, {formatDateTime(apiToken.updatedAt)})</Badge>;
-      
+        return (
+          <Badge color="orange">
+            Widerrufen (Rolle geändert, {formatDateTime(apiToken.updatedAt)})
+          </Badge>
+        );
+
       case 'REVOKED_RIGHTS_CHANGED':
-        return <Badge color="orange">Widerrufen (Rechte geändert, {formatDateTime(apiToken.updatedAt)})</Badge>;
-      
+        return (
+          <Badge color="orange">
+            Widerrufen (Rechte geändert, {formatDateTime(apiToken.updatedAt)})
+          </Badge>
+        );
+
       case 'REVOKED_USER_CHANGED':
-        return <Badge color="orange">Widerrufen (Nutzer geändert, {formatDateTime(apiToken.updatedAt)})</Badge>;
-      
+        return (
+          <Badge color="orange">
+            Widerrufen (Nutzer geändert, {formatDateTime(apiToken.updatedAt)})
+          </Badge>
+        );
+
       case 'EXPIRED':
         return <Badge color="red">Abgelaufen</Badge>;
-      
+
       case 'USER_DELETED':
         return <Badge color="red">Nutzer gelöscht</Badge>;
-      
+
       default:
         return <Badge color="gray">{status || 'Unbekannt'}</Badge>;
     }
@@ -139,11 +163,14 @@ export default function ApiTokenAdminList({ active }) {
   const filteredRows = [];
   Object.entries(apiTokensByUser).forEach(([userId, tokens]) => {
     if (!tokens || tokens.length === 0) return;
-    
+
     const userName = tokens[0]?.linkedUser?.name || tokens[0]?.createdBy || 'Unbekannt';
-    
-    if (searchValue && !userName.toLowerCase().includes(searchValue.toLowerCase()) &&
-        !tokens.some(t => t.description?.toLowerCase().includes(searchValue.toLowerCase()))) {
+
+    if (
+      searchValue &&
+      !userName.toLowerCase().includes(searchValue.toLowerCase()) &&
+      !tokens.some((t) => t.description?.toLowerCase().includes(searchValue.toLowerCase()))
+    ) {
       return;
     }
 
@@ -161,13 +188,13 @@ export default function ApiTokenAdminList({ active }) {
       <Table.Td>
         <Group gap="xs">
           <IconUser size={14} />
-          <Text size="sm">{row.userName} ({row.token.createdBy || 'Unbekannt'})</Text>
+          <Text size="sm">
+            {row.userName} ({row.token.createdBy || 'Unbekannt'})
+          </Text>
         </Group>
       </Table.Td>
       <Table.Td>{row.token.description}</Table.Td>
-      <Table.Td>
-        {getStatusBadge(row.token)}
-      </Table.Td>
+      <Table.Td>{getStatusBadge(row.token)}</Table.Td>
       <Table.Td>
         <Badge>{row.token.rights?.length || 0} Rechte</Badge>
       </Table.Td>
@@ -271,7 +298,8 @@ export default function ApiTokenAdminList({ active }) {
         title="API-Token löschen"
       >
         <Text mb="md">
-          Möchten Sie den API-Token "{tokenToDelete?.token?.description}" von Benutzer "{tokenToDelete?.userName}" wirklich löschen?
+          Möchten Sie den API-Token "{tokenToDelete?.token?.description}" von Benutzer "
+          {tokenToDelete?.userName}" wirklich löschen?
         </Text>
         <Group justify="flex-end">
           <Button variant="default" onClick={() => setDeleteModalOpen(false)}>
@@ -290,7 +318,9 @@ export default function ApiTokenAdminList({ active }) {
         title="API-Token widerrufen"
       >
         <Text mb="md">
-          Möchten Sie den API-Token "{tokenToRevoke?.token?.description}" von Benutzer "{tokenToRevoke?.userName}" wirklich widerrufen? Diese Aktion kann nicht rückgängig gemacht werden.
+          Möchten Sie den API-Token "{tokenToRevoke?.token?.description}" von Benutzer "
+          {tokenToRevoke?.userName}" wirklich widerrufen? Diese Aktion kann nicht rückgängig gemacht
+          werden.
         </Text>
         <Group justify="flex-end">
           <Button variant="default" onClick={() => setRevokeModalOpen(false)}>
@@ -306,5 +336,5 @@ export default function ApiTokenAdminList({ active }) {
 }
 
 ApiTokenAdminList.propTypes = {
-  active: PropTypes.bool
+  active: PropTypes.bool,
 };

@@ -13,7 +13,16 @@ import {
   Tabs,
 } from '@mantine/core';
 import { useState } from 'react';
-import { IconLogout, IconUser, IconUsers, IconShieldLock, IconApiApp, IconShield, IconDeviceDesktop, IconApi } from '@tabler/icons-react';
+import {
+  IconLogout,
+  IconUser,
+  IconUsers,
+  IconShieldLock,
+  IconApiApp,
+  IconShield,
+  IconDeviceDesktop,
+  IconApi,
+} from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
 import ThemeToggle from './ThemeToggle';
 import UserProfile from './UserProfile';
@@ -36,21 +45,23 @@ export default function Dashboard() {
   };
 
   // Prüfe ob User die notwendigen Rechte hat
-  const hasApiTokenRight = user?.roles?.some(role => 
-    role.rights?.some(right => right.authority === 'API_TOKEN')
-  ) || false;
-  
-  const hasApiTokenAdminRight = user?.roles?.some(role => 
-    role.rights?.some(right => right.authority === 'API_TOKEN_ADMIN')
-  ) || false;
+  const hasApiTokenRight =
+    user?.roles?.some((role) => role.rights?.some((right) => right.authority === 'API_TOKEN')) ||
+    false;
 
-  const hasRoleReadRight = user?.roles?.some(role => 
-    role.rights?.some(right => right.authority === 'ROLE_READ')
-  ) || false;
+  const hasApiTokenAdminRight =
+    user?.roles?.some((role) =>
+      role.rights?.some((right) => right.authority === 'API_TOKEN_ADMIN')
+    ) || false;
 
-  const hasSessionTokenAdminRight = user?.roles?.some(role => 
-    role.rights?.some(right => right.authority === 'SESSION_TOKEN_ADMIN')
-  ) || false;
+  const hasRoleReadRight =
+    user?.roles?.some((role) => role.rights?.some((right) => right.authority === 'ROLE_READ')) ||
+    false;
+
+  const hasSessionTokenAdminRight =
+    user?.roles?.some((role) =>
+      role.rights?.some((right) => right.authority === 'SESSION_TOKEN_ADMIN')
+    ) || false;
 
   const canManagePersonalTokens = hasApiTokenRight || hasApiTokenAdminRight;
 

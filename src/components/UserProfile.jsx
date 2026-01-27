@@ -1,6 +1,14 @@
 import { useState } from 'react';
 import { Card, Text, Group, Badge, Stack, Title, Divider, Button } from '@mantine/core';
-import { IconUser, IconMail, IconPhone, IconWorld, IconShield, IconEdit, IconHash } from '@tabler/icons-react';
+import {
+  IconUser,
+  IconMail,
+  IconPhone,
+  IconWorld,
+  IconShield,
+  IconEdit,
+  IconHash,
+} from '@tabler/icons-react';
 import PropTypes from 'prop-types';
 import EditProfileModal from './EditProfileModal';
 
@@ -36,89 +44,93 @@ export default function UserProfile({ user, onUpdate }) {
             </Group>
           </Group>
 
-        <Divider />
+          <Divider />
 
-        <Stack spacing="sm">
-          <Group>
-            <IconHash size={20} />
-            <Text weight={500}>ID:</Text>
-            <Text>{user.id}</Text>
-          </Group>
-
-          <Group>
-            <IconUser size={20} />
-            <Text weight={500}>Name:</Text>
-            <Text>{user.firstName} {user.lastName}</Text>
-          </Group>
-
-          <Group>
-            <IconMail size={20} />
-            <Text weight={500}>E-Mail:</Text>
-            <Text>{user.email}</Text>
-          </Group>
-
-          {user.phone && (
+          <Stack spacing="sm">
             <Group>
-              <IconPhone size={20} />
-              <Text weight={500}>Telefon:</Text>
-              <Text>{user.phone}</Text>
+              <IconHash size={20} />
+              <Text weight={500}>ID:</Text>
+              <Text>{user.id}</Text>
             </Group>
+
+            <Group>
+              <IconUser size={20} />
+              <Text weight={500}>Name:</Text>
+              <Text>
+                {user.firstName} {user.lastName}
+              </Text>
+            </Group>
+
+            <Group>
+              <IconMail size={20} />
+              <Text weight={500}>E-Mail:</Text>
+              <Text>{user.email}</Text>
+            </Group>
+
+            {user.phone && (
+              <Group>
+                <IconPhone size={20} />
+                <Text weight={500}>Telefon:</Text>
+                <Text>{user.phone}</Text>
+              </Group>
+            )}
+
+            {user.mobile && (
+              <Group>
+                <IconPhone size={20} />
+                <Text weight={500}>Mobil:</Text>
+                <Text>{user.mobile}</Text>
+              </Group>
+            )}
+
+            <Group>
+              <IconWorld size={20} />
+              <Text weight={500}>Sprache:</Text>
+              <Text>{user.locale}</Text>
+            </Group>
+
+            {user.source && (
+              <Group>
+                <Text weight={500}>Quelle:</Text>
+                <Text c="dimmed" size="sm">
+                  {user.source}
+                </Text>
+              </Group>
+            )}
+          </Stack>
+
+          {user.roles && user.roles.length > 0 && (
+            <>
+              <Divider />
+              <Stack spacing="xs">
+                <Group>
+                  <IconShield size={20} />
+                  <Text weight={500}>Rollen:</Text>
+                </Group>
+                <Group spacing="xs">
+                  {user.roles.map((role) => (
+                    <Badge key={role.name} color="blue" variant="light">
+                      {role.name}
+                    </Badge>
+                  ))}
+                </Group>
+              </Stack>
+            </>
           )}
 
-          {user.mobile && (
-            <Group>
-              <IconPhone size={20} />
-              <Text weight={500}>Mobil:</Text>
-              <Text>{user.mobile}</Text>
-            </Group>
-          )}
-
-          <Group>
-            <IconWorld size={20} />
-            <Text weight={500}>Sprache:</Text>
-            <Text>{user.locale}</Text>
-          </Group>
-
-          {user.source && (
-            <Group>
-              <Text weight={500}>Quelle:</Text>
-              <Text c="dimmed" size="sm">{user.source}</Text>
-            </Group>
+          {user.loginDisabled && (
+            <Badge color="orange" fullWidth>
+              Login deaktiviert
+            </Badge>
           )}
         </Stack>
+      </Card>
 
-        {user.roles && user.roles.length > 0 && (
-          <>
-            <Divider />
-            <Stack spacing="xs">
-              <Group>
-                <IconShield size={20} />
-                <Text weight={500}>Rollen:</Text>
-              </Group>
-              <Group spacing="xs">
-                {user.roles.map((role) => (
-                  <Badge key={role.name} color="blue" variant="light">
-                    {role.name}
-                  </Badge>
-                ))}
-              </Group>
-            </Stack>
-          </>
-        )}
-
-        {user.loginDisabled && (
-          <Badge color="orange" fullWidth>
-            Login deaktiviert
-          </Badge>
-        )}
-      </Stack>
-    </Card>
-
-    <EditProfileModal
-      opened={editModalOpened}
-      onClose={() => setEditModalOpened(false)}
-      onSuccess={handleSuccess}
-    />
+      <EditProfileModal
+        opened={editModalOpened}
+        onClose={() => setEditModalOpened(false)}
+        onSuccess={handleSuccess}
+      />
     </>
   );
 }
@@ -133,11 +145,13 @@ UserProfile.propTypes = {
     mobile: PropTypes.string,
     locale: PropTypes.string,
     source: PropTypes.string,
-    roles: PropTypes.arrayOf(PropTypes.shape({
-      name: PropTypes.string
-    })),
+    roles: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string,
+      })
+    ),
     enabled: PropTypes.bool,
-    loginDisabled: PropTypes.bool
+    loginDisabled: PropTypes.bool,
   }).isRequired,
-  onUpdate: PropTypes.func.isRequired
+  onUpdate: PropTypes.func.isRequired,
 };

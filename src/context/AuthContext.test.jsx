@@ -21,7 +21,7 @@ describe('AuthContext', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     mockLocalStorage = {
       getItem: vi.fn(),
       setItem: vi.fn(),
@@ -36,14 +36,14 @@ describe('AuthContext', () => {
   describe('login', () => {
     it('should set token and user on successful login', async () => {
       const mockToken = createMockToken(mockUsers.admin);
-      
+
       authService.login.mockResolvedValue(mockToken);
-      
+
       userService.getMe.mockResolvedValue(mockUsers.admin);
 
       function TestComponent() {
         const { login, user, token } = useAuth();
-        
+
         return (
           <div>
             <button onClick={() => login('admin@example.com', 'password')}>Login</button>
@@ -60,7 +60,7 @@ describe('AuthContext', () => {
       );
 
       const loginButton = screen.getByText('Login');
-      
+
       await act(async () => {
         loginButton.click();
       });
@@ -80,7 +80,7 @@ describe('AuthContext', () => {
 
       function TestComponent() {
         const { login, user } = useAuth();
-        
+
         return (
           <div>
             <button onClick={() => login('wrong@example.com', 'wrong')}>Login</button>
@@ -96,7 +96,7 @@ describe('AuthContext', () => {
       );
 
       const loginButton = screen.getByText('Login');
-      
+
       await act(async () => {
         loginButton.click();
       });
@@ -115,7 +115,7 @@ describe('AuthContext', () => {
 
       function TestComponent() {
         const { logout, user, token } = useAuth();
-        
+
         return (
           <div>
             <button onClick={logout}>Logout</button>
@@ -131,7 +131,7 @@ describe('AuthContext', () => {
       );
 
       const logoutButton = screen.getByText('Logout');
-      
+
       await act(async () => {
         logoutButton.click();
       });
@@ -149,7 +149,7 @@ describe('AuthContext', () => {
     it('should renew token when needed', async () => {
       const mockToken = createMockToken(mockUsers.admin, 60);
       const newToken = createMockToken(mockUsers.admin, 900);
-      
+
       mockLocalStorage.getItem.mockReturnValue(mockToken);
       authService.renewToken.mockResolvedValue(newToken);
       userService.getMe.mockResolvedValue(mockUsers.admin);
@@ -168,14 +168,14 @@ describe('AuthContext', () => {
       await waitFor(() => {
         expect(userService.getMe).toHaveBeenCalled();
       });
-      
+
       // Test prüft nur, dass der Token vorhanden ist
       expect(screen.getByTestId('token')).toHaveTextContent('Has token');
     });
 
     it('should logout on failed token renewal', async () => {
       const mockToken = createMockToken(mockUsers.admin, 60);
-      
+
       mockLocalStorage.getItem.mockReturnValue(mockToken);
       authService.renewToken.mockRejectedValue(new Error('Unauthorized'));
       authService.logout.mockResolvedValue();
@@ -208,15 +208,11 @@ describe('AuthContext', () => {
 
       function TestComponent() {
         const { hasPermission } = useAuth();
-        
+
         return (
           <div>
-            <div data-testid="has-user-admin">
-              {hasPermission('USER_ADMIN') ? 'Yes' : 'No'}
-            </div>
-            <div data-testid="has-random">
-              {hasPermission('RANDOM_PERMISSION') ? 'Yes' : 'No'}
-            </div>
+            <div data-testid="has-user-admin">{hasPermission('USER_ADMIN') ? 'Yes' : 'No'}</div>
+            <div data-testid="has-random">{hasPermission('RANDOM_PERMISSION') ? 'Yes' : 'No'}</div>
           </div>
         );
       }
@@ -239,7 +235,7 @@ describe('AuthContext', () => {
 
       function TestComponent() {
         const { hasRole } = useAuth();
-        
+
         return (
           <div>
             <div data-testid="has-admin">{hasRole('ADMIN') ? 'Yes' : 'No'}</div>
@@ -265,7 +261,7 @@ describe('AuthContext', () => {
 
       function TestComponent() {
         const { hasPermission, hasRole } = useAuth();
-        
+
         return (
           <div>
             <div data-testid="has-permission">{hasPermission('USER_ADMIN') ? 'Yes' : 'No'}</div>
@@ -291,7 +287,7 @@ describe('AuthContext', () => {
 
       function TestComponent() {
         const { hasPermission, hasRole } = useAuth();
-        
+
         return (
           <div>
             <div data-testid="has-permission">{hasPermission('USER_ADMIN') ? 'Yes' : 'No'}</div>
@@ -317,7 +313,7 @@ describe('AuthContext', () => {
     it('should handle token without expiration claim', async () => {
       // Token ohne exp-Claim zur Laufzeit generieren
       const tokenWithoutExp = createMockTokenWithoutExpiration(mockUsers.admin);
-      
+
       mockLocalStorage.getItem.mockReturnValue(tokenWithoutExp);
       userService.getMe.mockResolvedValue(mockUsers.admin);
 
@@ -346,7 +342,7 @@ describe('AuthContext', () => {
 
     it('should handle invalid JWT format and logout', async () => {
       const invalidToken = 'invalid.token.format';
-      
+
       mockLocalStorage.getItem.mockReturnValue(invalidToken);
       userService.getMe.mockRejectedValue(new Error('Invalid token'));
 
@@ -371,7 +367,7 @@ describe('AuthContext', () => {
   describe('user data loading', () => {
     it('should load user data when token is present', async () => {
       const mockToken = createMockToken(mockUsers.admin);
-      
+
       mockLocalStorage.getItem.mockReturnValue(mockToken);
       userService.getMe.mockResolvedValue(mockUsers.admin);
 
@@ -395,7 +391,7 @@ describe('AuthContext', () => {
 
     it('should logout on failed user data fetch', async () => {
       const mockToken = createMockToken(mockUsers.admin);
-      
+
       mockLocalStorage.getItem.mockReturnValue(mockToken);
       userService.getMe.mockRejectedValue(new Error('Unauthorized'));
 

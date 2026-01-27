@@ -1,5 +1,17 @@
 import { useState, useEffect, useContext, useCallback } from 'react';
-import { Table, TextInput, Group, Menu, ActionIcon, Text, Modal, Badge, Card, Stack, Button } from '@mantine/core';
+import {
+  Table,
+  TextInput,
+  Group,
+  Menu,
+  ActionIcon,
+  Text,
+  Modal,
+  Badge,
+  Card,
+  Stack,
+  Button,
+} from '@mantine/core';
 import { IconSearch, IconDots, IconTrash, IconUser, IconClock } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import PropTypes from 'prop-types';
@@ -84,13 +96,13 @@ export default function SessionTokenAdminList({ active }) {
   };
 
   const filteredRows = [];
-  
+
   if (sessionTokensByUser && typeof sessionTokensByUser === 'object') {
     Object.entries(sessionTokensByUser).forEach(([userId, tokens]) => {
       if (!tokens || tokens.length === 0) return;
-      
+
       const userName = tokens[0]?.username || 'Unbekannt';
-      
+
       if (searchValue && !userName.toLowerCase().includes(searchValue.toLowerCase())) {
         return;
       }
@@ -113,12 +125,8 @@ export default function SessionTokenAdminList({ active }) {
           <Text size="sm">{row.userName}</Text>
         </Group>
       </Table.Td>
-      <Table.Td>
-        {getTokenTypeBadge(row.token.type)}
-      </Table.Td>
-      <Table.Td>
-        {row.token.userAgent || '-'}
-      </Table.Td>
+      <Table.Td>{getTokenTypeBadge(row.token.type)}</Table.Td>
+      <Table.Td>{row.token.userAgent || '-'}</Table.Td>
       <Table.Td>
         <Group gap="xs">
           <IconClock size={14} />
@@ -135,9 +143,7 @@ export default function SessionTokenAdminList({ active }) {
           <Text size="sm">{formatDateTime(row.token.expiration)}</Text>
         </Group>
       </Table.Td>
-      <Table.Td>
-        {row.token.lastUsed ? formatDateTime(row.token.lastUsed) : '-'}
-      </Table.Td>
+      <Table.Td>{row.token.lastUsed ? formatDateTime(row.token.lastUsed) : '-'}</Table.Td>
       <Table.Td>
         <Menu shadow="md" width={200}>
           <Menu.Target>
@@ -227,7 +233,8 @@ export default function SessionTokenAdminList({ active }) {
         title="Session-Token löschen"
       >
         <Text mb="md">
-          Möchten Sie den {tokenToDelete?.token?.type}-Token von Benutzer "{tokenToDelete?.userName}" wirklich löschen? Der Benutzer wird dadurch ausgeloggt.
+          Möchten Sie den {tokenToDelete?.token?.type}-Token von Benutzer "{tokenToDelete?.userName}
+          " wirklich löschen? Der Benutzer wird dadurch ausgeloggt.
         </Text>
         <Group justify="flex-end">
           <Button variant="default" onClick={() => setDeleteModalOpen(false)}>
@@ -243,5 +250,5 @@ export default function SessionTokenAdminList({ active }) {
 }
 
 SessionTokenAdminList.propTypes = {
-  active: PropTypes.bool
+  active: PropTypes.bool,
 };

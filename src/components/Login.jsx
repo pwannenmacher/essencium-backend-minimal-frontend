@@ -47,10 +47,10 @@ export default function Login() {
   useEffect(() => {
     const urlParams = new URLSearchParams(globalThis.location.search);
     const token = urlParams.get('token');
-    
+
     if (token) {
       loginWithToken(token);
-      
+
       const newUrl = globalThis.location.origin + globalThis.location.pathname;
       globalThis.history.replaceState({}, document.title, newUrl);
     }
@@ -59,7 +59,7 @@ export default function Login() {
   const handleSubmit = async (values) => {
     setError('');
     const result = await login(values.username, values.password);
-    
+
     if (!result.success) {
       setError(result.error || 'Login fehlgeschlagen');
     }
@@ -69,7 +69,7 @@ export default function Login() {
     form.setValues({ username, password });
     setError('');
     const result = await login(username, password);
-    
+
     if (!result.success) {
       setError(result.error || 'Login fehlgeschlagen');
     }
@@ -78,7 +78,7 @@ export default function Login() {
   const handleOAuthLogin = (providerUrl) => {
     const redirectUri = FRONTEND_URL;
     const fullUrl = `${API_BASE_URL}${providerUrl}?redirect_uri=${encodeURIComponent(redirectUri)}`;
-    
+
     globalThis.location.assign(fullUrl);
   };
 

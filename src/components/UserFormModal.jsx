@@ -45,7 +45,8 @@ export default function UserFormModal({ opened, onClose, onSubmit, user, roles, 
         return null;
       },
       locale: (value) => (!value ? 'Sprache ist erforderlich' : null),
-      roles: (value) => (!value || value.length === 0 ? 'Mindestens eine Rolle ist erforderlich' : null),
+      roles: (value) =>
+        !value || value.length === 0 ? 'Mindestens eine Rolle ist erforderlich' : null,
     },
   });
 
@@ -57,7 +58,7 @@ export default function UserFormModal({ opened, onClose, onSubmit, user, roles, 
         lastName: user.lastName || '',
         password: '',
         locale: user.locale || 'de',
-        roles: user.roles?.map(r => r.name) || [],
+        roles: user.roles?.map((r) => r.name) || [],
         enabled: user.enabled ?? true,
         loginDisabled: user.loginDisabled ?? false,
         phone: user.phone || '',
@@ -95,10 +96,11 @@ export default function UserFormModal({ opened, onClose, onSubmit, user, roles, 
     onClose();
   };
 
-  const roleOptions = roles?.map(role => ({
-    value: role.name || role,
-    label: role.name || role,
-  })) || [];
+  const roleOptions =
+    roles?.map((role) => ({
+      value: role.name || role,
+      label: role.name || role,
+    })) || [];
 
   const localeOptions = [
     { value: 'de', label: 'Deutsch' },
@@ -230,16 +232,20 @@ UserFormModal.propTypes = {
     firstName: PropTypes.string,
     lastName: PropTypes.string,
     locale: PropTypes.string,
-    roles: PropTypes.arrayOf(PropTypes.shape({
-      name: PropTypes.string
-    })),
+    roles: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string,
+      })
+    ),
     enabled: PropTypes.bool,
     loginDisabled: PropTypes.bool,
     phone: PropTypes.string,
-    mobile: PropTypes.string
+    mobile: PropTypes.string,
   }),
-  roles: PropTypes.arrayOf(PropTypes.shape({
-    name: PropTypes.string
-  })).isRequired,
-  mode: PropTypes.oneOf(['create', 'edit'])
+  roles: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string,
+    })
+  ).isRequired,
+  mode: PropTypes.oneOf(['create', 'edit']),
 };
