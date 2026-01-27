@@ -2,17 +2,17 @@ import { API_BASE_URL } from '../config.js';
 
 export const getRoles = async (token, params = {}) => {
   const queryParams = new URLSearchParams();
-  
+
   if (params.page !== undefined) queryParams.append('page', params.page);
   if (params.size !== undefined) queryParams.append('size', params.size);
   if (params.sort) queryParams.append('sort', params.sort);
-  
+
   const queryString = queryParams.toString();
   const url = `${API_BASE_URL}/v1/roles${queryString ? `?${queryString}` : ''}`;
 
   const response = await fetch(url, {
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
   });
 
@@ -26,7 +26,7 @@ export const getRoles = async (token, params = {}) => {
 export const getRoleByName = async (token, name) => {
   const response = await fetch(`${API_BASE_URL}/v1/roles/${name}`, {
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
   });
 
@@ -41,7 +41,7 @@ export const createRole = async (token, roleData) => {
   const response = await fetch(`${API_BASE_URL}/v1/roles`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(roleData),
@@ -59,7 +59,7 @@ export const updateRole = async (token, name, roleData) => {
   const response = await fetch(`${API_BASE_URL}/v1/roles/${name}`, {
     method: 'PUT',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ ...roleData, name }),
@@ -77,7 +77,7 @@ export const patchRole = async (token, name, partialData) => {
   const response = await fetch(`${API_BASE_URL}/v1/roles/${name}`, {
     method: 'PATCH',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ ...partialData, name }),
@@ -95,7 +95,7 @@ export const deleteRole = async (token, name) => {
   const response = await fetch(`${API_BASE_URL}/v1/roles/${name}`, {
     method: 'DELETE',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
   });
 
@@ -109,17 +109,17 @@ export const deleteRole = async (token, name) => {
 
 export const getAllRights = async (token, params = {}) => {
   const queryParams = new URLSearchParams();
-  
+
   if (params.page !== undefined) queryParams.append('page', params.page);
   if (params.size !== undefined) queryParams.append('size', params.size);
   if (params.sort) queryParams.append('sort', params.sort);
-  
+
   const queryString = queryParams.toString();
   const url = `${API_BASE_URL}/v1/rights${queryString ? `?${queryString}` : ''}`;
 
   const response = await fetch(url, {
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
   });
 

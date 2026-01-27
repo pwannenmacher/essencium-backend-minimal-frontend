@@ -14,4 +14,3 @@ export async function getOpenApiSpec() {
 
   return response.json();
 }
-

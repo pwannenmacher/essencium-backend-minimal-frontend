@@ -1,33 +1,33 @@
 version: 2
 updates:
   # npm dependencies
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "daily"
-      time: "22:00"
+      interval: 'daily'
+      time: '22:00'
     open-pull-requests-limit: 10
     groups:
       mantine:
         patterns:
-          - "@mantine/*"
+          - '@mantine/*'
       tabler:
         patterns:
-          - "@tabler/*"
+          - '@tabler/*'
       react:
         patterns:
-          - "react"
-          - "react-dom"
+          - 'react'
+          - 'react-dom'
       dev-dependencies:
-        dependency-type: "development"
+        dependency-type: 'development'
         update-types:
-          - "minor"
-          - "patch"
+          - 'minor'
+          - 'patch'
 
   # GitHub Actions
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "daily"
-      time: "22:00"
+      interval: 'daily'
+      time: '22:00'
     open-pull-requests-limit: 5
