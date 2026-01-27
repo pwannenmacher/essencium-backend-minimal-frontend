@@ -13,7 +13,16 @@ import {
   Tabs,
 } from '@mantine/core';
 import { useState } from 'react';
-import { IconLogout, IconUser, IconUsers, IconShieldLock, IconApiApp, IconShield, IconDeviceDesktop, IconApi } from '@tabler/icons-react';
+import {
+  IconLogout,
+  IconUser,
+  IconUsers,
+  IconShieldLock,
+  IconApiApp,
+  IconShield,
+  IconDeviceDesktop,
+  IconApi,
+} from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
 import ThemeToggle from './ThemeToggle';
 import UserProfile from './UserProfile';
@@ -25,7 +34,7 @@ import ApiTokenList from './ApiTokenList';
 import ApiTokenAdminList from './ApiTokenAdminList';
 import SessionTokenAdminList from './SessionTokenAdminList';
 import JwtViewer from './JwtViewer';
-import SwaggerUIViewer from './SwaggerUIViewer';
+import ApiDocsViewer from './ApiDocsViewer';
 
 export default function Dashboard() {
   const { user, logout, loading, token } = useAuth();
@@ -36,21 +45,23 @@ export default function Dashboard() {
   };
 
   // Prüfe ob User die notwendigen Rechte hat
-  const hasApiTokenRight = user?.roles?.some(role => 
-    role.rights?.some(right => right.authority === 'API_TOKEN')
-  ) || false;
-  
-  const hasApiTokenAdminRight = user?.roles?.some(role => 
-    role.rights?.some(right => right.authority === 'API_TOKEN_ADMIN')
-  ) || false;
+  const hasApiTokenRight =
+    user?.roles?.some((role) => role.rights?.some((right) => right.authority === 'API_TOKEN')) ||
+    false;
 
-  const hasRoleReadRight = user?.roles?.some(role => 
-    role.rights?.some(right => right.authority === 'ROLE_READ')
-  ) || false;
+  const hasApiTokenAdminRight =
+    user?.roles?.some((role) =>
+      role.rights?.some((right) => right.authority === 'API_TOKEN_ADMIN')
+    ) || false;
 
-  const hasSessionTokenAdminRight = user?.roles?.some(role => 
-    role.rights?.some(right => right.authority === 'SESSION_TOKEN_ADMIN')
-  ) || false;
+  const hasRoleReadRight =
+    user?.roles?.some((role) => role.rights?.some((right) => right.authority === 'ROLE_READ')) ||
+    false;
+
+  const hasSessionTokenAdminRight =
+    user?.roles?.some((role) =>
+      role.rights?.some((right) => right.authority === 'SESSION_TOKEN_ADMIN')
+    ) || false;
 
   const canManagePersonalTokens = hasApiTokenRight || hasApiTokenAdminRight;
 
@@ -121,7 +132,7 @@ export default function Dashboard() {
                   Session-Token Admin
                 </Tabs.Tab>
               )}
-              <Tabs.Tab value="swagger" icon={<IconApi size={14} />}>
+              <Tabs.Tab value="api-docs" icon={<IconApi size={14} />}>
                 API-Dokumentation
               </Tabs.Tab>
             </Tabs.List>
@@ -168,8 +179,8 @@ export default function Dashboard() {
               </Tabs.Panel>
             )}
 
-            <Tabs.Panel value="swagger" pt="lg">
-              {activeTab === 'swagger' && <SwaggerUIViewer />}
+            <Tabs.Panel value="api-docs" pt="lg">
+              {activeTab === 'api-docs' && <ApiDocsViewer />}
             </Tabs.Panel>
           </Tabs>
         </Paper>

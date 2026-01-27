@@ -108,12 +108,7 @@ export default function EditProfileModal({ opened, onClose, onSuccess }) {
   ];
 
   return (
-    <Modal
-      opened={opened}
-      onClose={onClose}
-      title="Mein Profil bearbeiten"
-      size="md"
-    >
+    <Modal opened={opened} onClose={onClose} title="Mein Profil bearbeiten" size="md">
       <Tabs defaultValue="profile">
         <Tabs.List>
           <Tabs.Tab value="profile" icon={<IconUser size={14} />}>
@@ -224,5 +219,5 @@ export default function EditProfileModal({ opened, onClose, onSuccess }) {
 EditProfileModal.propTypes = {
   opened: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  onSuccess: PropTypes.func.isRequired
+  onSuccess: PropTypes.func.isRequired,
 };

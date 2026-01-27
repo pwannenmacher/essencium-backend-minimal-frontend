@@ -16,10 +16,10 @@ import {
   Menu,
   Modal,
 } from '@mantine/core';
-import { 
-  IconAlertCircle, 
-  IconSearch, 
-  IconRefresh, 
+import {
+  IconAlertCircle,
+  IconSearch,
+  IconRefresh,
   IconPlus,
   IconEdit,
   IconTrash,
@@ -29,7 +29,13 @@ import {
 import { notifications } from '@mantine/notifications';
 import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
-import { getUsers, createUser, updateUser, deleteUser, terminateUserSessions } from '../services/userService';
+import {
+  getUsers,
+  createUser,
+  updateUser,
+  deleteUser,
+  terminateUserSessions,
+} from '../services/userService';
 import { getRoles } from '../services/roleService';
 import UserFormModal from './UserFormModal';
 
@@ -50,35 +56,38 @@ export default function UserList({ active }) {
   const [deleteModalOpened, setDeleteModalOpened] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
 
-  const fetchUsers = useCallback(async (pageNum = page) => {
-    if (!token) return;
+  const fetchUsers = useCallback(
+    async (pageNum = page) => {
+      if (!token) return;
 
-    setLoading(true);
-    setError(null);
+      setLoading(true);
+      setError(null);
 
-    try {
-      const params = {
-        page: pageNum,
-        size: 10,
-        sort: 'email,asc',
-      };
+      try {
+        const params = {
+          page: pageNum,
+          size: 10,
+          sort: 'email,asc',
+        };
 
-      if (searchEmail) params.email = searchEmail;
-      if (searchName) params.name = searchName;
+        if (searchEmail) params.email = searchEmail;
+        if (searchName) params.name = searchName;
 
-      const data = await getUsers(token, params);
-      
-      setUsers(data.content || []);
-      setTotalPages(data.totalPages || 0);
-      setTotalElements(data.totalElements || 0);
-      setPage(pageNum);
-    } catch (err) {
-      console.error('Fehler beim Laden der User:', err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [token, page, searchEmail, searchName]);
+        const data = await getUsers(token, params);
+
+        setUsers(data.content || []);
+        setTotalPages(data.totalPages || 0);
+        setTotalElements(data.totalElements || 0);
+        setPage(pageNum);
+      } catch (err) {
+        console.error('Fehler beim Laden der User:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [token, page, searchEmail, searchName]
+  );
 
   const fetchRoles = useCallback(async () => {
     try {
@@ -218,168 +227,175 @@ export default function UserList({ active }) {
             </Group>
           </Group>
 
-        {/* Such-Filter */}
-        <Group spacing="sm">
-          <TextInput
-            placeholder="E-Mail suchen..."
-            icon={<IconSearch size={14} />}
-            value={searchEmail}
-            onChange={(e) => setSearchEmail(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-            style={{ flex: 1 }}
-          />
-          <TextInput
-            placeholder="Name suchen..."
-            icon={<IconSearch size={14} />}
-            value={searchName}
-            onChange={(e) => setSearchName(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-            style={{ flex: 1 }}
-          />
-          <Button onClick={handleSearch} loading={loading}>
-            Suchen
-          </Button>
-        </Group>
+          {/* Such-Filter */}
+          <Group spacing="sm">
+            <TextInput
+              placeholder="E-Mail suchen..."
+              icon={<IconSearch size={14} />}
+              value={searchEmail}
+              onChange={(e) => setSearchEmail(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              style={{ flex: 1 }}
+            />
+            <TextInput
+              placeholder="Name suchen..."
+              icon={<IconSearch size={14} />}
+              value={searchName}
+              onChange={(e) => setSearchName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              style={{ flex: 1 }}
+            />
+            <Button onClick={handleSearch} loading={loading}>
+              Suchen
+            </Button>
+          </Group>
 
-        {users.length > 0 ? (
-          <>
-            <Table striped highlightOnHover>
-              <thead>
-                <tr>
-                  <th style={{ textAlign: 'left' }}>ID</th>
-                  <th style={{ textAlign: 'left' }}>Name</th>
-                  <th style={{ textAlign: 'left' }}>E-Mail</th>
-                  <th style={{ textAlign: 'left' }}>Rollen</th>
-                  <th style={{ textAlign: 'left' }}>Status</th>
-                  <th style={{ textAlign: 'left' }}>Aktionen</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <tr key={user.id}>
-                    <td>
-                      <Text size="sm" c="dimmed" style={{ fontFamily: 'monospace', fontSize: '0.85em' }}>
-                        {user.id}
-                      </Text>
-                    </td>
-                    <td>
-                      <Text size="sm" weight={500}>
-                        {user.firstName} {user.lastName}
-                      </Text>
-                    </td>
-                    <td>
-                      <Text size="sm">{user.email}</Text>
-                    </td>
-                    <td>
-                      <Group spacing={4}>
-                        {user.roles?.slice(0, 3).map((role) => (
-                          <Badge key={role.name} size="sm" variant="light">
-                            {role.name}
+          {users.length > 0 ? (
+            <>
+              <Table striped highlightOnHover>
+                <thead>
+                  <tr>
+                    <th style={{ textAlign: 'left' }}>ID</th>
+                    <th style={{ textAlign: 'left' }}>Name</th>
+                    <th style={{ textAlign: 'left' }}>E-Mail</th>
+                    <th style={{ textAlign: 'left' }}>Rollen</th>
+                    <th style={{ textAlign: 'left' }}>Status</th>
+                    <th style={{ textAlign: 'left' }}>Aktionen</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map((user) => (
+                    <tr key={user.id}>
+                      <td>
+                        <Text
+                          size="sm"
+                          c="dimmed"
+                          style={{
+                            fontFamily: 'monospace',
+                            fontSize: '0.85em',
+                          }}
+                        >
+                          {user.id}
+                        </Text>
+                      </td>
+                      <td>
+                        <Text size="sm" weight={500}>
+                          {user.firstName} {user.lastName}
+                        </Text>
+                      </td>
+                      <td>
+                        <Text size="sm">{user.email}</Text>
+                      </td>
+                      <td>
+                        <Group spacing={4}>
+                          {user.roles?.slice(0, 3).map((role) => (
+                            <Badge key={role.name} size="sm" variant="light">
+                              {role.name}
+                            </Badge>
+                          ))}
+                          {user.roles?.length > 3 && (
+                            <Badge size="sm" variant="light" color="gray">
+                              +{user.roles.length - 3}
+                            </Badge>
+                          )}
+                        </Group>
+                      </td>
+                      <td>
+                        {user.enabled ? (
+                          <Badge color="green" size="sm">
+                            Aktiv
                           </Badge>
-                        ))}
-                        {user.roles?.length > 3 && (
-                          <Badge size="sm" variant="light" color="gray">
-                            +{user.roles.length - 3}
+                        ) : (
+                          <Badge color="red" size="sm">
+                            Inaktiv
                           </Badge>
                         )}
-                      </Group>
-                    </td>
-                    <td>
-                      {user.enabled ? (
-                        <Badge color="green" size="sm">Aktiv</Badge>
-                      ) : (
-                        <Badge color="red" size="sm">Inaktiv</Badge>
-                      )}
-                    </td>
-                    <td>
-                      <Menu shadow="md" width={200}>
-                        <Menu.Target>
-                          <ActionIcon size="sm" variant="subtle">
-                            <IconDotsVertical size={16} />
-                          </ActionIcon>
-                        </Menu.Target>
+                      </td>
+                      <td>
+                        <Menu shadow="md" width={200}>
+                          <Menu.Target>
+                            <ActionIcon size="sm" variant="subtle">
+                              <IconDotsVertical size={16} />
+                            </ActionIcon>
+                          </Menu.Target>
 
-                        <Menu.Dropdown>
-                          <Menu.Item
-                            icon={<IconEdit size={14} />}
-                            onClick={() => handleEditUser(user)}
-                          >
-                            Bearbeiten
-                          </Menu.Item>
-                          <Menu.Item
-                            icon={<IconUserOff size={14} />}
-                            onClick={() => handleTerminateSessions(user)}
-                          >
-                            Sessions beenden
-                          </Menu.Item>
-                          <Menu.Divider />
-                          <Menu.Item
-                            color="red"
-                            icon={<IconTrash size={14} />}
-                            onClick={() => handleDeleteClick(user)}
-                          >
-                            Löschen
-                          </Menu.Item>
-                        </Menu.Dropdown>
-                      </Menu>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
+                          <Menu.Dropdown>
+                            <Menu.Item
+                              icon={<IconEdit size={14} />}
+                              onClick={() => handleEditUser(user)}
+                            >
+                              Bearbeiten
+                            </Menu.Item>
+                            <Menu.Item
+                              icon={<IconUserOff size={14} />}
+                              onClick={() => handleTerminateSessions(user)}
+                            >
+                              Sessions beenden
+                            </Menu.Item>
+                            <Menu.Divider />
+                            <Menu.Item
+                              color="red"
+                              icon={<IconTrash size={14} />}
+                              onClick={() => handleDeleteClick(user)}
+                            >
+                              Löschen
+                            </Menu.Item>
+                          </Menu.Dropdown>
+                        </Menu>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
 
-            {totalPages > 1 && (
-              <Group position="center" mt="md">
-                <Pagination
-                  page={page + 1}
-                  onChange={handlePageChange}
-                  total={totalPages}
-                />
-              </Group>
-            )}
-          </>
-        ) : (
-          <Text c="dimmed" size="sm" ta="center" py="xl">
-            Keine Benutzer gefunden
+              {totalPages > 1 && (
+                <Group position="center" mt="md">
+                  <Pagination page={page + 1} onChange={handlePageChange} total={totalPages} />
+                </Group>
+              )}
+            </>
+          ) : (
+            <Text c="dimmed" size="sm" ta="center" py="xl">
+              Keine Benutzer gefunden
+            </Text>
+          )}
+        </Stack>
+      </Card>
+
+      <UserFormModal
+        opened={modalOpened}
+        onClose={() => setModalOpened(false)}
+        onSubmit={handleFormSubmit}
+        user={selectedUser}
+        roles={roles}
+        mode={modalMode}
+      />
+
+      <Modal
+        opened={deleteModalOpened}
+        onClose={() => setDeleteModalOpened(false)}
+        title="Benutzer löschen"
+        centered
+      >
+        <Stack spacing="md">
+          <Text>
+            Möchten Sie den Benutzer <strong>{userToDelete?.email}</strong> wirklich löschen? Diese
+            Aktion kann nicht rückgängig gemacht werden.
           </Text>
-        )}
-      </Stack>
-    </Card>
-
-    <UserFormModal
-      opened={modalOpened}
-      onClose={() => setModalOpened(false)}
-      onSubmit={handleFormSubmit}
-      user={selectedUser}
-      roles={roles}
-      mode={modalMode}
-    />
-
-    <Modal
-      opened={deleteModalOpened}
-      onClose={() => setDeleteModalOpened(false)}
-      title="Benutzer löschen"
-      centered
-    >
-      <Stack spacing="md">
-        <Text>
-          Möchten Sie den Benutzer <strong>{userToDelete?.email}</strong> wirklich löschen?
-          Diese Aktion kann nicht rückgängig gemacht werden.
-        </Text>
-        <Group position="right">
-          <Button variant="subtle" onClick={() => setDeleteModalOpened(false)}>
-            Abbrechen
-          </Button>
-          <Button color="red" onClick={handleDeleteConfirm}>
-            Löschen
-          </Button>
-        </Group>
-      </Stack>
-    </Modal>
+          <Group position="right">
+            <Button variant="subtle" onClick={() => setDeleteModalOpened(false)}>
+              Abbrechen
+            </Button>
+            <Button color="red" onClick={handleDeleteConfirm}>
+              Löschen
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
     </>
   );
 }
 
 UserList.propTypes = {
-  active: PropTypes.bool
+  active: PropTypes.bool,
 };

@@ -31,7 +31,7 @@ describe('roleService', () => {
         'http://localhost:8098/v1/roles?page=0&size=100',
         expect.objectContaining({
           headers: {
-            'Authorization': 'Bearer token',
+            Authorization: 'Bearer token',
           },
         })
       );
@@ -68,7 +68,7 @@ describe('roleService', () => {
         expect.objectContaining({
           method: 'POST',
           headers: {
-            'Authorization': 'Bearer token',
+            Authorization: 'Bearer token',
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(newRole),
@@ -136,7 +136,7 @@ describe('roleService', () => {
         'http://localhost:8098/v1/roles/ADMIN',
         expect.objectContaining({
           headers: {
-            'Authorization': 'Bearer token',
+            Authorization: 'Bearer token',
           },
         })
       );
@@ -175,10 +175,10 @@ describe('roleService', () => {
     it('should patch role with partial data', async () => {
       const partialData = { description: 'Updated description' };
       const roleName = 'ADMIN';
-      const mockResponse = { 
-        name: roleName, 
+      const mockResponse = {
+        name: roleName,
         description: 'Updated description',
-        rights: ['USER_ADMIN', 'ROLE_ADMIN']
+        rights: ['USER_ADMIN', 'ROLE_ADMIN'],
       };
 
       global.fetch.mockResolvedValueOnce({
@@ -186,7 +186,7 @@ describe('roleService', () => {
         json: async () => mockResponse,
       });
 
-      const result = await import('./roleService').then(m => 
+      const result = await import('./roleService').then((m) =>
         m.patchRole('token', roleName, partialData)
       );
 
@@ -195,7 +195,7 @@ describe('roleService', () => {
         expect.objectContaining({
           method: 'PATCH',
           headers: {
-            'Authorization': 'Bearer token',
+            Authorization: 'Bearer token',
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ ...partialData, name: roleName }),
@@ -213,9 +213,7 @@ describe('roleService', () => {
       });
 
       await expect(
-        import('./roleService').then(m => 
-          m.patchRole('token', 'ADMIN', { description: '' })
-        )
+        import('./roleService').then((m) => m.patchRole('token', 'ADMIN', { description: '' }))
       ).rejects.toThrow();
     });
   });
@@ -226,9 +224,9 @@ describe('roleService', () => {
         content: [
           { authority: 'USER_READ' },
           { authority: 'USER_WRITE' },
-          { authority: 'USER_ADMIN' }
+          { authority: 'USER_ADMIN' },
         ],
-        totalElements: 3
+        totalElements: 3,
       };
 
       global.fetch.mockResolvedValueOnce({
@@ -236,15 +234,13 @@ describe('roleService', () => {
         json: async () => mockRights,
       });
 
-      const result = await import('./roleService').then(m => 
-        m.getAllRights('token')
-      );
+      const result = await import('./roleService').then((m) => m.getAllRights('token'));
 
       expect(global.fetch).toHaveBeenCalledWith(
         'http://localhost:8098/v1/rights',
         expect.objectContaining({
           headers: {
-            'Authorization': 'Bearer token',
+            Authorization: 'Bearer token',
           },
         })
       );
@@ -254,13 +250,10 @@ describe('roleService', () => {
 
     it('should fetch all rights with pagination', async () => {
       const mockRights = {
-        content: [
-          { authority: 'USER_READ' },
-          { authority: 'USER_WRITE' }
-        ],
+        content: [{ authority: 'USER_READ' }, { authority: 'USER_WRITE' }],
         totalElements: 10,
         page: 0,
-        size: 2
+        size: 2,
       };
 
       global.fetch.mockResolvedValueOnce({
@@ -268,7 +261,7 @@ describe('roleService', () => {
         json: async () => mockRights,
       });
 
-      const result = await import('./roleService').then(m => 
+      const result = await import('./roleService').then((m) =>
         m.getAllRights('token', { page: 0, size: 2, sort: 'authority,asc' })
       );
 
@@ -276,7 +269,7 @@ describe('roleService', () => {
         'http://localhost:8098/v1/rights?page=0&size=2&sort=authority%2Casc',
         expect.objectContaining({
           headers: {
-            'Authorization': 'Bearer token',
+            Authorization: 'Bearer token',
           },
         })
       );
@@ -290,9 +283,9 @@ describe('roleService', () => {
         status: 403,
       });
 
-      await expect(
-        import('./roleService').then(m => m.getAllRights('token'))
-      ).rejects.toThrow('Fehler beim Laden der Rechte: 403');
+      await expect(import('./roleService').then((m) => m.getAllRights('token'))).rejects.toThrow(
+        'Fehler beim Laden der Rechte: 403'
+      );
     });
   });
 });

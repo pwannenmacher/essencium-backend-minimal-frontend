@@ -19,11 +19,8 @@ export default function UserRolesRights() {
       setError(null);
 
       try {
-        const [rolesData, rightsData] = await Promise.all([
-          getMyRoles(token),
-          getMyRights(token)
-        ]);
-        
+        const [rolesData, rightsData] = await Promise.all([getMyRoles(token), getMyRights(token)]);
+
         setRoles(Array.isArray(rolesData) ? rolesData : []);
         setRights(Array.isArray(rightsData) ? rightsData : []);
       } catch (err) {
@@ -73,7 +70,9 @@ export default function UserRolesRights() {
               ))}
             </Group>
           ) : (
-            <Text c="dimmed" size="sm">Keine Rollen zugewiesen</Text>
+            <Text c="dimmed" size="sm">
+              Keine Rollen zugewiesen
+            </Text>
           )}
         </Stack>
 
@@ -91,13 +90,17 @@ export default function UserRolesRights() {
                     {right.authority || right}
                   </Badge>
                   {right.description && (
-                    <Text size="xs" c="dimmed">{right.description}</Text>
+                    <Text size="xs" c="dimmed">
+                      {right.description}
+                    </Text>
                   )}
                 </Group>
               ))}
             </Stack>
           ) : (
-            <Text c="dimmed" size="sm">Keine Rechte zugewiesen</Text>
+            <Text c="dimmed" size="sm">
+              Keine Rechte zugewiesen
+            </Text>
           )}
         </Stack>
       </Stack>

@@ -24,9 +24,9 @@ export const login = async (username, password) => {
     }
 
     const data = await response.json();
-    
+
     console.log('Login erfolgreich. Cookies:', document.cookie);
-    
+
     return data.token;
   } catch (error) {
     console.error('Login-Fehler:', error);
@@ -47,7 +47,7 @@ export const renewToken = async (currentToken) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${currentToken}`,
+        Authorization: `Bearer ${currentToken}`,
         'User-Agent': navigator.userAgent || 'Mozilla/5.0',
       },
       credentials: 'include',
@@ -74,7 +74,7 @@ export const logout = async (token) => {
     const response = await fetch(`${API_BASE_URL}/auth/logout`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
       credentials: 'include',
     });

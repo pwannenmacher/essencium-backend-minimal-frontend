@@ -140,14 +140,12 @@ export const AuthProvider = ({ children }) => {
 
   const hasPermission = (permission) => {
     if (!user || !user.roles) return false;
-    return user.roles.some(role => 
-      role.rights && role.rights.includes(permission)
-    );
+    return user.roles.some((role) => role.rights && role.rights.includes(permission));
   };
 
   const hasRole = (roleName) => {
     if (!user || !user.roles) return false;
-    return user.roles.some(role => role.name === roleName);
+    return user.roles.some((role) => role.name === roleName);
   };
 
   const value = {

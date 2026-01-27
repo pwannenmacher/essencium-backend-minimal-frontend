@@ -5,10 +5,7 @@ import { AuthProvider, AuthContext } from '../context/AuthContext';
 import { ThemeProvider } from '../context/ThemeContext';
 
 export function renderWithProviders(ui, options = {}) {
-  const {
-    authContext = null,
-    ...renderOptions
-  } = options;
+  const { authContext = null, ...renderOptions } = options;
 
   function Wrapper({ children }) {
     return (
@@ -16,13 +13,9 @@ export function renderWithProviders(ui, options = {}) {
         <ThemeProvider>
           <Notifications />
           {authContext ? (
-            <AuthContext.Provider value={authContext}>
-              {children}
-            </AuthContext.Provider>
+            <AuthContext.Provider value={authContext}>{children}</AuthContext.Provider>
           ) : (
-            <AuthProvider>
-              {children}
-            </AuthProvider>
+            <AuthProvider>{children}</AuthProvider>
           )}
         </ThemeProvider>
       </MantineProvider>
@@ -45,7 +38,7 @@ export const mockUsers = {
       },
     ],
   },
-  
+
   user: {
     firstName: 'Regular',
     lastName: 'User',
@@ -58,7 +51,7 @@ export const mockUsers = {
       },
     ],
   },
-  
+
   viewer: {
     firstName: 'Viewer',
     lastName: 'User',
@@ -81,11 +74,11 @@ export function createMockToken(user, expiresIn = 3600) {
     iat: now,
     user: user,
   };
-  
+
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
   const body = btoa(JSON.stringify(payload));
   const signature = 'mock-signature';
-  
+
   return `${header}.${body}.${signature}`;
 }
 
@@ -99,20 +92,16 @@ export function createMockTokenWithoutExpiration(user = { email: 'test@example.c
     iat: now,
     name: user.firstName ? `${user.firstName} ${user.lastName}` : 'John Doe',
   };
-  
+
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
   const body = btoa(JSON.stringify(payload));
   const signature = 'mock-signature-without-exp';
-  
+
   return `${header}.${body}.${signature}`;
 }
 
 export function mockFetch(responseData, options = {}) {
-  const {
-    status = 200,
-    ok = true,
-    headers = { 'Content-Type': 'application/json' },
-  } = options;
+  const { status = 200, ok = true, headers = { 'Content-Type': 'application/json' } } = options;
 
   return vi.fn(() =>
     Promise.resolve({
@@ -126,7 +115,7 @@ export function mockFetch(responseData, options = {}) {
 
 export function mockLocalStorage() {
   const store = {};
-  
+
   return {
     getItem: vi.fn((key) => store[key] || null),
     setItem: vi.fn((key, value) => {
@@ -136,7 +125,7 @@ export function mockLocalStorage() {
       delete store[key];
     }),
     clear: vi.fn(() => {
-      Object.keys(store).forEach(key => delete store[key]);
+      Object.keys(store).forEach((key) => delete store[key]);
     }),
   };
 }
