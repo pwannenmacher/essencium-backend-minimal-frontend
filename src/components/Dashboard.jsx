@@ -25,7 +25,7 @@ import ApiTokenList from './ApiTokenList';
 import ApiTokenAdminList from './ApiTokenAdminList';
 import SessionTokenAdminList from './SessionTokenAdminList';
 import JwtViewer from './JwtViewer';
-import SwaggerUIViewer from './SwaggerUIViewer';
+import ApiDocsViewer from './ApiDocsViewer';
 
 export default function Dashboard() {
   const { user, logout, loading, token } = useAuth();
@@ -121,7 +121,7 @@ export default function Dashboard() {
                   Session-Token Admin
                 </Tabs.Tab>
               )}
-              <Tabs.Tab value="swagger" icon={<IconApi size={14} />}>
+              <Tabs.Tab value="api-docs" icon={<IconApi size={14} />}>
                 API-Dokumentation
               </Tabs.Tab>
             </Tabs.List>
@@ -168,8 +168,8 @@ export default function Dashboard() {
               </Tabs.Panel>
             )}
 
-            <Tabs.Panel value="swagger" pt="lg">
-              {activeTab === 'swagger' && <SwaggerUIViewer />}
+            <Tabs.Panel value="api-docs" pt="lg">
+              {activeTab === 'api-docs' && <ApiDocsViewer />}
             </Tabs.Panel>
           </Tabs>
         </Paper>
