@@ -243,7 +243,7 @@ export default function UserTokens() {
         <Stack spacing="md">
           <Text>Möchten Sie diese Session wirklich beenden?</Text>
           {tokenToDelete && (
-            <Card withBorder padding="sm" bg="gray.0">
+            <Card withBorder padding="sm" bg="var(--mantine-color-body)">
               <Stack spacing={4}>
                 <Group spacing="xs">
                   <Text size="sm" weight={500}>
