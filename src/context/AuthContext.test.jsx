@@ -114,7 +114,7 @@ describe('AuthContext', () => {
       authService.logout.mockResolvedValue();
 
       function TestComponent() {
-        const { logout, user, token } = useAuth();
+        const { logout, token } = useAuth();
 
         return (
           <div>
