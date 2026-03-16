@@ -7,17 +7,13 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          // React und React-DOM in separaten Chunk
-          'react-vendor': ['react', 'react-dom'],
-          // Mantine UI Komponenten in separaten Chunk
-          'mantine-vendor': [
-            '@mantine/core',
-            '@mantine/hooks',
-            '@mantine/form',
-            '@mantine/notifications',
-            '@mantine/dates',
-          ],
+        manualChunks(id) {
+          if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/')) {
+            return 'react-vendor';
+          }
+          if (id.includes('node_modules/@mantine/')) {
+            return 'mantine-vendor';
+          }
         },
       },
     },
