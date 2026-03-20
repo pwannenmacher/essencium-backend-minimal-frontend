@@ -165,3 +165,11 @@ Erstelle `*.test.js` oder `*.test.jsx` Dateien neben den zu testenden Komponente
 - Bei Safari können Cookie-Probleme auftreten (Cross-Origin zwischen localhost-Ports) – in Production mit gleicher Domain kein Problem
 - Backend- und Frontend-URLs können über Umgebungsvariablen konfiguriert werden (siehe Setup-Abschnitt)
 - Im Docker-Deployment werden die Umgebungsvariablen zur Laufzeit injiziert, sodass ein Image für verschiedene Umgebungen genutzt werden kann
+
+## Dependency-Updates
+
+```bash
+cd frontend
+npx npm-check-updates -u
+npm install
+```
