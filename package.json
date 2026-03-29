@@ -1,5 +1,5 @@
 {
-  "name": "essencium-frontend",
+  "name": "essencium-minimal-frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -29,7 +29,7 @@
     "@mantine/form": "^8.3.18",
     "@mantine/hooks": "^8.3.18",
     "@mantine/notifications": "^8.3.18",
-    "@tabler/icons-react": "^3.40.0",
+    "@tabler/icons-react": "^3.41.0",
     "dayjs": "^1.11.20",
     "prop-types": "^15.8.1",
     "rapidoc": "^9.3.8",
@@ -44,8 +44,8 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
-    "@vitest/coverage-v8": "^4.0.18",
-    "@vitest/ui": "^4.0.18",
+    "@vitest/coverage-v8": "^4.1.2",
+    "@vitest/ui": "^4.1.2",
     "eslint": "^10.1.0",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",
@@ -54,8 +54,8 @@
     "jsdom": "^29.0.1",
     "lint-staged": "^16.4.0",
     "prettier": "^3.8.1",
-    "vite": "^8.0.2",
-    "vitest": "^4.0.18"
+    "vite": "^8.0.3",
+    "vitest": "^4.1.2"
   },
   "overrides": {
     "eslint-plugin-react-hooks": {
