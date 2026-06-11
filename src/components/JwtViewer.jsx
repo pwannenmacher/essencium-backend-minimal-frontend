@@ -1,11 +1,13 @@
-import { Card, Text, Stack, Code, Box, Group, Badge, Divider } from '@mantine/core';
-import { IconKey, IconClock, IconUser } from '@tabler/icons-react';
+import { Card, Text, Stack, Code, Box, Group, Badge, Divider, Button } from '@mantine/core';
+import { IconKey, IconClock, IconUser, IconRefresh } from '@tabler/icons-react';
 import { useContext, useMemo, useState, useEffect } from 'react';
+import { notifications } from '@mantine/notifications';
 import { AuthContext } from '../context/AuthContext';
 
 export default function JwtViewer() {
-  const { token } = useContext(AuthContext);
+  const { token, forceRenewToken } = useContext(AuthContext);
   const [currentTime, setCurrentTime] = useState(() => Date.now());
+  const [renewLoading, setRenewLoading] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -56,6 +58,26 @@ export default function JwtViewer() {
     return { expired: false, timeRemaining: `${minutes}m ${seconds}s` };
   }, [decoded, currentTime]);
 
+  const handleRenewToken = async () => {
+    setRenewLoading(true);
+    try {
+      await forceRenewToken();
+      notifications.show({
+        title: 'Erfolg',
+        message: 'Token wurde erfolgreich erneuert',
+        color: 'green',
+      });
+    } catch (error) {
+      notifications.show({
+        title: 'Fehler',
+        message: error.message || 'Token-Erneuerung fehlgeschlagen',
+        color: 'red',
+      });
+    } finally {
+      setRenewLoading(false);
+    }
+  };
+
   if (!token) {
     return (
       <Card withBorder padding="lg" radius="md">
@@ -94,7 +116,19 @@ export default function JwtViewer() {
           <IconKey size={20} />
           <Text fw={500}>Aktueller Access-Token (JWT)</Text>
         </Group>
-        {expired ? <Badge color="red">Abgelaufen</Badge> : <Badge color="green">Gültig</Badge>}
+        <Group gap="sm">
+          {expired ? <Badge color="red">Abgelaufen</Badge> : <Badge color="green">Gültig</Badge>}
+          <Button
+            size="xs"
+            variant="light"
+            leftSection={<IconRefresh size={14} />}
+            onClick={handleRenewToken}
+            loading={renewLoading}
+            disabled={expired}
+          >
+            Erneuern
+          </Button>
+        </Group>
       </Group>
 
       <Stack gap="md">
