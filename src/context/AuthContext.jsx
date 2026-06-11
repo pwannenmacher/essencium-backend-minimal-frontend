@@ -148,6 +148,20 @@ export const AuthProvider = ({ children }) => {
     return user.roles.some((role) => role.name === roleName);
   };
 
+  const forceRenewToken = async () => {
+    if (!token) {
+      throw new Error('Kein Token verfügbar');
+    }
+    try {
+      const newToken = await renewToken(token);
+      setToken(newToken);
+      return { success: true, message: 'Token wurde erfolgreich erneuert' };
+    } catch (error) {
+      console.error('Fehler beim manuellen Token-Refresh:', error);
+      throw error;
+    }
+  };
+
   const value = {
     token,
     user,
@@ -158,6 +172,7 @@ export const AuthProvider = ({ children }) => {
     loginWithToken,
     hasPermission,
     hasRole,
+    forceRenewToken,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
