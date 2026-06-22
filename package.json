@@ -45,17 +45,17 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.2",
     "@vitest/coverage-v8": "^4.1.9",
-    "@vitest/ui": "^4.1.8",
+    "@vitest/ui": "^4.1.9",
     "eslint": "^10.5.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
     "globals": "^17.6.0",
     "husky": "^9.1.7",
     "jsdom": "^29.1.1",
-    "lint-staged": "^17.0.7",
+    "lint-staged": "^17.0.8",
     "prettier": "^3.8.4",
     "vite": "^8.0.16",
-    "vitest": "^4.1.8"
+    "vitest": "^4.1.9"
   },
   "overrides": {
     "eslint-plugin-react-hooks": {
