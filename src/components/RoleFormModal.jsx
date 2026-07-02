@@ -1,4 +1,4 @@
-import { useEffect, useContext, useState, useCallback } from 'react';
+import { useEffect, useContext, useState, useCallback, useMemo } from 'react';
 import {
   Modal,
   TextInput,
@@ -18,6 +18,8 @@ import { IconAlertCircle } from '@tabler/icons-react';
 import PropTypes from 'prop-types';
 import { AuthContext } from '../context/AuthContext';
 import { createRole, updateRole, getAllRights } from '../services/roleService';
+
+const toAuthority = (right) => (typeof right === 'string' ? right : right?.authority);
 
 export default function RoleFormModal({ opened, onClose, role }) {
   const { token } = useContext(AuthContext);
@@ -41,9 +43,24 @@ export default function RoleFormModal({ opened, onClose, role }) {
   const loadRights = useCallback(async () => {
     setLoadingRights(true);
     try {
-      const response = await getAllRights(token, { size: 1000 });
-      const rights = response.content || [];
-      const rightAuthorities = rights.map((right) => right.authority);
+      const pageSize = 100;
+      let page = 0;
+      let totalPages = 1;
+      const rightAuthorities = [];
+
+      do {
+        const response = await getAllRights(token, { page, size: pageSize, sort: 'authority' });
+        const rights = response.content || [];
+        rights.forEach((right) => {
+          const authority = toAuthority(right);
+          if (authority) {
+            rightAuthorities.push(authority);
+          }
+        });
+        totalPages = response.totalPages ?? 1;
+        page += 1;
+      } while (page < totalPages);
+
       setAvailableRights(rightAuthorities);
     } catch {
       notifications.show({
@@ -68,12 +85,31 @@ export default function RoleFormModal({ opened, onClose, role }) {
       form.setValues({
         name: role.name || '',
         description: role.description || '',
-        rights: role.rights || [],
+        rights: (role.rights || []).map(toAuthority).filter(Boolean),
       });
     } else {
       form.reset();
     }
   }, [role]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const initialSelectedRights = useMemo(
+    () => (role?.rights || []).map(toAuthority).filter(Boolean),
+    [role]
+  );
+
+  const orderedRights = useMemo(() => {
+    const selected = new Set(initialSelectedRights);
+    const combined = Array.from(new Set([...availableRights, ...initialSelectedRights]));
+    combined.sort((a, b) => {
+      const aSelected = selected.has(a);
+      const bSelected = selected.has(b);
+      if (aSelected !== bSelected) {
+        return aSelected ? -1 : 1;
+      }
+      return a.localeCompare(b);
+    });
+    return combined;
+  }, [availableRights, initialSelectedRights]);
 
   const handleSubmit = async (values) => {
     setLoading(true);
@@ -118,7 +154,7 @@ export default function RoleFormModal({ opened, onClose, role }) {
   };
 
   const selectAllRights = () => {
-    form.setFieldValue('rights', [...availableRights]);
+    form.setFieldValue('rights', [...orderedRights]);
   };
 
   const deselectAllRights = () => {
@@ -160,7 +196,7 @@ export default function RoleFormModal({ opened, onClose, role }) {
                   size="xs"
                   variant="light"
                   onClick={selectAllRights}
-                  disabled={loadingRights || availableRights.length === 0}
+                  disabled={loadingRights || orderedRights.length === 0}
                 >
                   Alle auswählen
                 </Button>
@@ -177,7 +213,7 @@ export default function RoleFormModal({ opened, onClose, role }) {
                   Lade Rechte...
                 </Text>
               </Group>
-            ) : availableRights.length === 0 ? (
+            ) : orderedRights.length === 0 ? (
               <Alert icon={<IconAlertCircle size={16} />} color="yellow" mb="md">
                 Keine Rechte verfügbar.
               </Alert>
@@ -191,7 +227,7 @@ export default function RoleFormModal({ opened, onClose, role }) {
                 }}
               >
                 <Stack gap="xs">
-                  {availableRights.map((right) => (
+                  {orderedRights.map((right) => (
                     <Checkbox
                       key={right}
                       label={right}
