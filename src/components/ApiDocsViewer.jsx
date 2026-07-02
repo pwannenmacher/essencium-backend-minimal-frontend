@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import 'rapidoc';
 import { Loader, Center, Alert, useMantineColorScheme } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { getOpenApiSpec } from '../services/openApiService';
+import { useAuth } from '../context/AuthContext';
 import './ApiDocsViewer.css';
 
 export default function ApiDocsViewer() {
@@ -11,6 +12,20 @@ export default function ApiDocsViewer() {
   const [error, setError] = useState(null);
   const rapidocRef = useRef(null);
   const { colorScheme } = useMantineColorScheme();
+  const { token } = useAuth();
+
+  const applyAccessToken = useCallback(() => {
+    const rapidoc = rapidocRef.current;
+    if (!rapidoc) return;
+
+    if (token) {
+      rapidoc.setAttribute('api-key-name', 'Authorization');
+      rapidoc.setAttribute('api-key-location', 'header');
+      rapidoc.setAttribute('api-key-value', `Bearer ${token}`);
+    } else {
+      rapidoc.removeAttribute('api-key-value');
+    }
+  }, [token]);
 
   useEffect(() => {
     loadSpec();
@@ -21,6 +36,19 @@ export default function ApiDocsViewer() {
       rapidocRef.current.loadSpec(spec);
     }
   }, [spec]);
+
+  useEffect(() => {
+    const rapidoc = rapidocRef.current;
+    if (!rapidoc) return;
+
+    rapidoc.addEventListener('spec-loaded', applyAccessToken);
+    // Falls die Spec bereits geladen ist, den Token direkt setzen
+    applyAccessToken();
+
+    return () => {
+      rapidoc.removeEventListener('spec-loaded', applyAccessToken);
+    };
+  }, [applyAccessToken, spec]);
 
   const loadSpec = async () => {
     try {
