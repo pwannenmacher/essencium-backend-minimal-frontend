@@ -29,7 +29,7 @@
     "@mantine/form": "^9.4.1",
     "@mantine/hooks": "^9.4.1",
     "@mantine/notifications": "^9.4.1",
-    "@tabler/icons-react": "^3.44.0",
+    "@tabler/icons-react": "^3.45.0",
     "dayjs": "^1.11.21",
     "prop-types": "^15.8.1",
     "rapidoc": "^9.3.8",
