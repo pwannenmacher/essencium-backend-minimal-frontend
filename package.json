@@ -24,17 +24,17 @@
     ]
   },
   "dependencies": {
-    "@mantine/core": "^9.4.1",
-    "@mantine/dates": "^9.4.1",
-    "@mantine/form": "^9.4.1",
-    "@mantine/hooks": "^9.4.1",
-    "@mantine/notifications": "^9.4.1",
+    "@mantine/core": "^9.4.2",
+    "@mantine/dates": "^9.4.2",
+    "@mantine/form": "^9.4.2",
+    "@mantine/hooks": "^9.4.2",
+    "@mantine/notifications": "^9.4.2",
     "@tabler/icons-react": "^3.45.0",
     "dayjs": "^1.11.21",
     "prop-types": "^15.8.1",
     "rapidoc": "^9.3.8",
-    "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -43,23 +43,27 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.3",
+    "@vitejs/plugin-react": "^6.0.4",
     "@vitest/coverage-v8": "^4.1.10",
-    "@vitest/ui": "^4.1.9",
+    "@vitest/ui": "^4.1.10",
     "eslint": "^10.7.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
     "globals": "^17.7.0",
     "husky": "^9.1.7",
     "jsdom": "^29.1.1",
-    "lint-staged": "^17.1.0",
-    "prettier": "^3.9.5",
+    "lint-staged": "^17.2.0",
+    "prettier": "^3.9.6",
     "vite": "^8.1.5",
-    "vitest": "^4.1.9"
+    "vitest": "^4.1.10"
   },
-  "overrides": {
-    "eslint-plugin-react-hooks": {
-      "eslint": "$eslint"
-    }
+  "allowScripts": {
+    "@scarf/scarf@1.4.0": true,
+    "@tree-sitter-grammars/tree-sitter-yaml@0.7.1": true,
+    "tree-sitter@0.22.4": true,
+    "tree-sitter@0.21.1": true,
+    "core-js-pure@3.48.0": true,
+    "fsevents@2.3.3": true,
+    "tree-sitter-json@0.24.8": true
   }
 }
