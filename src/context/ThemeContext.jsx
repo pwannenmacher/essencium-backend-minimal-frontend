@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { useMantineColorScheme } from '@mantine/core';
 
 const ThemeContext = createContext();
@@ -38,11 +38,7 @@ export function ThemeProvider({ children }) {
     }
   }, [themeMode, setColorScheme]);
 
-  const toggleTheme = (mode) => {
-    setThemeMode(mode);
-  };
+  const value = useMemo(() => ({ themeMode, toggleTheme: setThemeMode }), [themeMode]);
 
-  return (
-    <ThemeContext.Provider value={{ themeMode, toggleTheme }}>{children}</ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }

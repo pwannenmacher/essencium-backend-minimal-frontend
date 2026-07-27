@@ -38,7 +38,6 @@ export default function Login() {
   useEffect(() => {
     const loadOAuthProviders = async () => {
       const providers = await getOAuthProviders();
-      console.log('OAuth-Provider geladen:', providers);
       setOauthProviders(providers);
     };
     loadOAuthProviders();

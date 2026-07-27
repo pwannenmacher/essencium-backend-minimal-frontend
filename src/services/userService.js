@@ -38,54 +38,51 @@ export const getUserById = async (token, id) => {
   return authenticatedFetch(`${API_BASE_URL}/v1/users/${id}`, token);
 };
 
+// Gemeinsame Filter-Felder für die User-Listen-Endpunkte.
+const USER_FILTER_KEYS = [
+  'ids',
+  'email',
+  'name',
+  'roles',
+  'createdBy',
+  'updatedBy',
+  'createdAtFrom',
+  'createdAtTo',
+  'updatedAtFrom',
+  'updatedAtTo',
+];
+
+const appendUserFilters = (queryParams, params) => {
+  USER_FILTER_KEYS.forEach((key) => {
+    if (params[key]) queryParams.append(key, params[key]);
+  });
+};
+
+const buildUrl = (path, queryParams) => {
+  const queryString = queryParams.toString();
+  const suffix = queryString ? `?${queryString}` : '';
+  return `${path}${suffix}`;
+};
+
 export const getUsers = async (token, params = {}) => {
   const queryParams = new URLSearchParams();
 
   if (params.page !== undefined) queryParams.append('page', params.page);
   if (params.size !== undefined) queryParams.append('size', params.size);
   if (params.sort) {
-    if (Array.isArray(params.sort)) {
-      params.sort.forEach((s) => queryParams.append('sort', s));
-    } else {
-      queryParams.append('sort', params.sort);
-    }
+    const sorts = Array.isArray(params.sort) ? params.sort : [params.sort];
+    sorts.forEach((s) => queryParams.append('sort', s));
   }
+  appendUserFilters(queryParams, params);
 
-  if (params.ids) queryParams.append('ids', params.ids);
-  if (params.email) queryParams.append('email', params.email);
-  if (params.name) queryParams.append('name', params.name);
-  if (params.roles) queryParams.append('roles', params.roles);
-  if (params.createdBy) queryParams.append('createdBy', params.createdBy);
-  if (params.updatedBy) queryParams.append('updatedBy', params.updatedBy);
-  if (params.createdAtFrom) queryParams.append('createdAtFrom', params.createdAtFrom);
-  if (params.createdAtTo) queryParams.append('createdAtTo', params.createdAtTo);
-  if (params.updatedAtFrom) queryParams.append('updatedAtFrom', params.updatedAtFrom);
-  if (params.updatedAtTo) queryParams.append('updatedAtTo', params.updatedAtTo);
-
-  const queryString = queryParams.toString();
-  const url = `${API_BASE_URL}/v1/users${queryString ? `?${queryString}` : ''}`;
-
-  return authenticatedFetch(url, token);
+  return authenticatedFetch(buildUrl(`${API_BASE_URL}/v1/users`, queryParams), token);
 };
 
 export const getUsersBasic = async (token, params = {}) => {
   const queryParams = new URLSearchParams();
+  appendUserFilters(queryParams, params);
 
-  if (params.ids) queryParams.append('ids', params.ids);
-  if (params.email) queryParams.append('email', params.email);
-  if (params.name) queryParams.append('name', params.name);
-  if (params.roles) queryParams.append('roles', params.roles);
-  if (params.createdBy) queryParams.append('createdBy', params.createdBy);
-  if (params.updatedBy) queryParams.append('updatedBy', params.updatedBy);
-  if (params.createdAtFrom) queryParams.append('createdAtFrom', params.createdAtFrom);
-  if (params.createdAtTo) queryParams.append('createdAtTo', params.createdAtTo);
-  if (params.updatedAtFrom) queryParams.append('updatedAtFrom', params.updatedAtFrom);
-  if (params.updatedAtTo) queryParams.append('updatedAtTo', params.updatedAtTo);
-
-  const queryString = queryParams.toString();
-  const url = `${API_BASE_URL}/v1/users/basic${queryString ? `?${queryString}` : ''}`;
-
-  return authenticatedFetch(url, token);
+  return authenticatedFetch(buildUrl(`${API_BASE_URL}/v1/users/basic`, queryParams), token);
 };
 
 export const createUser = async (token, userData) => {
@@ -154,8 +151,6 @@ export const deleteUser = async (token, id) => {
     const error = await response.text();
     throw new Error(error || `User-Löschung fehlgeschlagen: ${response.status}`);
   }
-
-  return;
 };
 
 export const updateMe = async (token, userData, userId) => {
@@ -227,9 +222,6 @@ export const deleteMyToken = async (token, tokenId) => {
     const error = await response.text();
     throw new Error(error || `Token-Löschung fehlgeschlagen: ${response.status}`);
   }
-
-  // 204 No Content
-  return;
 };
 
 /**
@@ -247,8 +239,6 @@ export const terminateUserSessions = async (token, id) => {
     const error = await response.text();
     throw new Error(error || `Session-Terminierung fehlgeschlagen: ${response.status}`);
   }
-
-  return;
 };
 
 export const getAllUsersWithTokens = async (token) => {
@@ -267,7 +257,4 @@ export const deleteUserToken = async (token, userId, tokenId) => {
     const error = await response.text();
     throw new Error(error || `Token-Löschung fehlgeschlagen: ${response.status}`);
   }
-
-  // 204 No Content
-  return;
 };

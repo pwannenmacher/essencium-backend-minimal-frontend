@@ -35,7 +35,7 @@ export default function UserFormModal({ opened, onClose, onSubmit, user, roles, 
     validate: {
       email: (value) => {
         if (!value) return 'E-Mail ist erforderlich';
-        if (!/^\S+@\S+$/.test(value)) return 'Ungültige E-Mail-Adresse';
+        if (!/^[^\s@]+@[^\s@]+$/.test(value)) return 'Ungültige E-Mail-Adresse';
         return null;
       },
       firstName: (value) => (!value ? 'Vorname ist erforderlich' : null),
