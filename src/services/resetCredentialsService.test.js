@@ -14,7 +14,7 @@ describe('resetCredentialsService', () => {
   });
 
   describe('requestPasswordReset', () => {
-    it('POSTs the email as a JSON string', async () => {
+    it('POSTs the email as a raw (unquoted) text/plain body', async () => {
       global.fetch.mockResolvedValueOnce({ ok: true, status: 204 });
 
       await requestPasswordReset('user@example.com');
@@ -22,10 +22,9 @@ describe('resetCredentialsService', () => {
       const [url, options] = global.fetch.mock.calls[0];
       expect(url).toBe(`${BASE}/v1/reset-credentials`);
       expect(options.method).toBe('POST');
-      expect(options.headers).toEqual({ 'Content-Type': 'application/json' });
-      // Body ist ein JSON-String: "user@example.com" (mit Anführungszeichen)
-      expect(options.body).toBe('"user@example.com"');
-      expect(JSON.parse(options.body)).toBe('user@example.com');
+      expect(options.headers).toEqual({ 'Content-Type': 'text/plain' });
+      // Der Controller liest den Body roh als String – keine JSON-Anführungszeichen.
+      expect(options.body).toBe('user@example.com');
     });
 
     it('does not send an Authorization header (public endpoint)', async () => {
