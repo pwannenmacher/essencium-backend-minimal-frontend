@@ -12,17 +12,20 @@ import {
   Text,
   Divider,
   Box,
+  Anchor,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconAlertCircle, IconUser, IconUserShield } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
 import { getOAuthProviders } from '../services/authService';
 import { API_BASE_URL, FRONTEND_URL } from '../config.js';
+import ForgotPasswordModal from './ForgotPasswordModal';
 
 export default function Login() {
   const { login, loginWithToken, loading } = useAuth();
   const [error, setError] = useState('');
   const [oauthProviders, setOauthProviders] = useState({});
+  const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
 
   const form = useForm({
     initialValues: {
@@ -114,6 +117,15 @@ export default function Login() {
               Anmelden
             </Button>
 
+            <Anchor
+              size="sm"
+              ta="center"
+              onClick={() => setForgotPasswordOpen(true)}
+              style={{ cursor: 'pointer' }}
+            >
+              Passwort vergessen?
+            </Anchor>
+
             {Object.keys(oauthProviders).length > 0 && (
               <>
                 <Divider label="Oder anmelden mit" labelPosition="center" />
@@ -190,6 +202,11 @@ export default function Login() {
           </Stack>
         </form>
       </Paper>
+
+      <ForgotPasswordModal
+        opened={forgotPasswordOpen}
+        onClose={() => setForgotPasswordOpen(false)}
+      />
     </Container>
   );
 }
