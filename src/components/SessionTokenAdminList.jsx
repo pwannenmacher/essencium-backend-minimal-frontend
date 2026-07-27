@@ -17,6 +17,7 @@ import { notifications } from '@mantine/notifications';
 import PropTypes from 'prop-types';
 import { AuthContext } from '../context/AuthContext';
 import { getAllUsersWithTokens, deleteUserToken } from '../services/userService';
+import { renderTableBody } from './TableBodyState';
 
 export default function SessionTokenAdminList({ active }) {
   const { token } = useContext(AuthContext);
@@ -208,21 +209,12 @@ export default function SessionTokenAdminList({ active }) {
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {loading ? (
-            <Table.Tr>
-              <Table.Td colSpan={7} style={{ textAlign: 'center' }}>
-                <Text>Lade...</Text>
-              </Table.Td>
-            </Table.Tr>
-          ) : rows.length > 0 ? (
-            rows
-          ) : (
-            <Table.Tr>
-              <Table.Td colSpan={7} style={{ textAlign: 'center' }}>
-                <Text>Keine Session-Tokens gefunden</Text>
-              </Table.Td>
-            </Table.Tr>
-          )}
+          {renderTableBody({
+            loading,
+            rows,
+            colSpan: 7,
+            emptyMessage: 'Keine Session-Tokens gefunden',
+          })}
         </Table.Tbody>
       </Table>
 

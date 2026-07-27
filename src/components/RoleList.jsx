@@ -16,6 +16,7 @@ import PropTypes from 'prop-types';
 import { AuthContext } from '../context/AuthContext';
 import { getRoles, deleteRole } from '../services/roleService';
 import RoleFormModal from './RoleFormModal';
+import { renderTableBody } from './TableBodyState';
 
 export default function RoleList({ active }) {
   const { token, user } = useContext(AuthContext);
@@ -184,21 +185,7 @@ export default function RoleList({ active }) {
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {loading ? (
-            <Table.Tr>
-              <Table.Td colSpan={5} style={{ textAlign: 'center' }}>
-                <Text>Lade...</Text>
-              </Table.Td>
-            </Table.Tr>
-          ) : rows.length > 0 ? (
-            rows
-          ) : (
-            <Table.Tr>
-              <Table.Td colSpan={5} style={{ textAlign: 'center' }}>
-                <Text>Keine Rollen gefunden</Text>
-              </Table.Td>
-            </Table.Tr>
-          )}
+          {renderTableBody({ loading, rows, colSpan: 5, emptyMessage: 'Keine Rollen gefunden' })}
         </Table.Tbody>
       </Table>
 
