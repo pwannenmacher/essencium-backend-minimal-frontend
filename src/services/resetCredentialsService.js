@@ -2,16 +2,19 @@ import { API_BASE_URL } from '../config.js';
 
 /**
  * Schritt 1 des Passwort-Resets: Reset-Token per E-Mail anfordern.
- * POST /v1/reset-credentials – Body ist ein JSON-String (die E-Mail-Adresse).
+ * POST /v1/reset-credentials – der Controller liest den Body als @RequestBody String
+ * roh ein (StringHttpMessageConverter, kein Jackson). Die E-Mail wird daher als
+ * unverpackter Klartext gesendet – JSON.stringify() würde die Anführungszeichen
+ * zum Teil des Usernamens machen und den Lookup fehlschlagen lassen.
  * Das Backend antwortet auch für unbekannte Adressen mit 204 (kein User-Enumeration).
  */
 export const requestPasswordReset = async (email) => {
   const response = await fetch(`${API_BASE_URL}/v1/reset-credentials`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'text/plain',
     },
-    body: JSON.stringify(email),
+    body: email,
   });
 
   if (!response.ok) {
