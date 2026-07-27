@@ -200,7 +200,7 @@ export default function ApiTokenFormModal({ opened, onClose }) {
               <ScrollArea
                 h={250}
                 style={{
-                  border: '1px solid #dee2e6',
+                  border: '1px solid var(--mantine-color-default-border)',
                   borderRadius: 4,
                   padding: 8,
                 }}
