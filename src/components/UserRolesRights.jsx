@@ -63,8 +63,8 @@ export default function UserRolesRights() {
           <Title order={4}>Rollen</Title>
           {roles.length > 0 ? (
             <Group spacing="xs">
-              {roles.map((role, index) => (
-                <Badge key={index} color="blue" size="lg" variant="light">
+              {roles.map((role) => (
+                <Badge key={role.name || role} color="blue" size="lg" variant="light">
                   {role.name || role}
                 </Badge>
               ))}
@@ -84,8 +84,8 @@ export default function UserRolesRights() {
           </Group>
           {rights.length > 0 ? (
             <Stack spacing={4}>
-              {rights.map((right, index) => (
-                <Group key={index} spacing="xs">
+              {rights.map((right) => (
+                <Group key={right.authority || right} spacing="xs">
                   <Badge color="green" size="sm" variant="dot">
                     {right.authority || right}
                   </Badge>

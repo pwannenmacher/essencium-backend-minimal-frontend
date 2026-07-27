@@ -85,7 +85,8 @@ export function createMockToken(user, expiresIn = 3600) {
 /**
  * Generiere Mock-JWT-Token ohne Expiration Claim
  */
-export function createMockTokenWithoutExpiration(user = { email: 'test@example.com' }) {
+export function createMockTokenWithoutExpiration(user) {
+  user ??= { email: 'test@example.com' };
   const now = Math.floor(Date.now() / 1000);
   const payload = {
     sub: user.email,

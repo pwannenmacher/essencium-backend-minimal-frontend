@@ -143,8 +143,6 @@ export const deleteApiToken = async (token, id) => {
     const error = await response.text();
     throw new Error(error || `API-Token-Löschung fehlgeschlagen: ${response.status}`);
   }
-
-  return;
 };
 
 export const getAllApiTokensAdmin = async (token) => {

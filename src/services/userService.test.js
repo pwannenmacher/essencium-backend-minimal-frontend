@@ -511,4 +511,77 @@ describe('userService', () => {
       ).rejects.toThrow();
     });
   });
+
+  describe('getMe', () => {
+    it('fetches the current user', async () => {
+      const me = { id: 1, email: 'me@example.com' };
+      global.fetch.mockResolvedValueOnce({ ok: true, json: async () => me });
+
+      const result = await import('./userService').then((m) => m.getMe('token'));
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:8098/v1/users/me',
+        expect.objectContaining({
+          headers: expect.objectContaining({ Authorization: 'Bearer token' }),
+        })
+      );
+      expect(result).toEqual(me);
+    });
+
+    it('throws on error', async () => {
+      global.fetch.mockResolvedValueOnce({ ok: false, status: 401, text: async () => '' });
+      await expect(import('./userService').then((m) => m.getMe('token'))).rejects.toThrow();
+    });
+  });
+
+  describe('getMyTokens', () => {
+    it('fetches the current user tokens', async () => {
+      global.fetch.mockResolvedValueOnce({ ok: true, json: async () => [] });
+      await import('./userService').then((m) => m.getMyTokens('token'));
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:8098/v1/users/me/tokens',
+        expect.anything()
+      );
+    });
+  });
+
+  describe('patchUser', () => {
+    it('PATCHes partial data merged with the id', async () => {
+      global.fetch.mockResolvedValueOnce({ ok: true, json: async () => ({ id: 5 }) });
+
+      await import('./userService').then((m) => m.patchUser('token', 5, { firstName: 'Neo' }));
+
+      const [url, options] = global.fetch.mock.calls[0];
+      expect(url).toBe('http://localhost:8098/v1/users/5');
+      expect(options.method).toBe('PATCH');
+      expect(JSON.parse(options.body)).toEqual({ firstName: 'Neo', id: 5 });
+    });
+
+    it('throws on error', async () => {
+      global.fetch.mockResolvedValueOnce({ ok: false, status: 400, text: async () => '' });
+      await expect(
+        import('./userService').then((m) => m.patchUser('token', 5, {}))
+      ).rejects.toThrow('User-Patch fehlgeschlagen: 400');
+    });
+  });
+
+  describe('updateMe', () => {
+    it('PUTs the profile data merged with the user id', async () => {
+      global.fetch.mockResolvedValueOnce({ ok: true, json: async () => ({ id: 9 }) });
+
+      await import('./userService').then((m) => m.updateMe('token', { firstName: 'A' }, 9));
+
+      const [url, options] = global.fetch.mock.calls[0];
+      expect(url).toBe('http://localhost:8098/v1/users/me');
+      expect(options.method).toBe('PUT');
+      expect(JSON.parse(options.body)).toEqual({ firstName: 'A', id: 9 });
+    });
+
+    it('throws on error', async () => {
+      global.fetch.mockResolvedValueOnce({ ok: false, status: 500, text: async () => '' });
+      await expect(import('./userService').then((m) => m.updateMe('token', {}, 9))).rejects.toThrow(
+        'Profil-Update fehlgeschlagen: 500'
+      );
+    });
+  });
 });
