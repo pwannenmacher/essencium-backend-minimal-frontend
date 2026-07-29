@@ -1,6 +1,7 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { login as apiLogin, logout as apiLogout, renewToken } from '../services/authService';
 import { getMe } from '../services/userService';
+import { isValidJwt, parseJwt } from '../utils/jwt';
 
 export const AuthContext = createContext(null);
 
@@ -18,7 +19,8 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (token) {
+    // Nur streng validierte JWTs persistieren (jssecurity:S8475).
+    if (isValidJwt(token)) {
       localStorage.setItem('accessToken', token);
     } else {
       localStorage.removeItem('accessToken');
@@ -28,24 +30,8 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (!token) return;
 
-    const parseJwt = (token) => {
-      try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(
-          atob(base64)
-            .split('')
-            .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-            .join('')
-        );
-        return JSON.parse(jsonPayload);
-      } catch {
-        return null;
-      }
-    };
-
     const payload = parseJwt(token);
-    if (!payload || !payload.exp) {
+    if (!payload?.exp) {
       console.warn('Token hat keine Ablaufzeit');
       return;
     }
@@ -139,13 +125,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   const hasPermission = (permission) => {
-    if (!user || !user.roles) return false;
-    return user.roles.some((role) => role.rights && role.rights.includes(permission));
+    return user?.roles?.some((role) => role.rights?.includes(permission)) ?? false;
   };
 
   const hasRole = (roleName) => {
-    if (!user || !user.roles) return false;
-    return user.roles.some((role) => role.name === roleName);
+    return user?.roles?.some((role) => role.name === roleName) ?? false;
   };
 
   const forceRenewToken = async () => {
@@ -162,18 +146,22 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const value = {
-    token,
-    user,
-    loading,
-    isAuthenticated: !!token,
-    login,
-    logout,
-    loginWithToken,
-    hasPermission,
-    hasRole,
-    forceRenewToken,
-  };
+  const value = useMemo(
+    () => ({
+      token,
+      user,
+      loading,
+      isAuthenticated: !!token,
+      login,
+      logout,
+      loginWithToken,
+      hasPermission,
+      hasRole,
+      forceRenewToken,
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [token, user, loading]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

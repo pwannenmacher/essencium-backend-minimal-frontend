@@ -17,6 +17,7 @@ import { notifications } from '@mantine/notifications';
 import PropTypes from 'prop-types';
 import { AuthContext } from '../context/AuthContext';
 import { getAllApiTokensAdmin, deleteApiToken, revokeApiToken } from '../services/apiTokenService';
+import { renderTableBody } from './TableBodyState';
 
 export default function ApiTokenAdminList({ active }) {
   const { token } = useContext(AuthContext);
@@ -273,21 +274,12 @@ export default function ApiTokenAdminList({ active }) {
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {loading ? (
-            <Table.Tr>
-              <Table.Td colSpan={6} style={{ textAlign: 'center' }}>
-                <Text>Lade...</Text>
-              </Table.Td>
-            </Table.Tr>
-          ) : rows.length > 0 ? (
-            rows
-          ) : (
-            <Table.Tr>
-              <Table.Td colSpan={6} style={{ textAlign: 'center' }}>
-                <Text>Keine API-Tokens gefunden</Text>
-              </Table.Td>
-            </Table.Tr>
-          )}
+          {renderTableBody({
+            loading,
+            rows,
+            colSpan: 6,
+            emptyMessage: 'Keine API-Tokens gefunden',
+          })}
         </Table.Tbody>
       </Table>
 

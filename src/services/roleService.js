@@ -1,14 +1,18 @@
 import { API_BASE_URL } from '../config.js';
 
-export const getRoles = async (token, params = {}) => {
+const buildPaginatedUrl = (path, params) => {
   const queryParams = new URLSearchParams();
-
   if (params.page !== undefined) queryParams.append('page', params.page);
   if (params.size !== undefined) queryParams.append('size', params.size);
   if (params.sort) queryParams.append('sort', params.sort);
 
   const queryString = queryParams.toString();
-  const url = `${API_BASE_URL}/v1/roles${queryString ? `?${queryString}` : ''}`;
+  const suffix = queryString ? `?${queryString}` : '';
+  return `${path}${suffix}`;
+};
+
+export const getRoles = async (token, params = {}) => {
+  const url = buildPaginatedUrl(`${API_BASE_URL}/v1/roles`, params);
 
   const response = await fetch(url, {
     headers: {
@@ -103,19 +107,10 @@ export const deleteRole = async (token, name) => {
     const error = await response.text();
     throw new Error(error || `Rollen-Löschung fehlgeschlagen: ${response.status}`);
   }
-
-  return;
 };
 
 export const getAllRights = async (token, params = {}) => {
-  const queryParams = new URLSearchParams();
-
-  if (params.page !== undefined) queryParams.append('page', params.page);
-  if (params.size !== undefined) queryParams.append('size', params.size);
-  if (params.sort) queryParams.append('sort', params.sort);
-
-  const queryString = queryParams.toString();
-  const url = `${API_BASE_URL}/v1/rights${queryString ? `?${queryString}` : ''}`;
+  const url = buildPaginatedUrl(`${API_BASE_URL}/v1/rights`, params);
 
   const response = await fetch(url, {
     headers: {

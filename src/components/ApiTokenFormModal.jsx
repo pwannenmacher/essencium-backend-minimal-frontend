@@ -142,6 +142,15 @@ export default function ApiTokenFormModal({ opened, onClose }) {
     onClose();
   };
 
+  let expirationDescription;
+  if (loadingExpiration) {
+    expirationDescription = 'Lade Default-Laufzeit...';
+  } else if (expirationInfo) {
+    expirationDescription = `Ohne Angabe wird der Token für ${formatDuration(expirationInfo)} gültig sein`;
+  } else {
+    expirationDescription = 'Ohne Angabe wird eine variable Default-Laufzeit vergeben';
+  }
+
   return (
     <Modal opened={opened} onClose={handleClose} title="Neuer API-Token" size="lg">
       <form onSubmit={form.onSubmit(handleSubmit)}>
@@ -156,13 +165,7 @@ export default function ApiTokenFormModal({ opened, onClose }) {
           <DateInput
             label="Gültig bis"
             placeholder="Datum auswählen (optional)"
-            description={
-              loadingExpiration
-                ? 'Lade Default-Laufzeit...'
-                : expirationInfo
-                  ? `Ohne Angabe wird der Token für ${formatDuration(expirationInfo)} gültig sein`
-                  : 'Ohne Angabe wird eine variable Default-Laufzeit vergeben'
-            }
+            description={expirationDescription}
             minDate={new Date()}
             valueFormat="DD.MM.YYYY"
             clearable
@@ -197,7 +200,7 @@ export default function ApiTokenFormModal({ opened, onClose }) {
               <ScrollArea
                 h={250}
                 style={{
-                  border: '1px solid #dee2e6',
+                  border: '1px solid var(--mantine-color-default-border)',
                   borderRadius: 4,
                   padding: 8,
                 }}

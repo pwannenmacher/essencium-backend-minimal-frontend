@@ -27,6 +27,7 @@ import PropTypes from 'prop-types';
 import { AuthContext } from '../context/AuthContext';
 import { getApiTokens, deleteApiToken, revokeApiToken } from '../services/apiTokenService';
 import ApiTokenFormModal from './ApiTokenFormModal';
+import { renderTableBody } from './TableBodyState';
 
 export default function ApiTokenList({ active }) {
   const { token, user } = useContext(AuthContext);
@@ -275,21 +276,12 @@ export default function ApiTokenList({ active }) {
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {loading ? (
-            <Table.Tr>
-              <Table.Td colSpan={5} style={{ textAlign: 'center' }}>
-                <Text>Lade...</Text>
-              </Table.Td>
-            </Table.Tr>
-          ) : rows.length > 0 ? (
-            rows
-          ) : (
-            <Table.Tr>
-              <Table.Td colSpan={5} style={{ textAlign: 'center' }}>
-                <Text>Keine API-Tokens gefunden</Text>
-              </Table.Td>
-            </Table.Tr>
-          )}
+          {renderTableBody({
+            loading,
+            rows,
+            colSpan: 5,
+            emptyMessage: 'Keine API-Tokens gefunden',
+          })}
         </Table.Tbody>
       </Table>
 
