@@ -186,8 +186,8 @@ export default function JwtViewer() {
                   Authorities:
                 </Text>
                 <Group gap={4}>
-                  {payload.authorities.map((auth, idx) => (
-                    <Badge key={idx} size="xs" variant="light">
+                  {payload.authorities.map((auth) => (
+                    <Badge key={auth.authority || auth} size="xs" variant="light">
                       {auth.authority || auth}
                     </Badge>
                   ))}

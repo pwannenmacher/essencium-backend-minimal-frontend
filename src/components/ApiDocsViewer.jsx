@@ -4,6 +4,7 @@ import { Loader, Center, Alert, useMantineColorScheme } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { getOpenApiSpec } from '../services/openApiService';
 import { useAuth } from '../context/AuthContext';
+import { isValidJwt } from '../utils/jwt';
 import './ApiDocsViewer.css';
 
 export default function ApiDocsViewer() {
@@ -18,7 +19,9 @@ export default function ApiDocsViewer() {
     const rapidoc = rapidocRef.current;
     if (!rapidoc) return;
 
-    if (token) {
+    // Nur streng validierte JWTs in das DOM-Attribut schreiben, um DOM-basiertes
+    // XSS über getaintete Token-Werte auszuschließen (jssecurity:S5696).
+    if (isValidJwt(token)) {
       rapidoc.setAttribute('api-key-name', 'Authorization');
       rapidoc.setAttribute('api-key-location', 'header');
       rapidoc.setAttribute('api-key-value', `Bearer ${token}`);

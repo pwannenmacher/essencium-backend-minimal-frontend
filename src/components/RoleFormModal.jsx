@@ -161,6 +161,46 @@ export default function RoleFormModal({ opened, onClose, role }) {
     form.setFieldValue('rights', []);
   };
 
+  let rightsSection;
+  if (loadingRights) {
+    rightsSection = (
+      <Group justify="center" p="xl">
+        <Loader size="sm" />
+        <Text size="sm" c="dimmed">
+          Lade Rechte...
+        </Text>
+      </Group>
+    );
+  } else if (orderedRights.length === 0) {
+    rightsSection = (
+      <Alert icon={<IconAlertCircle size={16} />} color="yellow" mb="md">
+        Keine Rechte verfügbar.
+      </Alert>
+    );
+  } else {
+    rightsSection = (
+      <ScrollArea
+        h={250}
+        style={{
+          border: '1px solid var(--mantine-color-default-border)',
+          borderRadius: 4,
+          padding: 8,
+        }}
+      >
+        <Stack gap="xs">
+          {orderedRights.map((right) => (
+            <Checkbox
+              key={right}
+              label={right}
+              checked={form.values.rights.includes(right)}
+              onChange={() => toggleRight(right)}
+            />
+          ))}
+        </Stack>
+      </ScrollArea>
+    );
+  }
+
   return (
     <Modal
       opened={opened}
@@ -206,38 +246,7 @@ export default function RoleFormModal({ opened, onClose, role }) {
               </Group>
             </Group>
 
-            {loadingRights ? (
-              <Group justify="center" p="xl">
-                <Loader size="sm" />
-                <Text size="sm" c="dimmed">
-                  Lade Rechte...
-                </Text>
-              </Group>
-            ) : orderedRights.length === 0 ? (
-              <Alert icon={<IconAlertCircle size={16} />} color="yellow" mb="md">
-                Keine Rechte verfügbar.
-              </Alert>
-            ) : (
-              <ScrollArea
-                h={250}
-                style={{
-                  border: '1px solid #dee2e6',
-                  borderRadius: 4,
-                  padding: 8,
-                }}
-              >
-                <Stack gap="xs">
-                  {orderedRights.map((right) => (
-                    <Checkbox
-                      key={right}
-                      label={right}
-                      checked={form.values.rights.includes(right)}
-                      onChange={() => toggleRight(right)}
-                    />
-                  ))}
-                </Stack>
-              </ScrollArea>
-            )}
+            {rightsSection}
           </div>
 
           <Group justify="flex-end" mt="md">
