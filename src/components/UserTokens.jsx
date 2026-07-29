@@ -17,6 +17,12 @@ import { IconClock, IconAlertCircle, IconTrash, IconCircleCheck } from '@tabler/
 import { notifications } from '@mantine/notifications';
 import { useAuth } from '../context/AuthContext';
 import { getMyTokens, deleteMyToken } from '../services/userService';
+import { parseJwt } from '../utils/jwt';
+
+const TOKEN_TYPE_COLORS = {
+  REFRESH: 'blue',
+  ACCESS: 'green',
+};
 
 export default function UserTokens() {
   const { token } = useAuth();
@@ -28,26 +34,10 @@ export default function UserTokens() {
   const [deleting, setDeleting] = useState(false);
   const [currentParentTokenId, setCurrentParentTokenId] = useState(null);
 
-  const parseJwt = (token) => {
-    try {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replaceAll('-', '+').replaceAll('_', '/');
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split('')
-          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-          .join('')
-      );
-      return JSON.parse(jsonPayload);
-    } catch {
-      return null;
-    }
-  };
-
   useEffect(() => {
     if (token) {
       const payload = parseJwt(token);
-      if (payload && payload.parent_token_id) {
+      if (payload?.parent_token_id) {
         setCurrentParentTokenId(payload.parent_token_id);
       }
     }
@@ -162,15 +152,7 @@ export default function UserTokens() {
                     <Group position="apart" align="flex-start">
                       <Stack spacing="xs" style={{ flex: 1 }}>
                         <Group spacing="xs">
-                          <Badge
-                            color={
-                              tokenItem.type === 'REFRESH'
-                                ? 'blue'
-                                : tokenItem.type === 'ACCESS'
-                                  ? 'green'
-                                  : 'gray'
-                            }
-                          >
+                          <Badge color={TOKEN_TYPE_COLORS[tokenItem.type] ?? 'gray'}>
                             {tokenItem.type}
                           </Badge>
                           {isCurrentSession && (
