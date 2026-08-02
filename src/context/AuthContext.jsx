@@ -5,6 +5,7 @@ import { login as apiLogin, logout as apiLogout, renewToken } from '../services/
 import { ApiError, setUnauthorizedHandler } from '../services/apiClient';
 import { getMe } from '../services/userService';
 import { isValidJwt, parseJwt } from '../utils/jwt';
+import { STORAGE_KEYS } from '../constants';
 
 export const AuthContext = createContext(null);
 
@@ -17,7 +18,7 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(localStorage.getItem('accessToken'));
+  const [token, setToken] = useState(localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN));
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -45,9 +46,9 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     // Nur streng validierte JWTs persistieren (jssecurity:S8475).
     if (isValidJwt(token)) {
-      localStorage.setItem('accessToken', token);
+      localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, token);
     } else {
-      localStorage.removeItem('accessToken');
+      localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
     }
   }, [token]);
 
@@ -176,7 +177,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   const hasPermission = (permission) => {
-    return user?.roles?.some((role) => role.rights?.includes(permission)) ?? false;
+    return (
+      user?.roles?.some((role) => role.rights?.some((right) => right.authority === permission)) ??
+      false
+    );
   };
 
   const hasRole = (roleName) => {

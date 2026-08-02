@@ -22,6 +22,7 @@ const authContextValue = {
   token: 'jwt-token',
   isAuthenticated: true,
   user: { roles: [] },
+  hasPermission: () => false,
 };
 
 function mockClipboard(writeText) {

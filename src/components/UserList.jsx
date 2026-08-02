@@ -14,7 +14,6 @@ import {
   Button,
   ActionIcon,
   Menu,
-  Modal,
 } from '@mantine/core';
 import {
   IconAlertCircle,
@@ -39,6 +38,8 @@ import {
 } from '../services/userService';
 import { getRoles } from '../services/roleService';
 import UserFormModal from './UserFormModal';
+import ConfirmActionModal from './ConfirmActionModal';
+import { renderTableBody } from './TableBodyState';
 
 export default function UserList({ active }) {
   const { token, isAuthenticated } = useAuth();
@@ -257,114 +258,111 @@ export default function UserList({ active }) {
             </Button>
           </Group>
 
-          {users.length > 0 ? (
-            <>
-              <Table striped highlightOnHover>
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th style={{ textAlign: 'left' }}>ID</Table.Th>
-                    <Table.Th style={{ textAlign: 'left' }}>Name</Table.Th>
-                    <Table.Th style={{ textAlign: 'left' }}>E-Mail</Table.Th>
-                    <Table.Th style={{ textAlign: 'left' }}>Rollen</Table.Th>
-                    <Table.Th style={{ textAlign: 'left' }}>Status</Table.Th>
-                    <Table.Th style={{ textAlign: 'left' }}>Aktionen</Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {users.map((user) => (
-                    <Table.Tr key={user.id}>
-                      <Table.Td>
-                        <Text
-                          size="sm"
-                          c="dimmed"
-                          style={{
-                            fontFamily: 'monospace',
-                            fontSize: '0.85em',
-                          }}
-                        >
-                          {user.id}
-                        </Text>
-                      </Table.Td>
-                      <Table.Td>
-                        <Text size="sm" fw={500}>
-                          {user.firstName} {user.lastName}
-                        </Text>
-                      </Table.Td>
-                      <Table.Td>
-                        <Text size="sm">{user.email}</Text>
-                      </Table.Td>
-                      <Table.Td>
-                        <Group gap={4}>
-                          {user.roles?.slice(0, 3).map((role) => (
-                            <Badge key={role.name} size="sm" variant="light">
-                              {role.name}
-                            </Badge>
-                          ))}
-                          {user.roles?.length > 3 && (
-                            <Badge size="sm" variant="light" color="gray">
-                              +{user.roles.length - 3}
-                            </Badge>
-                          )}
-                        </Group>
-                      </Table.Td>
-                      <Table.Td>
-                        {user.enabled ? (
-                          <Badge color="green" size="sm">
-                            Aktiv
+          <Table striped highlightOnHover>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th style={{ textAlign: 'left' }}>ID</Table.Th>
+                <Table.Th style={{ textAlign: 'left' }}>Name</Table.Th>
+                <Table.Th style={{ textAlign: 'left' }}>E-Mail</Table.Th>
+                <Table.Th style={{ textAlign: 'left' }}>Rollen</Table.Th>
+                <Table.Th style={{ textAlign: 'left' }}>Status</Table.Th>
+                <Table.Th style={{ textAlign: 'left' }}>Aktionen</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {renderTableBody({
+                loading,
+                colSpan: 6,
+                emptyMessage: 'Keine Benutzer gefunden',
+                rows: users.map((user) => (
+                  <Table.Tr key={user.id}>
+                    <Table.Td>
+                      <Text
+                        size="sm"
+                        c="dimmed"
+                        style={{
+                          fontFamily: 'monospace',
+                          fontSize: '0.85em',
+                        }}
+                      >
+                        {user.id}
+                      </Text>
+                    </Table.Td>
+                    <Table.Td>
+                      <Text size="sm" fw={500}>
+                        {user.firstName} {user.lastName}
+                      </Text>
+                    </Table.Td>
+                    <Table.Td>
+                      <Text size="sm">{user.email}</Text>
+                    </Table.Td>
+                    <Table.Td>
+                      <Group gap={4}>
+                        {user.roles?.slice(0, 3).map((role) => (
+                          <Badge key={role.name} size="sm" variant="light">
+                            {role.name}
                           </Badge>
-                        ) : (
-                          <Badge color="red" size="sm">
-                            Inaktiv
+                        ))}
+                        {user.roles?.length > 3 && (
+                          <Badge size="sm" variant="light" color="gray">
+                            +{user.roles.length - 3}
                           </Badge>
                         )}
-                      </Table.Td>
-                      <Table.Td>
-                        <Menu shadow="md" width={200}>
-                          <Menu.Target>
-                            <ActionIcon size="sm" variant="subtle">
-                              <IconDotsVertical size={16} />
-                            </ActionIcon>
-                          </Menu.Target>
+                      </Group>
+                    </Table.Td>
+                    <Table.Td>
+                      {user.enabled ? (
+                        <Badge color="green" size="sm">
+                          Aktiv
+                        </Badge>
+                      ) : (
+                        <Badge color="red" size="sm">
+                          Inaktiv
+                        </Badge>
+                      )}
+                    </Table.Td>
+                    <Table.Td>
+                      <Menu shadow="md" width={200}>
+                        <Menu.Target>
+                          <ActionIcon size="sm" variant="subtle">
+                            <IconDotsVertical size={16} />
+                          </ActionIcon>
+                        </Menu.Target>
 
-                          <Menu.Dropdown>
-                            <Menu.Item
-                              leftSection={<IconEdit size={14} />}
-                              onClick={() => handleEditUser(user)}
-                            >
-                              Bearbeiten
-                            </Menu.Item>
-                            <Menu.Item
-                              leftSection={<IconUserOff size={14} />}
-                              onClick={() => handleTerminateSessions(user)}
-                            >
-                              Sessions beenden
-                            </Menu.Item>
-                            <Menu.Divider />
-                            <Menu.Item
-                              color="red"
-                              leftSection={<IconTrash size={14} />}
-                              onClick={() => handleDeleteClick(user)}
-                            >
-                              Löschen
-                            </Menu.Item>
-                          </Menu.Dropdown>
-                        </Menu>
-                      </Table.Td>
-                    </Table.Tr>
-                  ))}
-                </Table.Tbody>
-              </Table>
+                        <Menu.Dropdown>
+                          <Menu.Item
+                            leftSection={<IconEdit size={14} />}
+                            onClick={() => handleEditUser(user)}
+                          >
+                            Bearbeiten
+                          </Menu.Item>
+                          <Menu.Item
+                            leftSection={<IconUserOff size={14} />}
+                            onClick={() => handleTerminateSessions(user)}
+                          >
+                            Sessions beenden
+                          </Menu.Item>
+                          <Menu.Divider />
+                          <Menu.Item
+                            color="red"
+                            leftSection={<IconTrash size={14} />}
+                            onClick={() => handleDeleteClick(user)}
+                          >
+                            Löschen
+                          </Menu.Item>
+                        </Menu.Dropdown>
+                      </Menu>
+                    </Table.Td>
+                  </Table.Tr>
+                )),
+              })}
+            </Table.Tbody>
+          </Table>
 
-              {totalPages > 1 && (
-                <Group justify="center" mt="md">
-                  <Pagination value={page + 1} onChange={handlePageChange} total={totalPages} />
-                </Group>
-              )}
-            </>
-          ) : (
-            <Text c="dimmed" size="sm" ta="center" py="xl">
-              Keine Benutzer gefunden
-            </Text>
+          {totalPages > 1 && (
+            <Group justify="center" mt="md">
+              <Pagination value={page + 1} onChange={handlePageChange} total={totalPages} />
+            </Group>
           )}
         </Stack>
       </Card>
@@ -378,27 +376,19 @@ export default function UserList({ active }) {
         mode={modalMode}
       />
 
-      <Modal
+      <ConfirmActionModal
         opened={deleteModalOpened}
         onClose={() => setDeleteModalOpened(false)}
+        onConfirm={handleDeleteConfirm}
         title="Benutzer löschen"
+        confirmLabel="Löschen"
         centered
       >
-        <Stack gap="md">
-          <Text>
-            Möchten Sie den Benutzer <strong>{userToDelete?.email}</strong> wirklich löschen? Diese
-            Aktion kann nicht rückgängig gemacht werden.
-          </Text>
-          <Group justify="flex-end">
-            <Button variant="subtle" onClick={() => setDeleteModalOpened(false)}>
-              Abbrechen
-            </Button>
-            <Button color="red" onClick={handleDeleteConfirm}>
-              Löschen
-            </Button>
-          </Group>
-        </Stack>
-      </Modal>
+        <Text>
+          Möchten Sie den Benutzer <strong>{userToDelete?.email}</strong> wirklich löschen? Diese
+          Aktion kann nicht rückgängig gemacht werden.
+        </Text>
+      </ConfirmActionModal>
     </>
   );
 }
