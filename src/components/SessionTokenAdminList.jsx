@@ -16,11 +16,13 @@ import { IconSearch, IconDots, IconTrash, IconUser, IconClock } from '@tabler/ic
 import { notifications } from '@mantine/notifications';
 import PropTypes from 'prop-types';
 import { AuthContext } from '../context/AuthContext';
+import { useAuthTokenRef } from '../hooks/useAuthTokenRef';
 import { getAllUsersWithTokens, deleteUserToken } from '../services/userService';
 import { renderTableBody } from './TableBodyState';
 
 export default function SessionTokenAdminList({ active }) {
-  const { token } = useContext(AuthContext);
+  const { token, isAuthenticated } = useContext(AuthContext);
+  const tokenRef = useAuthTokenRef();
   const [sessionTokensByUser, setSessionTokensByUser] = useState({});
   const [loading, setLoading] = useState(false);
   const [searchValue, setSearchValue] = useState('');
@@ -30,7 +32,7 @@ export default function SessionTokenAdminList({ active }) {
   const loadSessionTokens = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await getAllUsersWithTokens(token);
+      const response = await getAllUsersWithTokens(tokenRef.current);
       setSessionTokensByUser(response || {});
     } catch (error) {
       console.error('Session Tokens Error:', error);
@@ -42,13 +44,13 @@ export default function SessionTokenAdminList({ active }) {
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [tokenRef]);
 
   useEffect(() => {
-    if (active && token) {
+    if (active && isAuthenticated) {
       loadSessionTokens();
     }
-  }, [active, token, loadSessionTokens]);
+  }, [active, isAuthenticated, loadSessionTokens]);
 
   const handleDelete = async () => {
     try {
