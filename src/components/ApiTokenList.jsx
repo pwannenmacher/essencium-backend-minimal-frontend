@@ -25,12 +25,14 @@ import {
 import { notifications } from '@mantine/notifications';
 import PropTypes from 'prop-types';
 import { AuthContext } from '../context/AuthContext';
+import { useAuthTokenRef } from '../hooks/useAuthTokenRef';
 import { getApiTokens, deleteApiToken, revokeApiToken } from '../services/apiTokenService';
 import ApiTokenFormModal from './ApiTokenFormModal';
 import { renderTableBody } from './TableBodyState';
 
 export default function ApiTokenList({ active }) {
-  const { token, user } = useContext(AuthContext);
+  const { token, user, isAuthenticated } = useContext(AuthContext);
+  const tokenRef = useAuthTokenRef();
   const [apiTokens, setApiTokens] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchValue, setSearchValue] = useState('');
@@ -49,7 +51,7 @@ export default function ApiTokenList({ active }) {
   const loadApiTokens = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await getApiTokens(token, { size: 100 });
+      const response = await getApiTokens(tokenRef.current, { size: 100 });
       setApiTokens(response.content || []);
     } catch {
       notifications.show({
@@ -60,13 +62,13 @@ export default function ApiTokenList({ active }) {
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [tokenRef]);
 
   useEffect(() => {
-    if (active && token) {
+    if (active && isAuthenticated) {
       loadApiTokens();
     }
-  }, [active, token, loadApiTokens]);
+  }, [active, isAuthenticated, loadApiTokens]);
 
   const handleDelete = async () => {
     try {

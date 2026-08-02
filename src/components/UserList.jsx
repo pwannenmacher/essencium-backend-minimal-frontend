@@ -29,6 +29,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
+import { useAuthTokenRef } from '../hooks/useAuthTokenRef';
 import {
   getUsers,
   createUser,
@@ -40,7 +41,8 @@ import { getRoles } from '../services/roleService';
 import UserFormModal from './UserFormModal';
 
 export default function UserList({ active }) {
-  const { token } = useAuth();
+  const { token, isAuthenticated } = useAuth();
+  const tokenRef = useAuthTokenRef();
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [page, setPage] = useState(0);
@@ -57,8 +59,8 @@ export default function UserList({ active }) {
   const [userToDelete, setUserToDelete] = useState(null);
 
   const fetchUsers = useCallback(
-    async (pageNum = page) => {
-      if (!token) return;
+    async (pageNum, filters = {}) => {
+      if (!tokenRef.current) return;
 
       setLoading(true);
       setError(null);
@@ -70,10 +72,10 @@ export default function UserList({ active }) {
           sort: 'email,asc',
         };
 
-        if (searchEmail) params.email = searchEmail;
-        if (searchName) params.name = searchName;
+        if (filters.email) params.email = filters.email;
+        if (filters.name) params.name = filters.name;
 
-        const data = await getUsers(token, params);
+        const data = await getUsers(tokenRef.current, params);
 
         setUsers(data.content || []);
         setTotalPages(data.totalPages || 0);
@@ -86,31 +88,36 @@ export default function UserList({ active }) {
         setLoading(false);
       }
     },
-    [token, page, searchEmail, searchName]
+    [tokenRef]
   );
 
   const fetchRoles = useCallback(async () => {
     try {
-      const data = await getRoles(token, { size: 100 });
+      const data = await getRoles(tokenRef.current, { size: 100 });
       setRoles(data.content || []);
     } catch (err) {
       console.error('Fehler beim Laden der Rollen:', err);
     }
-  }, [token]);
+  }, [tokenRef]);
 
   useEffect(() => {
-    if (active && token) {
-      fetchUsers(0);
+    if (active && isAuthenticated) {
+      fetchUsers(0, { email: searchEmail, name: searchName });
       fetchRoles();
     }
-  }, [active, token, fetchUsers, fetchRoles]);
+    // Suchbegriffe bewusst nicht in den Deps: Die Suche wird nur explizit
+    // über Button/Enter ausgelöst, nicht bei jedem Tastendruck.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, isAuthenticated, fetchUsers, fetchRoles]);
+
+  const currentFilters = () => ({ email: searchEmail, name: searchName });
 
   const handleSearch = () => {
-    fetchUsers(0);
+    fetchUsers(0, currentFilters());
   };
 
   const handlePageChange = (newPage) => {
-    fetchUsers(newPage - 1); // Mantine Pagination ist 1-basiert
+    fetchUsers(newPage - 1, currentFilters()); // Mantine Pagination ist 1-basiert
   };
 
   const handleCreateUser = () => {
@@ -142,7 +149,7 @@ export default function UserList({ active }) {
       });
       setDeleteModalOpened(false);
       setUserToDelete(null);
-      fetchUsers(page);
+      fetchUsers(page, currentFilters());
     } catch (err) {
       notifications.show({
         title: 'Fehler',
@@ -185,7 +192,7 @@ export default function UserList({ active }) {
         color: 'green',
       });
     }
-    fetchUsers(page);
+    fetchUsers(page, currentFilters());
     setModalOpened(false);
   };
 
@@ -218,7 +225,7 @@ export default function UserList({ active }) {
             <Title order={4}>Alle Benutzer</Title>
             <Group spacing="xs">
               <Badge>{totalElements} Benutzer</Badge>
-              <ActionIcon onClick={() => fetchUsers(page)} loading={loading}>
+              <ActionIcon onClick={() => fetchUsers(page, currentFilters())} loading={loading}>
                 <IconRefresh size={16} />
               </ActionIcon>
               <Button leftSection={<IconPlus size={16} />} onClick={handleCreateUser}>
