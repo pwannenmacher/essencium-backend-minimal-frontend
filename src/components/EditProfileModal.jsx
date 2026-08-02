@@ -15,6 +15,7 @@ import { IconAlertCircle, IconUser, IconLock } from '@tabler/icons-react';
 import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
 import { patchMe, updateMyPassword } from '../services/userService';
+import { validatePassword, validatePasswordConfirmation } from '../utils/passwordValidation';
 import { notifications } from '@mantine/notifications';
 
 export default function EditProfileModal({ opened, onClose, onSuccess }) {
@@ -42,16 +43,8 @@ export default function EditProfileModal({ opened, onClose, onSuccess }) {
       verification: '',
     },
     validate: {
-      password: (value) => {
-        if (!value) return 'Neues Passwort ist erforderlich';
-        if (value.length < 8) return 'Mindestens 8 Zeichen';
-        return null;
-      },
-      verification: (value, values) => {
-        if (!value) return 'Passwort-Bestätigung ist erforderlich';
-        if (value !== values.password) return 'Passwörter stimmen nicht überein';
-        return null;
-      },
+      password: validatePassword,
+      verification: (value, values) => validatePasswordConfirmation(value, values.password),
     },
   });
 
