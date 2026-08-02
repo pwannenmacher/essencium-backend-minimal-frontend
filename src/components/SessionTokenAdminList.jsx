@@ -31,10 +31,9 @@ export default function SessionTokenAdminList({ active }) {
     setLoading(true);
     try {
       const response = await getAllUsersWithTokens(token);
-      console.log('Session Tokens Response:', response); // Debug log
       setSessionTokensByUser(response || {});
     } catch (error) {
-      console.error('Session Tokens Error:', error); // Debug log
+      console.error('Session Tokens Error:', error);
       notifications.show({
         title: 'Fehler',
         message: 'Session-Tokens konnten nicht geladen werden',
