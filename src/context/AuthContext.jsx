@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import PropTypes from 'prop-types';
 import { login as apiLogin, logout as apiLogout, renewToken } from '../services/authService';
 import { getMe } from '../services/userService';
 import { isValidJwt, parseJwt } from '../utils/jwt';
@@ -164,4 +165,8 @@ export const AuthProvider = ({ children }) => {
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };

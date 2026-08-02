@@ -124,13 +124,21 @@ export default function ApiTokenList({ active }) {
     }
   };
 
-  const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text);
-    notifications.show({
-      title: 'Kopiert',
-      message: 'Token wurde in die Zwischenablage kopiert',
-      color: 'green',
-    });
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      notifications.show({
+        title: 'Kopiert',
+        message: 'Token wurde in die Zwischenablage kopiert',
+        color: 'green',
+      });
+    } catch {
+      notifications.show({
+        title: 'Fehler',
+        message: 'Token konnte nicht kopiert werden – bitte manuell kopieren',
+        color: 'red',
+      });
+    }
   };
 
   const formatDate = (dateString) => {
