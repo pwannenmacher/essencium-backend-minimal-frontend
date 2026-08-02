@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import { AuthProvider, useAuth } from './AuthContext';
+import { ApiError } from '../services/apiClient';
 import { createMockToken, createMockTokenWithoutExpiration, mockUsers } from '../test/helpers';
 
 vi.mock('../services/authService', () => ({
@@ -334,7 +335,9 @@ describe('AuthContext', () => {
         expect(userService.getMe).toHaveBeenCalled();
       });
 
-      expect(consoleWarnSpy).toHaveBeenCalledWith('Token hat keine Ablaufzeit');
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        'Token hat keine Ablaufzeit – Fallback-Erneuerung in 5 Minuten'
+      );
       expect(authService.renewToken).not.toHaveBeenCalled();
 
       consoleWarnSpy.mockRestore();
@@ -344,7 +347,7 @@ describe('AuthContext', () => {
       const invalidToken = 'invalid.token.format';
 
       mockLocalStorage.getItem.mockReturnValue(invalidToken);
-      userService.getMe.mockRejectedValue(new Error('Invalid token'));
+      userService.getMe.mockRejectedValue(new ApiError('Sitzung abgelaufen', 401));
 
       function TestComponent() {
         const { token } = useAuth();
@@ -393,7 +396,7 @@ describe('AuthContext', () => {
       const mockToken = createMockToken(mockUsers.admin);
 
       mockLocalStorage.getItem.mockReturnValue(mockToken);
-      userService.getMe.mockRejectedValue(new Error('Unauthorized'));
+      userService.getMe.mockRejectedValue(new ApiError('Sitzung abgelaufen', 401));
 
       function TestComponent() {
         const { token, user } = useAuth();
@@ -415,6 +418,35 @@ describe('AuthContext', () => {
         expect(screen.getByTestId('token')).toHaveTextContent('No token');
         expect(screen.getByTestId('user')).toHaveTextContent('No user');
       });
+    });
+
+    it('should keep the session on transient user data fetch errors', async () => {
+      const mockToken = createMockToken(mockUsers.admin);
+
+      mockLocalStorage.getItem.mockReturnValue(mockToken);
+      userService.getMe.mockRejectedValue(new TypeError('Failed to fetch'));
+
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      function TestComponent() {
+        const { token } = useAuth();
+        return <div data-testid="token">{token ? 'Has token' : 'No token'}</div>;
+      }
+
+      render(
+        <AuthProvider>
+          <TestComponent />
+        </AuthProvider>
+      );
+
+      await waitFor(() => {
+        expect(userService.getMe).toHaveBeenCalled();
+      });
+
+      // Netzwerkfehler beendet die Session nicht (ST5) – es wird erneut versucht
+      expect(screen.getByTestId('token')).toHaveTextContent('Has token');
+
+      consoleWarnSpy.mockRestore();
     });
   });
 });

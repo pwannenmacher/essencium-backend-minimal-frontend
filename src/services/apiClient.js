@@ -75,12 +75,16 @@ const extractErrorMessage = async (response) => {
  * @param {string} [options.method] HTTP-Methode (Default GET)
  * @param {string} [options.token] Access-Token für den Authorization-Header
  * @param {object} [options.body] Request-Body, wird JSON-serialisiert
+ * @param {object} [options.headers] Zusätzliche Header (z. B. User-Agent für Auth-Endpunkte)
+ * @param {string} [options.credentials] fetch-credentials-Modus (z. B. 'include' für das Refresh-Cookie)
+ * @param {object} [options.statusMessages] Kontextspezifische Fallback-Meldungen je Status
+ * @param {boolean} [options.skipUnauthorizedHandler] 401 nicht an den zentralen Handler melden
  * @throws {ApiError} bei non-ok Response, mit `status` und deutscher Meldung
  */
 export const request = async (path, options = {}) => {
-  const { method = 'GET', token, body } = options;
+  const { method = 'GET', token, body, headers: extraHeaders, credentials } = options;
 
-  const headers = {};
+  const headers = { ...extraHeaders };
   if (token) headers.Authorization = `Bearer ${token}`;
   if (body !== undefined) headers['Content-Type'] = 'application/json';
 
@@ -88,13 +92,17 @@ export const request = async (path, options = {}) => {
     method,
     headers,
     ...(body !== undefined && { body: JSON.stringify(body) }),
+    ...(credentials && { credentials }),
   });
 
   if (!response.ok) {
-    if (response.status === 401 && token) {
+    if (response.status === 401 && token && !options.skipUnauthorizedHandler) {
       onUnauthorized?.();
     }
-    const message = (await extractErrorMessage(response)) || fallbackMessage(response.status);
+    const message =
+      (await extractErrorMessage(response)) ||
+      options.statusMessages?.[response.status] ||
+      fallbackMessage(response.status);
     throw new ApiError(message, response.status);
   }
 

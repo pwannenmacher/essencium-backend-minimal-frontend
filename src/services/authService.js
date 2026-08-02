@@ -1,35 +1,20 @@
-import { API_BASE_URL } from '../config.js';
+import { request } from './apiClient.js';
+
+// Das Backend verlangt für die Auth-Endpunkte einen User-Agent-Header.
+const userAgentHeader = () => ({ 'User-Agent': navigator.userAgent || 'Mozilla/5.0' });
 
 /**
  * Login mit Username und Password
  */
 export const login = async (username, password) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/auth/token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'User-Agent': navigator.userAgent || 'Mozilla/5.0',
-      },
-      credentials: 'include',
-      body: JSON.stringify({
-        username,
-        password,
-      }),
-    });
-
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(error || 'Login fehlgeschlagen');
-    }
-
-    const data = await response.json();
-
-    return data.token;
-  } catch (error) {
-    console.error('Login-Fehler:', error);
-    throw error;
-  }
+  const data = await request('/auth/token', {
+    method: 'POST',
+    headers: userAgentHeader(),
+    credentials: 'include',
+    body: { username, password },
+    statusMessages: { 401: 'Benutzername oder Passwort ist falsch' },
+  });
+  return data.token;
 };
 
 /**
@@ -40,48 +25,31 @@ export const login = async (username, password) => {
  * - User-Agent Header (required vom Backend)
  */
 export const renewToken = async (currentToken) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/auth/renew`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${currentToken}`,
-        'User-Agent': navigator.userAgent || 'Mozilla/5.0',
-      },
-      credentials: 'include',
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || 'Token-Erneuerung fehlgeschlagen');
-    }
-
-    const data = await response.json();
-    return data.token;
-  } catch (error) {
-    console.error('Token-Erneuerungs-Fehler:', error);
-    throw error;
-  }
+  const data = await request('/auth/renew', {
+    method: 'POST',
+    token: currentToken,
+    headers: userAgentHeader(),
+    credentials: 'include',
+  });
+  return data.token;
 };
 
 /**
- * Logout
+ * Logout – beendet die Session am Backend; ein Fehler dabei ist unkritisch,
+ * die lokale Session wird vom Aufrufer in jedem Fall beendet.
  */
 export const logout = async (token) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/logout`, {
+    await request('/auth/logout', {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      token,
       credentials: 'include',
+      // Ein 401 hier heißt nur: Session war schon beendet – kein Grund für
+      // die zentrale "Sitzung abgelaufen"-Behandlung mitten im Logout.
+      skipUnauthorizedHandler: true,
     });
-
-    if (!response.ok) {
-      console.warn('Logout am Backend fehlgeschlagen, lokale Session wird trotzdem beendet');
-    }
   } catch (error) {
-    console.error('Logout-Fehler:', error);
+    console.warn('Logout am Backend fehlgeschlagen, lokale Session wird trotzdem beendet', error);
   }
 };
 
@@ -91,19 +59,7 @@ export const logout = async (token) => {
  */
 export const getOAuthProviders = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/oauth-registrations`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error('Fehler beim Laden der OAuth-Provider');
-    }
-
-    const data = await response.json();
-    return data;
+    return (await request('/auth/oauth-registrations')) || {};
   } catch (error) {
     console.error('Fehler beim Laden der OAuth-Provider:', error);
     return {};
