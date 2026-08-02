@@ -1,6 +1,6 @@
-import { API_BASE_URL } from '../config.js';
+import { request } from './apiClient.js';
 
-const buildPaginatedUrl = (path, params) => {
+const buildPaginatedPath = (path, params) => {
   const queryParams = new URLSearchParams();
   if (params.page !== undefined) queryParams.append('page', params.page);
   if (params.size !== undefined) queryParams.append('size', params.size);
@@ -12,115 +12,29 @@ const buildPaginatedUrl = (path, params) => {
 };
 
 export const getRoles = async (token, params = {}) => {
-  const url = buildPaginatedUrl(`${API_BASE_URL}/v1/roles`, params);
-
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Fehler beim Laden der Rollen: ${response.status}`);
-  }
-
-  return response.json();
+  return request(buildPaginatedPath('/v1/roles', params), { token });
 };
 
 export const getRoleByName = async (token, name) => {
-  const response = await fetch(`${API_BASE_URL}/v1/roles/${name}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Fehler beim Laden der Rolle: ${response.status}`);
-  }
-
-  return response.json();
+  return request(`/v1/roles/${name}`, { token });
 };
 
 export const createRole = async (token, roleData) => {
-  const response = await fetch(`${API_BASE_URL}/v1/roles`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(roleData),
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error || `Rollen-Erstellung fehlgeschlagen: ${response.status}`);
-  }
-
-  return response.json();
+  return request('/v1/roles', { method: 'POST', token, body: roleData });
 };
 
 export const updateRole = async (token, name, roleData) => {
-  const response = await fetch(`${API_BASE_URL}/v1/roles/${name}`, {
-    method: 'PUT',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ ...roleData, name }),
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error || `Rollen-Update fehlgeschlagen: ${response.status}`);
-  }
-
-  return response.json();
+  return request(`/v1/roles/${name}`, { method: 'PUT', token, body: { ...roleData, name } });
 };
 
 export const patchRole = async (token, name, partialData) => {
-  const response = await fetch(`${API_BASE_URL}/v1/roles/${name}`, {
-    method: 'PATCH',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ ...partialData, name }),
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error || `Rollen-Patch fehlgeschlagen: ${response.status}`);
-  }
-
-  return response.json();
+  return request(`/v1/roles/${name}`, { method: 'PATCH', token, body: { ...partialData, name } });
 };
 
 export const deleteRole = async (token, name) => {
-  const response = await fetch(`${API_BASE_URL}/v1/roles/${name}`, {
-    method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error || `Rollen-Löschung fehlgeschlagen: ${response.status}`);
-  }
+  await request(`/v1/roles/${name}`, { method: 'DELETE', token });
 };
 
 export const getAllRights = async (token, params = {}) => {
-  const url = buildPaginatedUrl(`${API_BASE_URL}/v1/rights`, params);
-
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Fehler beim Laden der Rechte: ${response.status}`);
-  }
-
-  return response.json();
+  return request(buildPaginatedPath('/v1/rights', params), { token });
 };

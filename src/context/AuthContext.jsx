@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import { notifications } from '@mantine/notifications';
 import { login as apiLogin, logout as apiLogout, renewToken } from '../services/authService';
+import { setUnauthorizedHandler } from '../services/apiClient';
 import { getMe } from '../services/userService';
 import { isValidJwt, parseJwt } from '../utils/jwt';
 
@@ -18,6 +20,27 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('accessToken'));
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  // Zentrales 401-Handling: Weist der Server einen authentifizierten Request
+  // zurück (Token serverseitig invalidiert), wird die Session lokal beendet,
+  // statt den User auf einem toten Dashboard sitzen zu lassen.
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      setToken((current) => {
+        if (current) {
+          notifications.show({
+            id: 'session-expired',
+            title: 'Sitzung abgelaufen',
+            message: 'Bitte melden Sie sich erneut an',
+            color: 'orange',
+          });
+        }
+        return null;
+      });
+      setUser(null);
+    });
+    return () => setUnauthorizedHandler(null);
+  }, []);
 
   useEffect(() => {
     // Nur streng validierte JWTs persistieren (jssecurity:S8475).
