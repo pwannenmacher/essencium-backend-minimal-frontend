@@ -73,7 +73,7 @@ export default function Dashboard() {
       <Container size="xl" my={40}>
         <Paper withBorder shadow="md" p={30} radius="md">
           <Center>
-            <Stack align="center" spacing="md">
+            <Stack align="center" gap="md">
               <Loader size="lg" />
               <Text>Lade Benutzerdaten...</Text>
             </Stack>
@@ -85,11 +85,11 @@ export default function Dashboard() {
 
   return (
     <Container size="xl" my={40}>
-      <Stack spacing="lg">
+      <Stack gap="lg">
         <Paper withBorder shadow="md" p={30} radius="md">
-          <Group position="apart" mb="lg">
+          <Group justify="space-between" mb="lg">
             <Title order={2}>Dashboard</Title>
-            <Group spacing="sm">
+            <Group gap="sm">
               <ThemeToggle />
               <Badge color="green" size="lg">
                 Angemeldet
@@ -109,45 +109,45 @@ export default function Dashboard() {
 
           <Tabs value={activeTab} onChange={setActiveTab}>
             <Tabs.List>
-              <Tabs.Tab value="profile" icon={<IconUser size={14} />}>
+              <Tabs.Tab value="profile" leftSection={<IconUser size={14} />}>
                 Mein Profil
               </Tabs.Tab>
-              <Tabs.Tab value="users" icon={<IconUsers size={14} />}>
+              <Tabs.Tab value="users" leftSection={<IconUsers size={14} />}>
                 Alle Benutzer
               </Tabs.Tab>
               {hasRoleReadRight && (
-                <Tabs.Tab value="roles" icon={<IconShieldLock size={14} />}>
+                <Tabs.Tab value="roles" leftSection={<IconShieldLock size={14} />}>
                   Rollen-Verwaltung
                 </Tabs.Tab>
               )}
               {canManagePersonalTokens && (
-                <Tabs.Tab value="apitokens" icon={<IconApiApp size={14} />}>
+                <Tabs.Tab value="apitokens" leftSection={<IconApiApp size={14} />}>
                   API-Tokens
                 </Tabs.Tab>
               )}
               {hasApiTokenAdminRight && (
-                <Tabs.Tab value="apitokensadmin" icon={<IconShield size={14} />}>
+                <Tabs.Tab value="apitokensadmin" leftSection={<IconShield size={14} />}>
                   API-Token Admin
                 </Tabs.Tab>
               )}
               {hasSessionTokenAdminRight && (
-                <Tabs.Tab value="sessiontokensadmin" icon={<IconDeviceDesktop size={14} />}>
+                <Tabs.Tab value="sessiontokensadmin" leftSection={<IconDeviceDesktop size={14} />}>
                   Session-Token Admin
                 </Tabs.Tab>
               )}
-              <Tabs.Tab value="api-docs" icon={<IconApi size={14} />}>
+              <Tabs.Tab value="api-docs" leftSection={<IconApi size={14} />}>
                 API-Dokumentation
               </Tabs.Tab>
             </Tabs.List>
 
             <Tabs.Panel value="profile" pt="lg">
-              <SimpleGrid cols={2} spacing="lg" breakpoints={[{ maxWidth: 'md', cols: 1 }]}>
-                <Stack spacing="lg">
+              <SimpleGrid cols={{ base: 1, md: 2 }} spacing="lg">
+                <Stack gap="lg">
                   <UserProfile user={user} onUpdate={handleProfileUpdate} />
                   <UserRolesRights />
                 </Stack>
 
-                <Stack spacing="lg">
+                <Stack gap="lg">
                   <UserTokens />
                   <JwtViewer />
                 </Stack>
