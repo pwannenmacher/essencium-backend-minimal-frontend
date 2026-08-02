@@ -284,7 +284,7 @@ describe('roleService', () => {
       });
 
       await expect(import('./roleService').then((m) => m.getAllRights('token'))).rejects.toThrow(
-        'Fehler beim Laden der Rechte: 403'
+        'Keine Berechtigung für diese Aktion'
       );
     });
   });
