@@ -12,7 +12,7 @@ import {
   Center,
   Tabs,
 } from '@mantine/core';
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import {
   IconLogout,
   IconUser,
@@ -34,7 +34,10 @@ import ApiTokenList from './ApiTokenList';
 import ApiTokenAdminList from './ApiTokenAdminList';
 import SessionTokenAdminList from './SessionTokenAdminList';
 import JwtViewer from './JwtViewer';
-import ApiDocsViewer from './ApiDocsViewer';
+
+// Lazy geladen: rapidoc (~860 KB min) landet so in einem eigenen Chunk,
+// der erst beim Öffnen des API-Docs-Tabs geladen wird.
+const ApiDocsViewer = lazy(() => import('./ApiDocsViewer'));
 
 export default function Dashboard() {
   const { user, logout, loading, token } = useAuth();
@@ -180,7 +183,17 @@ export default function Dashboard() {
             )}
 
             <Tabs.Panel value="api-docs" pt="lg">
-              {activeTab === 'api-docs' && <ApiDocsViewer />}
+              {activeTab === 'api-docs' && (
+                <Suspense
+                  fallback={
+                    <Center py="xl">
+                      <Loader size="sm" />
+                    </Center>
+                  }
+                >
+                  <ApiDocsViewer />
+                </Suspense>
+              )}
             </Tabs.Panel>
           </Tabs>
         </Paper>
