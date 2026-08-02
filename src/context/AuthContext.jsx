@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { notifications } from '@mantine/notifications';
 import { login as apiLogin, logout as apiLogout, renewToken } from '../services/authService';
-import { setUnauthorizedHandler } from '../services/apiClient';
+import { ApiError, setUnauthorizedHandler } from '../services/apiClient';
 import { getMe } from '../services/userService';
 import { isValidJwt, parseJwt } from '../utils/jwt';
 
@@ -54,46 +54,54 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (!token) return;
 
-    const payload = parseJwt(token);
-    if (!payload?.exp) {
-      console.warn('Token hat keine Ablaufzeit');
-      return;
-    }
+    let cancelled = false;
+    let timeout;
 
-    const expirationTime = payload.exp * 1000;
-    const now = Date.now();
-    const renewTime = expirationTime - 20000; // 20 Sekunden vor Ablauf
-    const timeUntilRenew = renewTime - now;
-
-    if (timeUntilRenew <= 0) {
-      const renewImmediately = async () => {
-        try {
-          const newToken = await renewToken(token);
-          setToken(newToken);
-          console.log('Token wurde sofort erneuert (war abgelaufen)');
-        } catch (error) {
-          console.error('Token-Erneuerung fehlgeschlagen:', error);
-          setToken(null);
-          setUser(null);
-        }
-      };
-      renewImmediately();
-      return;
-    }
-
-    const timeout = setTimeout(async () => {
+    const attemptRenew = async (retryDelayMs) => {
       try {
         const newToken = await renewToken(token);
-        setToken(newToken);
-        console.log('Token wurde automatisch erneuert (20s vor Ablauf)');
+        // Spät auflösendes Renew darf einen zwischenzeitlichen Logout /
+        // Token-Wechsel nicht rückgängig machen (ST4).
+        if (!cancelled) setToken(newToken);
       } catch (error) {
-        console.error('Token-Erneuerung fehlgeschlagen:', error);
-        setToken(null);
-        setUser(null);
+        if (cancelled) return;
+        if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
+          // Refresh-Token serverseitig ungültig → Session beenden
+          console.error('Token-Erneuerung abgelehnt:', error);
+          setToken(null);
+          setUser(null);
+          return;
+        }
+        // Transienter Fehler (Netzwerkaussetzer, 5xx): mit Backoff erneut
+        // versuchen statt den User hart auszuloggen (ST5).
+        console.warn(
+          `Token-Erneuerung fehlgeschlagen, neuer Versuch in ${retryDelayMs / 1000}s:`,
+          error
+        );
+        timeout = setTimeout(() => attemptRenew(Math.min(retryDelayMs * 2, 60000)), retryDelayMs);
       }
-    }, timeUntilRenew);
+    };
 
-    return () => clearTimeout(timeout);
+    const payload = parseJwt(token);
+    if (!payload?.exp) {
+      // Token ohne Ablaufzeit: Fallback-Erneuerung, damit die Session nicht
+      // still stirbt, sobald der Server den Token invalidiert (ST12).
+      console.warn('Token hat keine Ablaufzeit – Fallback-Erneuerung in 5 Minuten');
+      timeout = setTimeout(() => attemptRenew(5000), 5 * 60 * 1000);
+    } else {
+      const renewTime = payload.exp * 1000 - 20000; // 20 Sekunden vor Ablauf
+      const timeUntilRenew = renewTime - Date.now();
+      if (timeUntilRenew <= 0) {
+        attemptRenew(5000);
+      } else {
+        timeout = setTimeout(() => attemptRenew(5000), timeUntilRenew);
+      }
+    }
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
   }, [token]);
 
   useEffect(() => {
@@ -102,18 +110,37 @@ export const AuthProvider = ({ children }) => {
       return;
     }
 
-    const fetchUser = async () => {
+    let cancelled = false;
+    let timeout;
+
+    const fetchUser = async (retryDelayMs) => {
       try {
         const userData = await getMe(token);
-        setUser(userData);
+        // Out-of-order auflösende Antworten verwerfen (ST4)
+        if (!cancelled) setUser(userData);
       } catch (error) {
-        console.error('Fehler beim Laden der User-Daten:', error);
-        setToken(null);
-        setUser(null);
+        if (cancelled) return;
+        if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
+          console.error('Fehler beim Laden der User-Daten:', error);
+          setToken(null);
+          setUser(null);
+          return;
+        }
+        // Transienter Fehler: erneut versuchen statt Session beenden (ST5)
+        console.warn(
+          `User-Daten laden fehlgeschlagen, neuer Versuch in ${retryDelayMs / 1000}s:`,
+          error
+        );
+        timeout = setTimeout(() => fetchUser(Math.min(retryDelayMs * 2, 60000)), retryDelayMs);
       }
     };
 
-    fetchUser();
+    fetchUser(5000);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
   }, [token]);
 
   const login = async (username, password) => {
