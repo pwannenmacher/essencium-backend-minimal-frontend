@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { Card, Text, Stack, Title, Badge, Group, Loader, Alert } from '@mantine/core';
 import { IconKey, IconAlertCircle } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
+import { useAuthTokenRef } from '../hooks/useAuthTokenRef';
 import { getMyRoles, getMyRights } from '../services/userService';
 
 export default function UserRolesRights() {
-  const { token } = useAuth();
+  const { isAuthenticated } = useAuth();
+  const tokenRef = useAuthTokenRef();
   const [roles, setRoles] = useState([]);
   const [rights, setRights] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,13 +15,16 @@ export default function UserRolesRights() {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!token) return;
+      if (!tokenRef.current) return;
 
       setLoading(true);
       setError(null);
 
       try {
-        const [rolesData, rightsData] = await Promise.all([getMyRoles(token), getMyRights(token)]);
+        const [rolesData, rightsData] = await Promise.all([
+          getMyRoles(tokenRef.current),
+          getMyRights(tokenRef.current),
+        ]);
 
         setRoles(Array.isArray(rolesData) ? rolesData : []);
         setRights(Array.isArray(rightsData) ? rightsData : []);
@@ -31,8 +36,10 @@ export default function UserRolesRights() {
       }
     };
 
-    fetchData();
-  }, [token]);
+    if (isAuthenticated) {
+      fetchData();
+    }
+  }, [isAuthenticated, tokenRef]);
 
   if (loading) {
     return (

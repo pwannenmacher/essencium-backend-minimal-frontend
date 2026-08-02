@@ -14,12 +14,14 @@ import { IconSearch, IconPlus, IconDots, IconEdit, IconTrash } from '@tabler/ico
 import { notifications } from '@mantine/notifications';
 import PropTypes from 'prop-types';
 import { AuthContext } from '../context/AuthContext';
+import { useAuthTokenRef } from '../hooks/useAuthTokenRef';
 import { getRoles, deleteRole } from '../services/roleService';
 import RoleFormModal from './RoleFormModal';
 import { renderTableBody } from './TableBodyState';
 
 export default function RoleList({ active }) {
-  const { token, user } = useContext(AuthContext);
+  const { token, user, isAuthenticated } = useContext(AuthContext);
+  const tokenRef = useAuthTokenRef();
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchValue, setSearchValue] = useState('');
@@ -43,7 +45,7 @@ export default function RoleList({ active }) {
   const loadRoles = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await getRoles(token, { size: 100 });
+      const response = await getRoles(tokenRef.current, { size: 100 });
       setRoles(response.content || []);
     } catch {
       notifications.show({
@@ -54,13 +56,13 @@ export default function RoleList({ active }) {
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [tokenRef]);
 
   useEffect(() => {
-    if (active && token) {
+    if (active && isAuthenticated) {
       loadRoles();
     }
-  }, [active, token, loadRoles]);
+  }, [active, isAuthenticated, loadRoles]);
 
   const handleDelete = async () => {
     try {

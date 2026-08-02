@@ -16,11 +16,13 @@ import { IconSearch, IconDots, IconTrash, IconUser, IconBan } from '@tabler/icon
 import { notifications } from '@mantine/notifications';
 import PropTypes from 'prop-types';
 import { AuthContext } from '../context/AuthContext';
+import { useAuthTokenRef } from '../hooks/useAuthTokenRef';
 import { getAllApiTokensAdmin, deleteApiToken, revokeApiToken } from '../services/apiTokenService';
 import { renderTableBody } from './TableBodyState';
 
 export default function ApiTokenAdminList({ active }) {
-  const { token } = useContext(AuthContext);
+  const { token, isAuthenticated } = useContext(AuthContext);
+  const tokenRef = useAuthTokenRef();
   const [apiTokensByUser, setApiTokensByUser] = useState({});
   const [loading, setLoading] = useState(false);
   const [searchValue, setSearchValue] = useState('');
@@ -32,7 +34,7 @@ export default function ApiTokenAdminList({ active }) {
   const loadApiTokens = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await getAllApiTokensAdmin(token);
+      const response = await getAllApiTokensAdmin(tokenRef.current);
       setApiTokensByUser(response || {});
     } catch {
       notifications.show({
@@ -43,13 +45,13 @@ export default function ApiTokenAdminList({ active }) {
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [tokenRef]);
 
   useEffect(() => {
-    if (active && token) {
+    if (active && isAuthenticated) {
       loadApiTokens();
     }
-  }, [active, token, loadApiTokens]);
+  }, [active, isAuthenticated, loadApiTokens]);
 
   const handleDelete = async () => {
     try {
