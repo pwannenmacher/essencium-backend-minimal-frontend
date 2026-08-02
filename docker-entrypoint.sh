@@ -26,8 +26,12 @@ echo "Runtime-Konfiguration erstellt:"
 echo "  VITE_API_URL: ${VITE_API_URL}"
 echo "  VITE_FRONTEND_URL: ${VITE_FRONTEND_URL}"
 
-# CSP: connect-src auf den API-Origin (Schema + Host + Port) einschränken
-API_ORIGIN=$(printf '%s' "${VITE_API_URL}" | sed -E 's#^(https?://[^/]+).*#\1#')
+# CSP: connect-src auf den API-Origin (Schema + Host + Port) einschränken.
+# Ableitung per POSIX-Parameter-Expansion (kein sed nötig, BusyBox-sicher):
+# Schema + alles vor dem ersten '/' nach dem '//'.
+API_SCHEME="${VITE_API_URL%%://*}"
+API_HOSTPORT="${VITE_API_URL#*://}"
+API_ORIGIN="${API_SCHEME}://${API_HOSTPORT%%/*}"
 if ! printf '%s' "${API_ORIGIN}" | grep -Eq '^https?://([A-Za-z0-9._-]+|\[[0-9A-Fa-f:]+\])(:[0-9]{1,5})?$'; then
     echo "FEHLER: API-Origin konnte nicht aus VITE_API_URL abgeleitet werden: '${API_ORIGIN}'" >&2
     exit 1
