@@ -1,4 +1,5 @@
 import { request } from './apiClient.js';
+import { API_TOKEN_STATUS } from '../constants.js';
 
 // Gemeinsame Filter-Felder für die API-Token-Listen-Endpunkte.
 const API_TOKEN_FILTER_KEYS = [
@@ -56,7 +57,7 @@ export const patchApiToken = async (token, id, partialData) => {
 };
 
 export const revokeApiToken = async (token, id) => {
-  return patchApiToken(token, id, { status: 'REVOKED' });
+  return patchApiToken(token, id, { status: API_TOKEN_STATUS.REVOKED });
 };
 
 export const deleteApiToken = async (token, id) => {

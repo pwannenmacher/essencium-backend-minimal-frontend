@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useCallback } from 'react';
+import { useState } from 'react';
 import {
   Table,
   TextInput,
@@ -6,7 +6,6 @@ import {
   Menu,
   ActionIcon,
   Text,
-  Modal,
   Badge,
   Card,
   Stack,
@@ -15,42 +14,31 @@ import {
 import { IconSearch, IconDots, IconTrash, IconUser, IconClock } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import PropTypes from 'prop-types';
-import { AuthContext } from '../context/AuthContext';
-import { useAuthTokenRef } from '../hooks/useAuthTokenRef';
+import { useAuth } from '../context/AuthContext';
+import { useListLoader } from '../hooks/useListLoader';
+import { formatDateTime, isExpired } from '../utils/format';
 import { getAllUsersWithTokens, deleteUserToken } from '../services/userService';
+import ConfirmActionModal from './ConfirmActionModal';
 import { renderTableBody } from './TableBodyState';
 
+const fetchAllSessionTokens = (token) => getAllUsersWithTokens(token).then((r) => r || {});
+
 export default function SessionTokenAdminList({ active }) {
-  const { token, isAuthenticated } = useContext(AuthContext);
-  const tokenRef = useAuthTokenRef();
-  const [sessionTokensByUser, setSessionTokensByUser] = useState({});
-  const [loading, setLoading] = useState(false);
+  const { token } = useAuth();
   const [searchValue, setSearchValue] = useState('');
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [tokenToDelete, setTokenToDelete] = useState(null);
 
-  const loadSessionTokens = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await getAllUsersWithTokens(tokenRef.current);
-      setSessionTokensByUser(response || {});
-    } catch (error) {
-      console.error('Session Tokens Error:', error);
-      notifications.show({
-        title: 'Fehler',
-        message: 'Session-Tokens konnten nicht geladen werden',
-        color: 'red',
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [tokenRef]);
-
-  useEffect(() => {
-    if (active && isAuthenticated) {
-      loadSessionTokens();
-    }
-  }, [active, isAuthenticated, loadSessionTokens]);
+  const {
+    data: sessionTokensByUser,
+    loading,
+    reload: loadSessionTokens,
+  } = useListLoader({
+    active,
+    fetcher: fetchAllSessionTokens,
+    errorMessage: 'Session-Tokens konnten nicht geladen werden',
+    initialData: {},
+  });
 
   const handleDelete = async () => {
     try {
@@ -71,17 +59,6 @@ export default function SessionTokenAdminList({ active }) {
       setDeleteModalOpen(false);
       setTokenToDelete(null);
     }
-  };
-
-  const formatDateTime = (dateString) => {
-    if (!dateString) return '-';
-    const date = new Date(dateString);
-    return `${date.toLocaleDateString('de-DE')} ${date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}`;
-  };
-
-  const isExpired = (expirationString) => {
-    if (!expirationString) return false;
-    return new Date(expirationString) < new Date();
   };
 
   const getTokenTypeBadge = (tokenType) => {
@@ -219,25 +196,18 @@ export default function SessionTokenAdminList({ active }) {
         </Table.Tbody>
       </Table>
 
-      {/* Lösch-Bestätigung */}
-      <Modal
+      <ConfirmActionModal
         opened={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleDelete}
         title="Session-Token löschen"
+        confirmLabel="Löschen"
       >
-        <Text mb="md">
+        <Text>
           Möchten Sie den {tokenToDelete?.token?.type}-Token von Benutzer "{tokenToDelete?.userName}
           " wirklich löschen? Der Benutzer wird dadurch ausgeloggt.
         </Text>
-        <Group justify="flex-end">
-          <Button variant="default" onClick={() => setDeleteModalOpen(false)}>
-            Abbrechen
-          </Button>
-          <Button color="red" onClick={handleDelete}>
-            Löschen
-          </Button>
-        </Group>
-      </Modal>
+      </ConfirmActionModal>
     </>
   );
 }

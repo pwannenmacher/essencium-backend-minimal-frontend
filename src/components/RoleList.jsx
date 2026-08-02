@@ -1,68 +1,40 @@
-import { useState, useEffect, useContext, useCallback } from 'react';
-import {
-  Table,
-  Button,
-  TextInput,
-  Group,
-  Menu,
-  ActionIcon,
-  Text,
-  Modal,
-  Badge,
-} from '@mantine/core';
+import { useState } from 'react';
+import { Table, Button, TextInput, Group, Menu, ActionIcon, Text, Badge } from '@mantine/core';
 import { IconSearch, IconPlus, IconDots, IconEdit, IconTrash } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import PropTypes from 'prop-types';
-import { AuthContext } from '../context/AuthContext';
-import { useAuthTokenRef } from '../hooks/useAuthTokenRef';
+import { useAuth } from '../context/AuthContext';
+import { useListLoader } from '../hooks/useListLoader';
+import { RIGHTS } from '../constants';
 import { getRoles, deleteRole } from '../services/roleService';
 import RoleFormModal from './RoleFormModal';
+import ConfirmActionModal from './ConfirmActionModal';
 import { renderTableBody } from './TableBodyState';
 
+const fetchRoles = (token) => getRoles(token, { size: 100 }).then((r) => r.content || []);
+
 export default function RoleList({ active }) {
-  const { token, user, isAuthenticated } = useContext(AuthContext);
-  const tokenRef = useAuthTokenRef();
-  const [roles, setRoles] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const { token, hasPermission } = useAuth();
   const [searchValue, setSearchValue] = useState('');
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [roleToDelete, setRoleToDelete] = useState(null);
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [editRole, setEditRole] = useState(null);
 
-  const hasRoleCreateRight =
-    user?.roles?.some((role) => role.rights?.some((right) => right.authority === 'ROLE_CREATE')) ||
-    false;
+  const hasRoleCreateRight = hasPermission(RIGHTS.ROLE_CREATE);
+  const hasRoleUpdateRight = hasPermission(RIGHTS.ROLE_UPDATE);
+  const hasRoleDeleteRight = hasPermission(RIGHTS.ROLE_DELETE);
 
-  const hasRoleUpdateRight =
-    user?.roles?.some((role) => role.rights?.some((right) => right.authority === 'ROLE_UPDATE')) ||
-    false;
-
-  const hasRoleDeleteRight =
-    user?.roles?.some((role) => role.rights?.some((right) => right.authority === 'ROLE_DELETE')) ||
-    false;
-
-  const loadRoles = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await getRoles(tokenRef.current, { size: 100 });
-      setRoles(response.content || []);
-    } catch {
-      notifications.show({
-        title: 'Fehler',
-        message: 'Rollen konnten nicht geladen werden',
-        color: 'red',
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [tokenRef]);
-
-  useEffect(() => {
-    if (active && isAuthenticated) {
-      loadRoles();
-    }
-  }, [active, isAuthenticated, loadRoles]);
+  const {
+    data: roles,
+    loading,
+    reload: loadRoles,
+  } = useListLoader({
+    active,
+    fetcher: fetchRoles,
+    errorMessage: 'Rollen konnten nicht geladen werden',
+    initialData: [],
+  });
 
   const handleDelete = async () => {
     try {
@@ -191,21 +163,15 @@ export default function RoleList({ active }) {
         </Table.Tbody>
       </Table>
 
-      <Modal
+      <ConfirmActionModal
         opened={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleDelete}
         title="Rolle löschen"
+        confirmLabel="Löschen"
       >
-        <Text mb="md">Möchten Sie die Rolle "{roleToDelete?.name}" wirklich löschen?</Text>
-        <Group justify="flex-end">
-          <Button variant="default" onClick={() => setDeleteModalOpen(false)}>
-            Abbrechen
-          </Button>
-          <Button color="red" onClick={handleDelete}>
-            Löschen
-          </Button>
-        </Group>
-      </Modal>
+        <Text>Möchten Sie die Rolle "{roleToDelete?.name}" wirklich löschen?</Text>
+      </ConfirmActionModal>
 
       <RoleFormModal opened={formModalOpen} onClose={handleFormClose} role={editRole} />
     </>

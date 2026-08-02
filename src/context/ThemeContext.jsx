@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { useMantineColorScheme } from '@mantine/core';
+import { STORAGE_KEYS } from '../constants';
 
 const ThemeContext = createContext();
 
@@ -14,11 +15,11 @@ export const useTheme = () => {
 export function ThemeProvider({ children }) {
   const { setColorScheme } = useMantineColorScheme();
   const [themeMode, setThemeMode] = useState(() => {
-    return localStorage.getItem('themeMode') || 'auto';
+    return localStorage.getItem(STORAGE_KEYS.THEME_MODE) || 'auto';
   });
 
   useEffect(() => {
-    localStorage.setItem('themeMode', themeMode);
+    localStorage.setItem(STORAGE_KEYS.THEME_MODE, themeMode);
 
     if (themeMode === 'auto') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');

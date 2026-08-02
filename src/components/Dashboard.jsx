@@ -24,6 +24,7 @@ import {
   IconApi,
 } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
+import { RIGHTS } from '../constants';
 import ThemeToggle from './ThemeToggle';
 import UserProfile from './UserProfile';
 import UserRolesRights from './UserRolesRights';
@@ -40,7 +41,7 @@ import JwtViewer from './JwtViewer';
 const ApiDocsViewer = lazy(() => import('./ApiDocsViewer'));
 
 export default function Dashboard() {
-  const { user, logout, loading, token } = useAuth();
+  const { user, logout, loading, token, hasPermission } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
 
   const handleProfileUpdate = () => {
@@ -48,23 +49,10 @@ export default function Dashboard() {
   };
 
   // Prüfe ob User die notwendigen Rechte hat
-  const hasApiTokenRight =
-    user?.roles?.some((role) => role.rights?.some((right) => right.authority === 'API_TOKEN')) ||
-    false;
-
-  const hasApiTokenAdminRight =
-    user?.roles?.some((role) =>
-      role.rights?.some((right) => right.authority === 'API_TOKEN_ADMIN')
-    ) || false;
-
-  const hasRoleReadRight =
-    user?.roles?.some((role) => role.rights?.some((right) => right.authority === 'ROLE_READ')) ||
-    false;
-
-  const hasSessionTokenAdminRight =
-    user?.roles?.some((role) =>
-      role.rights?.some((right) => right.authority === 'SESSION_TOKEN_ADMIN')
-    ) || false;
+  const hasApiTokenRight = hasPermission(RIGHTS.API_TOKEN);
+  const hasApiTokenAdminRight = hasPermission(RIGHTS.API_TOKEN_ADMIN);
+  const hasRoleReadRight = hasPermission(RIGHTS.ROLE_READ);
+  const hasSessionTokenAdminRight = hasPermission(RIGHTS.SESSION_TOKEN_ADMIN);
 
   const canManagePersonalTokens = hasApiTokenRight || hasApiTokenAdminRight;
 

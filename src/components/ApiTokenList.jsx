@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useCallback } from 'react';
+import { useState } from 'react';
 import {
   Table,
   Button,
@@ -24,17 +24,20 @@ import {
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import PropTypes from 'prop-types';
-import { AuthContext } from '../context/AuthContext';
-import { useAuthTokenRef } from '../hooks/useAuthTokenRef';
+import { useAuth } from '../context/AuthContext';
+import { useListLoader } from '../hooks/useListLoader';
+import { RIGHTS, API_TOKEN_STATUS } from '../constants';
+import { formatDate } from '../utils/format';
 import { getApiTokens, deleteApiToken, revokeApiToken } from '../services/apiTokenService';
 import ApiTokenFormModal from './ApiTokenFormModal';
+import ApiTokenStatusBadge from './ApiTokenStatusBadge';
+import ConfirmActionModal from './ConfirmActionModal';
 import { renderTableBody } from './TableBodyState';
 
+const fetchApiTokens = (token) => getApiTokens(token, { size: 100 }).then((r) => r.content || []);
+
 export default function ApiTokenList({ active }) {
-  const { token, user, isAuthenticated } = useContext(AuthContext);
-  const tokenRef = useAuthTokenRef();
-  const [apiTokens, setApiTokens] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const { token, hasPermission } = useAuth();
   const [searchValue, setSearchValue] = useState('');
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [revokeModalOpen, setRevokeModalOpen] = useState(false);
@@ -44,31 +47,18 @@ export default function ApiTokenList({ active }) {
   const [showTokenModal, setShowTokenModal] = useState(false);
   const [newTokenData, setNewTokenData] = useState(null);
 
-  const hasApiTokenAdminRight = user?.roles?.some((role) =>
-    role.rights?.some((right) => right.authority === 'API_TOKEN_ADMIN')
-  );
+  const hasApiTokenAdminRight = hasPermission(RIGHTS.API_TOKEN_ADMIN);
 
-  const loadApiTokens = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await getApiTokens(tokenRef.current, { size: 100 });
-      setApiTokens(response.content || []);
-    } catch {
-      notifications.show({
-        title: 'Fehler',
-        message: 'API-Tokens konnten nicht geladen werden',
-        color: 'red',
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [tokenRef]);
-
-  useEffect(() => {
-    if (active && isAuthenticated) {
-      loadApiTokens();
-    }
-  }, [active, isAuthenticated, loadApiTokens]);
+  const {
+    data: apiTokens,
+    loading,
+    reload: loadApiTokens,
+  } = useListLoader({
+    active,
+    fetcher: fetchApiTokens,
+    errorMessage: 'API-Tokens konnten nicht geladen werden',
+    initialData: [],
+  });
 
   const handleDelete = async () => {
     try {
@@ -143,74 +133,6 @@ export default function ApiTokenList({ active }) {
     }
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('de-DE');
-  };
-
-  const formatDateTime = (dateString) => {
-    if (!dateString) return '-';
-    const date = new Date(dateString);
-    return `${date.toLocaleDateString('de-DE')} ${date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}`;
-  };
-
-  const isExpired = (validUntil) => {
-    if (!validUntil) return false;
-    return new Date(validUntil) < new Date();
-  };
-
-  const getStatusBadge = (apiToken) => {
-    const status = apiToken.status;
-
-    if (!status) {
-      if (isExpired(apiToken.validUntil)) {
-        return <Badge color="red">Abgelaufen ({formatDate(apiToken.validUntil)})</Badge>;
-      }
-      return <Badge color="green">Aktiv bis {formatDate(apiToken.validUntil)}</Badge>;
-    }
-
-    switch (status) {
-      case 'ACTIVE':
-        if (isExpired(apiToken.validUntil)) {
-          return <Badge color="red">Abgelaufen ({formatDate(apiToken.validUntil)})</Badge>;
-        }
-        return <Badge color="green">Aktiv bis {formatDate(apiToken.validUntil)}</Badge>;
-
-      case 'REVOKED':
-        return <Badge color="gray">Widerrufen ({formatDateTime(apiToken.updatedAt)})</Badge>;
-
-      case 'REVOKED_ROLE_CHANGED':
-        return (
-          <Badge color="orange">
-            Widerrufen (Rolle geändert, {formatDateTime(apiToken.updatedAt)})
-          </Badge>
-        );
-
-      case 'REVOKED_RIGHTS_CHANGED':
-        return (
-          <Badge color="orange">
-            Widerrufen (Rechte geändert, {formatDateTime(apiToken.updatedAt)})
-          </Badge>
-        );
-
-      case 'REVOKED_USER_CHANGED':
-        return (
-          <Badge color="orange">
-            Widerrufen (Nutzer geändert, {formatDateTime(apiToken.updatedAt)})
-          </Badge>
-        );
-
-      case 'EXPIRED':
-        return <Badge color="red">Abgelaufen</Badge>;
-
-      case 'USER_DELETED':
-        return <Badge color="red">Nutzer gelöscht</Badge>;
-
-      default:
-        return <Badge color="gray">{status || 'Unbekannt'}</Badge>;
-    }
-  };
-
   const filteredTokens = apiTokens.filter((t) =>
     t.description?.toLowerCase().includes(searchValue.toLowerCase())
   );
@@ -218,7 +140,9 @@ export default function ApiTokenList({ active }) {
   const rows = filteredTokens.map((apiToken) => (
     <Table.Tr key={apiToken.id}>
       <Table.Td>{apiToken.description}</Table.Td>
-      <Table.Td>{getStatusBadge(apiToken)}</Table.Td>
+      <Table.Td>
+        <ApiTokenStatusBadge apiToken={apiToken} />
+      </Table.Td>
       <Table.Td>
         <Badge>{apiToken.rights?.length || 0} Rechte</Badge>
       </Table.Td>
@@ -238,7 +162,7 @@ export default function ApiTokenList({ active }) {
                 setTokenToRevoke(apiToken);
                 setRevokeModalOpen(true);
               }}
-              disabled={apiToken.status !== 'ACTIVE'}
+              disabled={apiToken.status !== API_TOKEN_STATUS.ACTIVE}
             >
               Widerrufen
             </Menu.Item>
@@ -295,44 +219,29 @@ export default function ApiTokenList({ active }) {
         </Table.Tbody>
       </Table>
 
-      {/* Lösch-Bestätigung */}
-      <Modal
+      <ConfirmActionModal
         opened={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleDelete}
         title="API-Token löschen"
+        confirmLabel="Löschen"
       >
-        <Text mb="md">
-          Möchten Sie den API-Token "{tokenToDelete?.description}" wirklich löschen?
-        </Text>
-        <Group justify="flex-end">
-          <Button variant="default" onClick={() => setDeleteModalOpen(false)}>
-            Abbrechen
-          </Button>
-          <Button color="red" onClick={handleDelete}>
-            Löschen
-          </Button>
-        </Group>
-      </Modal>
+        <Text>Möchten Sie den API-Token "{tokenToDelete?.description}" wirklich löschen?</Text>
+      </ConfirmActionModal>
 
-      {/* Revoke-Bestätigung */}
-      <Modal
+      <ConfirmActionModal
         opened={revokeModalOpen}
         onClose={() => setRevokeModalOpen(false)}
+        onConfirm={handleRevoke}
         title="API-Token widerrufen"
+        confirmLabel="Widerrufen"
+        confirmColor="orange"
       >
-        <Text mb="md">
+        <Text>
           Möchten Sie den API-Token "{tokenToRevoke?.description}" wirklich widerrufen? Diese Aktion
           kann nicht rückgängig gemacht werden.
         </Text>
-        <Group justify="flex-end">
-          <Button variant="default" onClick={() => setRevokeModalOpen(false)}>
-            Abbrechen
-          </Button>
-          <Button color="orange" onClick={handleRevoke}>
-            Widerrufen
-          </Button>
-        </Group>
-      </Modal>
+      </ConfirmActionModal>
 
       {/* Neuer Token anzeigen */}
       <Modal
