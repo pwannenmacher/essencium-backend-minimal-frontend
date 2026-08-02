@@ -1,7 +1,10 @@
 # Security-Header für alle Responses.
 # Wird von docker-entrypoint.sh (bzw. beim Image-Build mit Defaults) via envsubst
 # nach /etc/nginx/generated/security-headers.conf gerendert; ${API_ORIGIN} ist der
-# Origin der Backend-API (aus VITE_API_URL abgeleitet).
+# Origin der Backend-API (aus VITE_API_URL abgeleitet). docker-entrypoint.sh
+# validiert den Wert strikt (nur Schema://Host[:Port]) und bricht den
+# Container-Start bei ungültigem Wert ab — hier darf nie ein unvalidierter
+# Wert eingesetzt werden.
 #
 # Muss in jeder location mit eigenem add_header erneut inkludiert werden, da
 # nginx add_header-Direktiven aus umschließenden Blöcken dann nicht vererbt.
