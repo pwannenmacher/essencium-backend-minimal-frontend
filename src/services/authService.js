@@ -25,8 +25,6 @@ export const login = async (username, password) => {
 
     const data = await response.json();
 
-    console.log('Login erfolgreich. Cookies:', document.cookie);
-
     return data.token;
   } catch (error) {
     console.error('Login-Fehler:', error);
