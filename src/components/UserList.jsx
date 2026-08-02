@@ -199,7 +199,7 @@ export default function UserList({ active }) {
   if (loading && users.length === 0) {
     return (
       <Card withBorder padding="lg" radius="md">
-        <Group position="center">
+        <Group justify="center">
           <Loader size="sm" />
           <Text>Lade Benutzer...</Text>
         </Group>
@@ -220,10 +220,10 @@ export default function UserList({ active }) {
   return (
     <>
       <Card withBorder padding="lg" radius="md">
-        <Stack spacing="md">
-          <Group position="apart">
+        <Stack gap="md">
+          <Group justify="space-between">
             <Title order={4}>Alle Benutzer</Title>
-            <Group spacing="xs">
+            <Group gap="xs">
               <Badge>{totalElements} Benutzer</Badge>
               <ActionIcon onClick={() => fetchUsers(page, currentFilters())} loading={loading}>
                 <IconRefresh size={16} />
@@ -235,10 +235,10 @@ export default function UserList({ active }) {
           </Group>
 
           {/* Such-Filter */}
-          <Group spacing="sm">
+          <Group gap="sm">
             <TextInput
               placeholder="E-Mail suchen..."
-              icon={<IconSearch size={14} />}
+              leftSection={<IconSearch size={14} />}
               value={searchEmail}
               onChange={(e) => setSearchEmail(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -246,7 +246,7 @@ export default function UserList({ active }) {
             />
             <TextInput
               placeholder="Name suchen..."
-              icon={<IconSearch size={14} />}
+              leftSection={<IconSearch size={14} />}
               value={searchName}
               onChange={(e) => setSearchName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -260,20 +260,20 @@ export default function UserList({ active }) {
           {users.length > 0 ? (
             <>
               <Table striped highlightOnHover>
-                <thead>
-                  <tr>
-                    <th style={{ textAlign: 'left' }}>ID</th>
-                    <th style={{ textAlign: 'left' }}>Name</th>
-                    <th style={{ textAlign: 'left' }}>E-Mail</th>
-                    <th style={{ textAlign: 'left' }}>Rollen</th>
-                    <th style={{ textAlign: 'left' }}>Status</th>
-                    <th style={{ textAlign: 'left' }}>Aktionen</th>
-                  </tr>
-                </thead>
-                <tbody>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th style={{ textAlign: 'left' }}>ID</Table.Th>
+                    <Table.Th style={{ textAlign: 'left' }}>Name</Table.Th>
+                    <Table.Th style={{ textAlign: 'left' }}>E-Mail</Table.Th>
+                    <Table.Th style={{ textAlign: 'left' }}>Rollen</Table.Th>
+                    <Table.Th style={{ textAlign: 'left' }}>Status</Table.Th>
+                    <Table.Th style={{ textAlign: 'left' }}>Aktionen</Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
                   {users.map((user) => (
-                    <tr key={user.id}>
-                      <td>
+                    <Table.Tr key={user.id}>
+                      <Table.Td>
                         <Text
                           size="sm"
                           c="dimmed"
@@ -284,17 +284,17 @@ export default function UserList({ active }) {
                         >
                           {user.id}
                         </Text>
-                      </td>
-                      <td>
-                        <Text size="sm" weight={500}>
+                      </Table.Td>
+                      <Table.Td>
+                        <Text size="sm" fw={500}>
                           {user.firstName} {user.lastName}
                         </Text>
-                      </td>
-                      <td>
+                      </Table.Td>
+                      <Table.Td>
                         <Text size="sm">{user.email}</Text>
-                      </td>
-                      <td>
-                        <Group spacing={4}>
+                      </Table.Td>
+                      <Table.Td>
+                        <Group gap={4}>
                           {user.roles?.slice(0, 3).map((role) => (
                             <Badge key={role.name} size="sm" variant="light">
                               {role.name}
@@ -306,8 +306,8 @@ export default function UserList({ active }) {
                             </Badge>
                           )}
                         </Group>
-                      </td>
-                      <td>
+                      </Table.Td>
+                      <Table.Td>
                         {user.enabled ? (
                           <Badge color="green" size="sm">
                             Aktiv
@@ -317,8 +317,8 @@ export default function UserList({ active }) {
                             Inaktiv
                           </Badge>
                         )}
-                      </td>
-                      <td>
+                      </Table.Td>
+                      <Table.Td>
                         <Menu shadow="md" width={200}>
                           <Menu.Target>
                             <ActionIcon size="sm" variant="subtle">
@@ -328,13 +328,13 @@ export default function UserList({ active }) {
 
                           <Menu.Dropdown>
                             <Menu.Item
-                              icon={<IconEdit size={14} />}
+                              leftSection={<IconEdit size={14} />}
                               onClick={() => handleEditUser(user)}
                             >
                               Bearbeiten
                             </Menu.Item>
                             <Menu.Item
-                              icon={<IconUserOff size={14} />}
+                              leftSection={<IconUserOff size={14} />}
                               onClick={() => handleTerminateSessions(user)}
                             >
                               Sessions beenden
@@ -342,22 +342,22 @@ export default function UserList({ active }) {
                             <Menu.Divider />
                             <Menu.Item
                               color="red"
-                              icon={<IconTrash size={14} />}
+                              leftSection={<IconTrash size={14} />}
                               onClick={() => handleDeleteClick(user)}
                             >
                               Löschen
                             </Menu.Item>
                           </Menu.Dropdown>
                         </Menu>
-                      </td>
-                    </tr>
+                      </Table.Td>
+                    </Table.Tr>
                   ))}
-                </tbody>
+                </Table.Tbody>
               </Table>
 
               {totalPages > 1 && (
-                <Group position="center" mt="md">
-                  <Pagination page={page + 1} onChange={handlePageChange} total={totalPages} />
+                <Group justify="center" mt="md">
+                  <Pagination value={page + 1} onChange={handlePageChange} total={totalPages} />
                 </Group>
               )}
             </>
@@ -384,12 +384,12 @@ export default function UserList({ active }) {
         title="Benutzer löschen"
         centered
       >
-        <Stack spacing="md">
+        <Stack gap="md">
           <Text>
             Möchten Sie den Benutzer <strong>{userToDelete?.email}</strong> wirklich löschen? Diese
             Aktion kann nicht rückgängig gemacht werden.
           </Text>
-          <Group position="right">
+          <Group justify="flex-end">
             <Button variant="subtle" onClick={() => setDeleteModalOpened(false)}>
               Abbrechen
             </Button>

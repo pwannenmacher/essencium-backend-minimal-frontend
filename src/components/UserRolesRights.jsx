@@ -44,7 +44,7 @@ export default function UserRolesRights() {
   if (loading) {
     return (
       <Card withBorder padding="lg" radius="md">
-        <Group position="center">
+        <Group justify="center">
           <Loader size="sm" />
           <Text>Lade Berechtigungen...</Text>
         </Group>
@@ -64,12 +64,12 @@ export default function UserRolesRights() {
 
   return (
     <Card withBorder padding="lg" radius="md">
-      <Stack spacing="lg">
+      <Stack gap="lg">
         {/* Rollen */}
-        <Stack spacing="sm">
+        <Stack gap="sm">
           <Title order={4}>Rollen</Title>
           {roles.length > 0 ? (
-            <Group spacing="xs">
+            <Group gap="xs">
               {roles.map((role) => (
                 <Badge key={role.name || role} color="blue" size="lg" variant="light">
                   {role.name || role}
@@ -84,15 +84,15 @@ export default function UserRolesRights() {
         </Stack>
 
         {/* Rechte */}
-        <Stack spacing="sm">
+        <Stack gap="sm">
           <Group>
             <IconKey size={20} />
             <Title order={4}>Rechte / Permissions</Title>
           </Group>
           {rights.length > 0 ? (
-            <Stack spacing={4}>
+            <Stack gap={4}>
               {rights.map((right) => (
-                <Group key={right.authority || right} spacing="xs">
+                <Group key={right.authority || right} gap="xs">
                   <Badge color="green" size="sm" variant="dot">
                     {right.authority || right}
                   </Badge>

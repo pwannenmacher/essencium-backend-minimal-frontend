@@ -104,17 +104,17 @@ export default function EditProfileModal({ opened, onClose, onSuccess }) {
     <Modal opened={opened} onClose={onClose} title="Mein Profil bearbeiten" size="md">
       <Tabs defaultValue="profile">
         <Tabs.List>
-          <Tabs.Tab value="profile" icon={<IconUser size={14} />}>
+          <Tabs.Tab value="profile" leftSection={<IconUser size={14} />}>
             Profildaten
           </Tabs.Tab>
-          <Tabs.Tab value="password" icon={<IconLock size={14} />}>
+          <Tabs.Tab value="password" leftSection={<IconLock size={14} />}>
             Passwort ändern
           </Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel value="profile" pt="md">
           <form onSubmit={profileForm.onSubmit(handleProfileSubmit)}>
-            <Stack spacing="md">
+            <Stack gap="md">
               {error && (
                 <Alert icon={<IconAlertCircle size={16} />} color="red" title="Fehler">
                   {error}
@@ -158,7 +158,7 @@ export default function EditProfileModal({ opened, onClose, onSuccess }) {
                 {...profileForm.getInputProps('locale')}
               />
 
-              <Group position="right" mt="md">
+              <Group justify="flex-end" mt="md">
                 <Button variant="subtle" onClick={onClose}>
                   Abbrechen
                 </Button>
@@ -172,7 +172,7 @@ export default function EditProfileModal({ opened, onClose, onSuccess }) {
 
         <Tabs.Panel value="password" pt="md">
           <form onSubmit={passwordForm.onSubmit(handlePasswordSubmit)}>
-            <Stack spacing="md">
+            <Stack gap="md">
               {error && (
                 <Alert icon={<IconAlertCircle size={16} />} color="red" title="Fehler">
                   {error}
@@ -193,7 +193,7 @@ export default function EditProfileModal({ opened, onClose, onSuccess }) {
                 {...passwordForm.getInputProps('verification')}
               />
 
-              <Group position="right" mt="md">
+              <Group justify="flex-end" mt="md">
                 <Button variant="subtle" onClick={onClose}>
                   Abbrechen
                 </Button>
