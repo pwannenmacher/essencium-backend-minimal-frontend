@@ -130,7 +130,7 @@ export default function Login() {
               <>
                 <Divider label="Oder anmelden mit" labelPosition="center" />
 
-                <Stack spacing="xs">
+                <Stack gap="xs">
                   {Object.entries(oauthProviders).map(([key, provider]) => (
                     <Button
                       key={key}
@@ -174,7 +174,7 @@ export default function Login() {
 
             <Divider label="Oder" labelPosition="center" />
 
-            <Stack spacing="xs">
+            <Stack gap="xs">
               <Text size="sm" c="dimmed" ta="center">
                 Schnell-Login für Entwicklung:
               </Text>

@@ -117,7 +117,7 @@ export default function UserFormModal({ opened, onClose, onSubmit, user, roles, 
       size="lg"
     >
       <form onSubmit={form.onSubmit(handleSubmit)}>
-        <Stack spacing="md">
+        <Stack gap="md">
           {error && (
             <Alert icon={<IconAlertCircle size={16} />} color="red" title="Fehler">
               {error}
@@ -209,7 +209,7 @@ export default function UserFormModal({ opened, onClose, onSubmit, user, roles, 
             />
           </Group>
 
-          <Group position="right" mt="md">
+          <Group justify="flex-end" mt="md">
             <Button variant="subtle" onClick={handleClose}>
               Abbrechen
             </Button>

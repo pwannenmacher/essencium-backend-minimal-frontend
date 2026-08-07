@@ -19,8 +19,18 @@ FROM nginxinc/nginx-unprivileged:alpine
 # Für Kopier-/chown-Schritte kurzzeitig root, danach zurück auf den nginx-User
 USER root
 
-# Kopiere Custom nginx Konfiguration
+# Kopiere Custom nginx Konfiguration und Security-Header-Template
 COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx-security-headers.conf.template /etc/nginx/templates/security-headers.conf.template
+
+# Security-Header mit Build-Defaults vorrendern (Fallback, falls der Entrypoint
+# umgangen wird); das Verzeichnis gehört dem nginx-User, damit der Entrypoint
+# zur Laufzeit den echten API-Origin einsetzen kann.
+RUN mkdir -p /etc/nginx/generated \
+    && API_ORIGIN="http://localhost:8098" envsubst '${API_ORIGIN}' \
+        < /etc/nginx/templates/security-headers.conf.template \
+        > /etc/nginx/generated/security-headers.conf \
+    && chown -R nginx:nginx /etc/nginx/generated
 
 # Kopiere gebaute App
 COPY --from=builder /app/dist /usr/share/nginx/html

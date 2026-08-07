@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { Card, Text, Stack, Title, Badge, Group, Loader, Alert } from '@mantine/core';
 import { IconKey, IconAlertCircle } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
+import { useAuthTokenRef } from '../hooks/useAuthTokenRef';
 import { getMyRoles, getMyRights } from '../services/userService';
 
 export default function UserRolesRights() {
-  const { token } = useAuth();
+  const { isAuthenticated } = useAuth();
+  const tokenRef = useAuthTokenRef();
   const [roles, setRoles] = useState([]);
   const [rights, setRights] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,13 +15,16 @@ export default function UserRolesRights() {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!token) return;
+      if (!tokenRef.current) return;
 
       setLoading(true);
       setError(null);
 
       try {
-        const [rolesData, rightsData] = await Promise.all([getMyRoles(token), getMyRights(token)]);
+        const [rolesData, rightsData] = await Promise.all([
+          getMyRoles(tokenRef.current),
+          getMyRights(tokenRef.current),
+        ]);
 
         setRoles(Array.isArray(rolesData) ? rolesData : []);
         setRights(Array.isArray(rightsData) ? rightsData : []);
@@ -31,13 +36,15 @@ export default function UserRolesRights() {
       }
     };
 
-    fetchData();
-  }, [token]);
+    if (isAuthenticated) {
+      fetchData();
+    }
+  }, [isAuthenticated, tokenRef]);
 
   if (loading) {
     return (
       <Card withBorder padding="lg" radius="md">
-        <Group position="center">
+        <Group justify="center">
           <Loader size="sm" />
           <Text>Lade Berechtigungen...</Text>
         </Group>
@@ -57,12 +64,12 @@ export default function UserRolesRights() {
 
   return (
     <Card withBorder padding="lg" radius="md">
-      <Stack spacing="lg">
+      <Stack gap="lg">
         {/* Rollen */}
-        <Stack spacing="sm">
+        <Stack gap="sm">
           <Title order={4}>Rollen</Title>
           {roles.length > 0 ? (
-            <Group spacing="xs">
+            <Group gap="xs">
               {roles.map((role) => (
                 <Badge key={role.name || role} color="blue" size="lg" variant="light">
                   {role.name || role}
@@ -77,15 +84,15 @@ export default function UserRolesRights() {
         </Stack>
 
         {/* Rechte */}
-        <Stack spacing="sm">
+        <Stack gap="sm">
           <Group>
             <IconKey size={20} />
             <Title order={4}>Rechte / Permissions</Title>
           </Group>
           {rights.length > 0 ? (
-            <Stack spacing={4}>
+            <Stack gap={4}>
               {rights.map((right) => (
-                <Group key={right.authority || right} spacing="xs">
+                <Group key={right.authority || right} gap="xs">
                   <Badge color="green" size="sm" variant="dot">
                     {right.authority || right}
                   </Badge>

@@ -34,7 +34,13 @@ export const mockUsers = {
     roles: [
       {
         name: 'ADMIN',
-        rights: ['USER_ADMIN', 'ROLE_ADMIN', 'API_TOKEN_ADMIN', 'SESSION_TOKEN_ADMIN'],
+        // Rechte-Form wie vom Backend geliefert: Objekte mit authority
+        rights: [
+          { authority: 'USER_ADMIN' },
+          { authority: 'ROLE_ADMIN' },
+          { authority: 'API_TOKEN_ADMIN' },
+          { authority: 'SESSION_TOKEN_ADMIN' },
+        ],
       },
     ],
   },
@@ -47,7 +53,7 @@ export const mockUsers = {
     roles: [
       {
         name: 'USER',
-        rights: ['API_TOKEN_MANAGE'],
+        rights: [{ authority: 'API_TOKEN_MANAGE' }],
       },
     ],
   },
@@ -66,6 +72,11 @@ export const mockUsers = {
   },
 };
 
+// JWTs sind Base64URL-kodiert (kein '+', '/' oder '='); btoa liefert
+// Standard-Base64 — ohne Umwandlung würde isValidJwt solche Tokens ablehnen.
+const toBase64Url = (value) =>
+  btoa(value).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
 export function createMockToken(user, expiresIn = 3600) {
   const now = Math.floor(Date.now() / 1000);
   const payload = {
@@ -75,8 +86,8 @@ export function createMockToken(user, expiresIn = 3600) {
     user: user,
   };
 
-  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-  const body = btoa(JSON.stringify(payload));
+  const header = toBase64Url(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+  const body = toBase64Url(JSON.stringify(payload));
   const signature = 'mock-signature';
 
   return `${header}.${body}.${signature}`;
@@ -94,8 +105,8 @@ export function createMockTokenWithoutExpiration(user) {
     name: user.firstName ? `${user.firstName} ${user.lastName}` : 'John Doe',
   };
 
-  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-  const body = btoa(JSON.stringify(payload));
+  const header = toBase64Url(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+  const body = toBase64Url(JSON.stringify(payload));
   const signature = 'mock-signature-without-exp';
 
   return `${header}.${body}.${signature}`;
