@@ -12,7 +12,7 @@ import {
   Center,
   Tabs,
 } from '@mantine/core';
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import {
   IconLogout,
   IconUser,
@@ -24,6 +24,7 @@ import {
   IconApi,
 } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
+import { RIGHTS } from '../constants';
 import ThemeToggle from './ThemeToggle';
 import UserProfile from './UserProfile';
 import UserRolesRights from './UserRolesRights';
@@ -34,10 +35,13 @@ import ApiTokenList from './ApiTokenList';
 import ApiTokenAdminList from './ApiTokenAdminList';
 import SessionTokenAdminList from './SessionTokenAdminList';
 import JwtViewer from './JwtViewer';
-import ApiDocsViewer from './ApiDocsViewer';
+
+// Lazy geladen: rapidoc (~860 KB min) landet so in einem eigenen Chunk,
+// der erst beim Öffnen des API-Docs-Tabs geladen wird.
+const ApiDocsViewer = lazy(() => import('./ApiDocsViewer'));
 
 export default function Dashboard() {
-  const { user, logout, loading, token } = useAuth();
+  const { user, logout, loading, token, hasPermission } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
 
   const handleProfileUpdate = () => {
@@ -45,23 +49,10 @@ export default function Dashboard() {
   };
 
   // Prüfe ob User die notwendigen Rechte hat
-  const hasApiTokenRight =
-    user?.roles?.some((role) => role.rights?.some((right) => right.authority === 'API_TOKEN')) ||
-    false;
-
-  const hasApiTokenAdminRight =
-    user?.roles?.some((role) =>
-      role.rights?.some((right) => right.authority === 'API_TOKEN_ADMIN')
-    ) || false;
-
-  const hasRoleReadRight =
-    user?.roles?.some((role) => role.rights?.some((right) => right.authority === 'ROLE_READ')) ||
-    false;
-
-  const hasSessionTokenAdminRight =
-    user?.roles?.some((role) =>
-      role.rights?.some((right) => right.authority === 'SESSION_TOKEN_ADMIN')
-    ) || false;
+  const hasApiTokenRight = hasPermission(RIGHTS.API_TOKEN);
+  const hasApiTokenAdminRight = hasPermission(RIGHTS.API_TOKEN_ADMIN);
+  const hasRoleReadRight = hasPermission(RIGHTS.ROLE_READ);
+  const hasSessionTokenAdminRight = hasPermission(RIGHTS.SESSION_TOKEN_ADMIN);
 
   const canManagePersonalTokens = hasApiTokenRight || hasApiTokenAdminRight;
 
@@ -70,7 +61,7 @@ export default function Dashboard() {
       <Container size="xl" my={40}>
         <Paper withBorder shadow="md" p={30} radius="md">
           <Center>
-            <Stack align="center" spacing="md">
+            <Stack align="center" gap="md">
               <Loader size="lg" />
               <Text>Lade Benutzerdaten...</Text>
             </Stack>
@@ -82,11 +73,11 @@ export default function Dashboard() {
 
   return (
     <Container size="xl" my={40}>
-      <Stack spacing="lg">
+      <Stack gap="lg">
         <Paper withBorder shadow="md" p={30} radius="md">
-          <Group position="apart" mb="lg">
+          <Group justify="space-between" mb="lg">
             <Title order={2}>Dashboard</Title>
-            <Group spacing="sm">
+            <Group gap="sm">
               <ThemeToggle />
               <Badge color="green" size="lg">
                 Angemeldet
@@ -106,45 +97,45 @@ export default function Dashboard() {
 
           <Tabs value={activeTab} onChange={setActiveTab}>
             <Tabs.List>
-              <Tabs.Tab value="profile" icon={<IconUser size={14} />}>
+              <Tabs.Tab value="profile" leftSection={<IconUser size={14} />}>
                 Mein Profil
               </Tabs.Tab>
-              <Tabs.Tab value="users" icon={<IconUsers size={14} />}>
+              <Tabs.Tab value="users" leftSection={<IconUsers size={14} />}>
                 Alle Benutzer
               </Tabs.Tab>
               {hasRoleReadRight && (
-                <Tabs.Tab value="roles" icon={<IconShieldLock size={14} />}>
+                <Tabs.Tab value="roles" leftSection={<IconShieldLock size={14} />}>
                   Rollen-Verwaltung
                 </Tabs.Tab>
               )}
               {canManagePersonalTokens && (
-                <Tabs.Tab value="apitokens" icon={<IconApiApp size={14} />}>
+                <Tabs.Tab value="apitokens" leftSection={<IconApiApp size={14} />}>
                   API-Tokens
                 </Tabs.Tab>
               )}
               {hasApiTokenAdminRight && (
-                <Tabs.Tab value="apitokensadmin" icon={<IconShield size={14} />}>
+                <Tabs.Tab value="apitokensadmin" leftSection={<IconShield size={14} />}>
                   API-Token Admin
                 </Tabs.Tab>
               )}
               {hasSessionTokenAdminRight && (
-                <Tabs.Tab value="sessiontokensadmin" icon={<IconDeviceDesktop size={14} />}>
+                <Tabs.Tab value="sessiontokensadmin" leftSection={<IconDeviceDesktop size={14} />}>
                   Session-Token Admin
                 </Tabs.Tab>
               )}
-              <Tabs.Tab value="api-docs" icon={<IconApi size={14} />}>
+              <Tabs.Tab value="api-docs" leftSection={<IconApi size={14} />}>
                 API-Dokumentation
               </Tabs.Tab>
             </Tabs.List>
 
             <Tabs.Panel value="profile" pt="lg">
-              <SimpleGrid cols={2} spacing="lg" breakpoints={[{ maxWidth: 'md', cols: 1 }]}>
-                <Stack spacing="lg">
+              <SimpleGrid cols={{ base: 1, md: 2 }} spacing="lg">
+                <Stack gap="lg">
                   <UserProfile user={user} onUpdate={handleProfileUpdate} />
                   <UserRolesRights />
                 </Stack>
 
-                <Stack spacing="lg">
+                <Stack gap="lg">
                   <UserTokens />
                   <JwtViewer />
                 </Stack>
@@ -180,7 +171,17 @@ export default function Dashboard() {
             )}
 
             <Tabs.Panel value="api-docs" pt="lg">
-              {activeTab === 'api-docs' && <ApiDocsViewer />}
+              {activeTab === 'api-docs' && (
+                <Suspense
+                  fallback={
+                    <Center py="xl">
+                      <Loader size="sm" />
+                    </Center>
+                  }
+                >
+                  <ApiDocsViewer />
+                </Suspense>
+              )}
             </Tabs.Panel>
           </Tabs>
         </Paper>
