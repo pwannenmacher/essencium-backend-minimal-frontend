@@ -24,10 +24,10 @@ export default function UserProfile({ user, onUpdate }) {
   return (
     <>
       <Card withBorder padding="lg" radius="md">
-        <Stack spacing="md">
-          <Group position="apart">
+        <Stack gap="md">
+          <Group justify="space-between">
             <Title order={3}>Benutzerprofil</Title>
-            <Group spacing="xs">
+            <Group gap="xs">
               {user.enabled ? (
                 <Badge color="green">Aktiv</Badge>
               ) : (
@@ -46,16 +46,16 @@ export default function UserProfile({ user, onUpdate }) {
 
           <Divider />
 
-          <Stack spacing="sm">
+          <Stack gap="sm">
             <Group>
               <IconHash size={20} />
-              <Text weight={500}>ID:</Text>
+              <Text fw={500}>ID:</Text>
               <Text>{user.id}</Text>
             </Group>
 
             <Group>
               <IconUser size={20} />
-              <Text weight={500}>Name:</Text>
+              <Text fw={500}>Name:</Text>
               <Text>
                 {user.firstName} {user.lastName}
               </Text>
@@ -63,14 +63,14 @@ export default function UserProfile({ user, onUpdate }) {
 
             <Group>
               <IconMail size={20} />
-              <Text weight={500}>E-Mail:</Text>
+              <Text fw={500}>E-Mail:</Text>
               <Text>{user.email}</Text>
             </Group>
 
             {user.phone && (
               <Group>
                 <IconPhone size={20} />
-                <Text weight={500}>Telefon:</Text>
+                <Text fw={500}>Telefon:</Text>
                 <Text>{user.phone}</Text>
               </Group>
             )}
@@ -78,20 +78,20 @@ export default function UserProfile({ user, onUpdate }) {
             {user.mobile && (
               <Group>
                 <IconPhone size={20} />
-                <Text weight={500}>Mobil:</Text>
+                <Text fw={500}>Mobil:</Text>
                 <Text>{user.mobile}</Text>
               </Group>
             )}
 
             <Group>
               <IconWorld size={20} />
-              <Text weight={500}>Sprache:</Text>
+              <Text fw={500}>Sprache:</Text>
               <Text>{user.locale}</Text>
             </Group>
 
             {user.source && (
               <Group>
-                <Text weight={500}>Quelle:</Text>
+                <Text fw={500}>Quelle:</Text>
                 <Text c="dimmed" size="sm">
                   {user.source}
                 </Text>
@@ -102,12 +102,12 @@ export default function UserProfile({ user, onUpdate }) {
           {user.roles && user.roles.length > 0 && (
             <>
               <Divider />
-              <Stack spacing="xs">
+              <Stack gap="xs">
                 <Group>
                   <IconShield size={20} />
-                  <Text weight={500}>Rollen:</Text>
+                  <Text fw={500}>Rollen:</Text>
                 </Group>
-                <Group spacing="xs">
+                <Group gap="xs">
                   {user.roles.map((role) => (
                     <Badge key={role.name} color="blue" variant="light">
                       {role.name}

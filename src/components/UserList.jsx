@@ -14,7 +14,6 @@ import {
   Button,
   ActionIcon,
   Menu,
-  Modal,
 } from '@mantine/core';
 import {
   IconAlertCircle,
@@ -29,6 +28,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
+import { useAuthTokenRef } from '../hooks/useAuthTokenRef';
 import {
   getUsers,
   createUser,
@@ -38,9 +38,12 @@ import {
 } from '../services/userService';
 import { getRoles } from '../services/roleService';
 import UserFormModal from './UserFormModal';
+import ConfirmActionModal from './ConfirmActionModal';
+import { renderTableBody } from './TableBodyState';
 
 export default function UserList({ active }) {
-  const { token } = useAuth();
+  const { token, isAuthenticated } = useAuth();
+  const tokenRef = useAuthTokenRef();
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [page, setPage] = useState(0);
@@ -57,8 +60,8 @@ export default function UserList({ active }) {
   const [userToDelete, setUserToDelete] = useState(null);
 
   const fetchUsers = useCallback(
-    async (pageNum = page) => {
-      if (!token) return;
+    async (pageNum, filters = {}) => {
+      if (!tokenRef.current) return;
 
       setLoading(true);
       setError(null);
@@ -70,10 +73,10 @@ export default function UserList({ active }) {
           sort: 'email,asc',
         };
 
-        if (searchEmail) params.email = searchEmail;
-        if (searchName) params.name = searchName;
+        if (filters.email) params.email = filters.email;
+        if (filters.name) params.name = filters.name;
 
-        const data = await getUsers(token, params);
+        const data = await getUsers(tokenRef.current, params);
 
         setUsers(data.content || []);
         setTotalPages(data.totalPages || 0);
@@ -86,31 +89,36 @@ export default function UserList({ active }) {
         setLoading(false);
       }
     },
-    [token, page, searchEmail, searchName]
+    [tokenRef]
   );
 
   const fetchRoles = useCallback(async () => {
     try {
-      const data = await getRoles(token, { size: 100 });
+      const data = await getRoles(tokenRef.current, { size: 100 });
       setRoles(data.content || []);
     } catch (err) {
       console.error('Fehler beim Laden der Rollen:', err);
     }
-  }, [token]);
+  }, [tokenRef]);
 
   useEffect(() => {
-    if (active && token) {
-      fetchUsers(0);
+    if (active && isAuthenticated) {
+      fetchUsers(0, { email: searchEmail, name: searchName });
       fetchRoles();
     }
-  }, [active, token, fetchUsers, fetchRoles]);
+    // Suchbegriffe bewusst nicht in den Deps: Die Suche wird nur explizit
+    // über Button/Enter ausgelöst, nicht bei jedem Tastendruck.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, isAuthenticated, fetchUsers, fetchRoles]);
+
+  const currentFilters = () => ({ email: searchEmail, name: searchName });
 
   const handleSearch = () => {
-    fetchUsers(0);
+    fetchUsers(0, currentFilters());
   };
 
   const handlePageChange = (newPage) => {
-    fetchUsers(newPage - 1); // Mantine Pagination ist 1-basiert
+    fetchUsers(newPage - 1, currentFilters()); // Mantine Pagination ist 1-basiert
   };
 
   const handleCreateUser = () => {
@@ -142,7 +150,7 @@ export default function UserList({ active }) {
       });
       setDeleteModalOpened(false);
       setUserToDelete(null);
-      fetchUsers(page);
+      fetchUsers(page, currentFilters());
     } catch (err) {
       notifications.show({
         title: 'Fehler',
@@ -185,14 +193,14 @@ export default function UserList({ active }) {
         color: 'green',
       });
     }
-    fetchUsers(page);
+    fetchUsers(page, currentFilters());
     setModalOpened(false);
   };
 
   if (loading && users.length === 0) {
     return (
       <Card withBorder padding="lg" radius="md">
-        <Group position="center">
+        <Group justify="center">
           <Loader size="sm" />
           <Text>Lade Benutzer...</Text>
         </Group>
@@ -213,12 +221,12 @@ export default function UserList({ active }) {
   return (
     <>
       <Card withBorder padding="lg" radius="md">
-        <Stack spacing="md">
-          <Group position="apart">
+        <Stack gap="md">
+          <Group justify="space-between">
             <Title order={4}>Alle Benutzer</Title>
-            <Group spacing="xs">
+            <Group gap="xs">
               <Badge>{totalElements} Benutzer</Badge>
-              <ActionIcon onClick={() => fetchUsers(page)} loading={loading}>
+              <ActionIcon onClick={() => fetchUsers(page, currentFilters())} loading={loading}>
                 <IconRefresh size={16} />
               </ActionIcon>
               <Button leftSection={<IconPlus size={16} />} onClick={handleCreateUser}>
@@ -228,10 +236,10 @@ export default function UserList({ active }) {
           </Group>
 
           {/* Such-Filter */}
-          <Group spacing="sm">
+          <Group gap="sm">
             <TextInput
               placeholder="E-Mail suchen..."
-              icon={<IconSearch size={14} />}
+              leftSection={<IconSearch size={14} />}
               value={searchEmail}
               onChange={(e) => setSearchEmail(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -239,7 +247,7 @@ export default function UserList({ active }) {
             />
             <TextInput
               placeholder="Name suchen..."
-              icon={<IconSearch size={14} />}
+              leftSection={<IconSearch size={14} />}
               value={searchName}
               onChange={(e) => setSearchName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -250,114 +258,111 @@ export default function UserList({ active }) {
             </Button>
           </Group>
 
-          {users.length > 0 ? (
-            <>
-              <Table striped highlightOnHover>
-                <thead>
-                  <tr>
-                    <th style={{ textAlign: 'left' }}>ID</th>
-                    <th style={{ textAlign: 'left' }}>Name</th>
-                    <th style={{ textAlign: 'left' }}>E-Mail</th>
-                    <th style={{ textAlign: 'left' }}>Rollen</th>
-                    <th style={{ textAlign: 'left' }}>Status</th>
-                    <th style={{ textAlign: 'left' }}>Aktionen</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map((user) => (
-                    <tr key={user.id}>
-                      <td>
-                        <Text
-                          size="sm"
-                          c="dimmed"
-                          style={{
-                            fontFamily: 'monospace',
-                            fontSize: '0.85em',
-                          }}
-                        >
-                          {user.id}
-                        </Text>
-                      </td>
-                      <td>
-                        <Text size="sm" weight={500}>
-                          {user.firstName} {user.lastName}
-                        </Text>
-                      </td>
-                      <td>
-                        <Text size="sm">{user.email}</Text>
-                      </td>
-                      <td>
-                        <Group spacing={4}>
-                          {user.roles?.slice(0, 3).map((role) => (
-                            <Badge key={role.name} size="sm" variant="light">
-                              {role.name}
-                            </Badge>
-                          ))}
-                          {user.roles?.length > 3 && (
-                            <Badge size="sm" variant="light" color="gray">
-                              +{user.roles.length - 3}
-                            </Badge>
-                          )}
-                        </Group>
-                      </td>
-                      <td>
-                        {user.enabled ? (
-                          <Badge color="green" size="sm">
-                            Aktiv
+          <Table striped highlightOnHover>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th style={{ textAlign: 'left' }}>ID</Table.Th>
+                <Table.Th style={{ textAlign: 'left' }}>Name</Table.Th>
+                <Table.Th style={{ textAlign: 'left' }}>E-Mail</Table.Th>
+                <Table.Th style={{ textAlign: 'left' }}>Rollen</Table.Th>
+                <Table.Th style={{ textAlign: 'left' }}>Status</Table.Th>
+                <Table.Th style={{ textAlign: 'left' }}>Aktionen</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {renderTableBody({
+                loading,
+                colSpan: 6,
+                emptyMessage: 'Keine Benutzer gefunden',
+                rows: users.map((user) => (
+                  <Table.Tr key={user.id}>
+                    <Table.Td>
+                      <Text
+                        size="sm"
+                        c="dimmed"
+                        style={{
+                          fontFamily: 'monospace',
+                          fontSize: '0.85em',
+                        }}
+                      >
+                        {user.id}
+                      </Text>
+                    </Table.Td>
+                    <Table.Td>
+                      <Text size="sm" fw={500}>
+                        {user.firstName} {user.lastName}
+                      </Text>
+                    </Table.Td>
+                    <Table.Td>
+                      <Text size="sm">{user.email}</Text>
+                    </Table.Td>
+                    <Table.Td>
+                      <Group gap={4}>
+                        {user.roles?.slice(0, 3).map((role) => (
+                          <Badge key={role.name} size="sm" variant="light">
+                            {role.name}
                           </Badge>
-                        ) : (
-                          <Badge color="red" size="sm">
-                            Inaktiv
+                        ))}
+                        {user.roles?.length > 3 && (
+                          <Badge size="sm" variant="light" color="gray">
+                            +{user.roles.length - 3}
                           </Badge>
                         )}
-                      </td>
-                      <td>
-                        <Menu shadow="md" width={200}>
-                          <Menu.Target>
-                            <ActionIcon size="sm" variant="subtle">
-                              <IconDotsVertical size={16} />
-                            </ActionIcon>
-                          </Menu.Target>
+                      </Group>
+                    </Table.Td>
+                    <Table.Td>
+                      {user.enabled ? (
+                        <Badge color="green" size="sm">
+                          Aktiv
+                        </Badge>
+                      ) : (
+                        <Badge color="red" size="sm">
+                          Inaktiv
+                        </Badge>
+                      )}
+                    </Table.Td>
+                    <Table.Td>
+                      <Menu shadow="md" width={200}>
+                        <Menu.Target>
+                          <ActionIcon size="sm" variant="subtle">
+                            <IconDotsVertical size={16} />
+                          </ActionIcon>
+                        </Menu.Target>
 
-                          <Menu.Dropdown>
-                            <Menu.Item
-                              icon={<IconEdit size={14} />}
-                              onClick={() => handleEditUser(user)}
-                            >
-                              Bearbeiten
-                            </Menu.Item>
-                            <Menu.Item
-                              icon={<IconUserOff size={14} />}
-                              onClick={() => handleTerminateSessions(user)}
-                            >
-                              Sessions beenden
-                            </Menu.Item>
-                            <Menu.Divider />
-                            <Menu.Item
-                              color="red"
-                              icon={<IconTrash size={14} />}
-                              onClick={() => handleDeleteClick(user)}
-                            >
-                              Löschen
-                            </Menu.Item>
-                          </Menu.Dropdown>
-                        </Menu>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
+                        <Menu.Dropdown>
+                          <Menu.Item
+                            leftSection={<IconEdit size={14} />}
+                            onClick={() => handleEditUser(user)}
+                          >
+                            Bearbeiten
+                          </Menu.Item>
+                          <Menu.Item
+                            leftSection={<IconUserOff size={14} />}
+                            onClick={() => handleTerminateSessions(user)}
+                          >
+                            Sessions beenden
+                          </Menu.Item>
+                          <Menu.Divider />
+                          <Menu.Item
+                            color="red"
+                            leftSection={<IconTrash size={14} />}
+                            onClick={() => handleDeleteClick(user)}
+                          >
+                            Löschen
+                          </Menu.Item>
+                        </Menu.Dropdown>
+                      </Menu>
+                    </Table.Td>
+                  </Table.Tr>
+                )),
+              })}
+            </Table.Tbody>
+          </Table>
 
-              {totalPages > 1 && (
-                <Group position="center" mt="md">
-                  <Pagination page={page + 1} onChange={handlePageChange} total={totalPages} />
-                </Group>
-              )}
-            </>
-          ) : (
-            <Text c="dimmed" size="sm" ta="center" py="xl">
-              Keine Benutzer gefunden
-            </Text>
+          {totalPages > 1 && (
+            <Group justify="center" mt="md">
+              <Pagination value={page + 1} onChange={handlePageChange} total={totalPages} />
+            </Group>
           )}
         </Stack>
       </Card>
@@ -371,27 +376,19 @@ export default function UserList({ active }) {
         mode={modalMode}
       />
 
-      <Modal
+      <ConfirmActionModal
         opened={deleteModalOpened}
         onClose={() => setDeleteModalOpened(false)}
+        onConfirm={handleDeleteConfirm}
         title="Benutzer löschen"
+        confirmLabel="Löschen"
         centered
       >
-        <Stack spacing="md">
-          <Text>
-            Möchten Sie den Benutzer <strong>{userToDelete?.email}</strong> wirklich löschen? Diese
-            Aktion kann nicht rückgängig gemacht werden.
-          </Text>
-          <Group position="right">
-            <Button variant="subtle" onClick={() => setDeleteModalOpened(false)}>
-              Abbrechen
-            </Button>
-            <Button color="red" onClick={handleDeleteConfirm}>
-              Löschen
-            </Button>
-          </Group>
-        </Stack>
-      </Modal>
+        <Text>
+          Möchten Sie den Benutzer <strong>{userToDelete?.email}</strong> wirklich löschen? Diese
+          Aktion kann nicht rückgängig gemacht werden.
+        </Text>
+      </ConfirmActionModal>
     </>
   );
 }

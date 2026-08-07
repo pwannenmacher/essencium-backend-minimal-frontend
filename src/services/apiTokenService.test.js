@@ -63,7 +63,7 @@ describe('apiTokenService', () => {
 
     it('throws on a non-ok response', async () => {
       global.fetch.mockResolvedValueOnce({ ok: false, status: 500 });
-      await expect(getApiTokens('token')).rejects.toThrow('Fehler beim Laden der API-Tokens: 500');
+      await expect(getApiTokens('token')).rejects.toThrow('Interner Serverfehler');
     });
   });
 
@@ -126,9 +126,7 @@ describe('apiTokenService', () => {
 
     it('falls back to a generic message when error text is empty', async () => {
       global.fetch.mockResolvedValueOnce({ ok: false, status: 400, text: async () => '' });
-      await expect(createApiToken('token', {})).rejects.toThrow(
-        'API-Token-Erstellung fehlgeschlagen: 400'
-      );
+      await expect(createApiToken('token', {})).rejects.toThrow('Ungültige Anfrage');
     });
   });
 
@@ -145,7 +143,7 @@ describe('apiTokenService', () => {
     it('throws on error', async () => {
       global.fetch.mockResolvedValueOnce({ ok: false, status: 409, text: async () => '' });
       await expect(updateApiToken('token', 3, {})).rejects.toThrow(
-        'API-Token-Update fehlgeschlagen: 409'
+        'Konflikt – die Daten wurden zwischenzeitlich geändert'
       );
     });
   });
@@ -172,9 +170,7 @@ describe('apiTokenService', () => {
 
     it('throws on error', async () => {
       global.fetch.mockResolvedValueOnce({ ok: false, status: 500, text: async () => '' });
-      await expect(patchApiToken('token', 5, {})).rejects.toThrow(
-        'API-Token-Patch fehlgeschlagen: 500'
-      );
+      await expect(patchApiToken('token', 5, {})).rejects.toThrow('Interner Serverfehler');
     });
   });
 
@@ -191,7 +187,7 @@ describe('apiTokenService', () => {
     it('throws on error', async () => {
       global.fetch.mockResolvedValueOnce({ ok: false, status: 403, text: async () => '' });
       await expect(deleteApiToken('token', 9)).rejects.toThrow(
-        'API-Token-Löschung fehlgeschlagen: 403'
+        'Keine Berechtigung für diese Aktion'
       );
     });
   });

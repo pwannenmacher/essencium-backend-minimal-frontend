@@ -561,7 +561,7 @@ describe('userService', () => {
       global.fetch.mockResolvedValueOnce({ ok: false, status: 400, text: async () => '' });
       await expect(
         import('./userService').then((m) => m.patchUser('token', 5, {}))
-      ).rejects.toThrow('User-Patch fehlgeschlagen: 400');
+      ).rejects.toThrow('Ungültige Anfrage');
     });
   });
 
@@ -580,7 +580,7 @@ describe('userService', () => {
     it('throws on error', async () => {
       global.fetch.mockResolvedValueOnce({ ok: false, status: 500, text: async () => '' });
       await expect(import('./userService').then((m) => m.updateMe('token', {}, 9))).rejects.toThrow(
-        'Profil-Update fehlgeschlagen: 500'
+        'Interner Serverfehler'
       );
     });
   });

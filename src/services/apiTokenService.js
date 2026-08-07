@@ -1,4 +1,22 @@
-import { API_BASE_URL } from '../config.js';
+import { request } from './apiClient.js';
+import { API_TOKEN_STATUS } from '../constants.js';
+
+// Gemeinsame Filter-Felder für die API-Token-Listen-Endpunkte.
+const API_TOKEN_FILTER_KEYS = [
+  'ids',
+  'createdBy',
+  'updatedBy',
+  'createdAtFrom',
+  'createdAtTo',
+  'updatedAtFrom',
+  'updatedAtTo',
+];
+
+const buildPath = (path, queryParams) => {
+  const queryString = queryParams.toString();
+  const suffix = queryString ? `?${queryString}` : '';
+  return `${path}${suffix}`;
+};
 
 export const getApiTokens = async (token, params = {}) => {
   const queryParams = new URLSearchParams();
@@ -6,169 +24,50 @@ export const getApiTokens = async (token, params = {}) => {
   if (params.page !== undefined) queryParams.append('page', params.page);
   if (params.size !== undefined) queryParams.append('size', params.size);
   if (params.sort) queryParams.append('sort', params.sort);
-  if (params.ids) queryParams.append('ids', params.ids);
-  if (params.createdBy) queryParams.append('createdBy', params.createdBy);
-  if (params.updatedBy) queryParams.append('updatedBy', params.updatedBy);
-  if (params.createdAtFrom) queryParams.append('createdAtFrom', params.createdAtFrom);
-  if (params.createdAtTo) queryParams.append('createdAtTo', params.createdAtTo);
-  if (params.updatedAtFrom) queryParams.append('updatedAtFrom', params.updatedAtFrom);
-  if (params.updatedAtTo) queryParams.append('updatedAtTo', params.updatedAtTo);
-
-  const url = queryParams.toString()
-    ? `${API_BASE_URL}/v1/api-tokens?${queryParams}`
-    : `${API_BASE_URL}/v1/api-tokens`;
-
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+  API_TOKEN_FILTER_KEYS.forEach((key) => {
+    if (params[key]) queryParams.append(key, params[key]);
   });
 
-  if (!response.ok) {
-    throw new Error(`Fehler beim Laden der API-Tokens: ${response.status}`);
-  }
-
-  return response.json();
+  return request(buildPath('/v1/api-tokens', queryParams), { token });
 };
 
 export const getApiTokensBasic = async (token, params = {}) => {
   const queryParams = new URLSearchParams();
-
-  if (params.ids) queryParams.append('ids', params.ids);
-  if (params.createdBy) queryParams.append('createdBy', params.createdBy);
-  if (params.updatedBy) queryParams.append('updatedBy', params.updatedBy);
-  if (params.createdAtFrom) queryParams.append('createdAtFrom', params.createdAtFrom);
-  if (params.createdAtTo) queryParams.append('createdAtTo', params.createdAtTo);
-  if (params.updatedAtFrom) queryParams.append('updatedAtFrom', params.updatedAtFrom);
-  if (params.updatedAtTo) queryParams.append('updatedAtTo', params.updatedAtTo);
-
-  const url = queryParams.toString()
-    ? `${API_BASE_URL}/v1/api-tokens/basic?${queryParams}`
-    : `${API_BASE_URL}/v1/api-tokens/basic`;
-
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+  API_TOKEN_FILTER_KEYS.forEach((key) => {
+    if (params[key]) queryParams.append(key, params[key]);
   });
 
-  if (!response.ok) {
-    throw new Error(`Fehler beim Laden der API-Tokens: ${response.status}`);
-  }
-
-  return response.json();
+  return request(buildPath('/v1/api-tokens/basic', queryParams), { token });
 };
 
 export const getApiTokenById = async (token, id) => {
-  const response = await fetch(`${API_BASE_URL}/v1/api-tokens/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Fehler beim Laden des API-Tokens: ${response.status}`);
-  }
-
-  return response.json();
+  return request(`/v1/api-tokens/${id}`, { token });
 };
 
 export const createApiToken = async (token, tokenData) => {
-  const response = await fetch(`${API_BASE_URL}/v1/api-tokens`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(tokenData),
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error || `API-Token-Erstellung fehlgeschlagen: ${response.status}`);
-  }
-
-  return response.json();
+  return request('/v1/api-tokens', { method: 'POST', token, body: tokenData });
 };
 
 export const updateApiToken = async (token, id, tokenData) => {
-  const response = await fetch(`${API_BASE_URL}/v1/api-tokens/${id}`, {
-    method: 'PUT',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ ...tokenData, id }),
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error || `API-Token-Update fehlgeschlagen: ${response.status}`);
-  }
-
-  return response.json();
+  return request(`/v1/api-tokens/${id}`, { method: 'PUT', token, body: { ...tokenData, id } });
 };
 
 export const patchApiToken = async (token, id, partialData) => {
-  const response = await fetch(`${API_BASE_URL}/v1/api-tokens/${id}`, {
-    method: 'PATCH',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(partialData),
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error || `API-Token-Patch fehlgeschlagen: ${response.status}`);
-  }
-
-  return response.json();
+  return request(`/v1/api-tokens/${id}`, { method: 'PATCH', token, body: partialData });
 };
 
 export const revokeApiToken = async (token, id) => {
-  return patchApiToken(token, id, { status: 'REVOKED' });
+  return patchApiToken(token, id, { status: API_TOKEN_STATUS.REVOKED });
 };
 
 export const deleteApiToken = async (token, id) => {
-  const response = await fetch(`${API_BASE_URL}/v1/api-tokens/${id}`, {
-    method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error || `API-Token-Löschung fehlgeschlagen: ${response.status}`);
-  }
+  await request(`/v1/api-tokens/${id}`, { method: 'DELETE', token });
 };
 
 export const getAllApiTokensAdmin = async (token) => {
-  const response = await fetch(`${API_BASE_URL}/v1/api-tokens/all`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Fehler beim Laden der API-Tokens: ${response.status}`);
-  }
-
-  return response.json();
+  return request('/v1/api-tokens/all', { token });
 };
 
 export const getTokenExpirationInfo = async (token) => {
-  const response = await fetch(`${API_BASE_URL}/v1/api-tokens/token-expiration-info`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Fehler beim Laden der Token-Expiration-Info: ${response.status}`);
-  }
-
-  return response.json();
+  return request('/v1/api-tokens/token-expiration-info', { token });
 };

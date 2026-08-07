@@ -102,7 +102,7 @@ export default function UserTokens() {
   if (loading) {
     return (
       <Card withBorder padding="lg" radius="md">
-        <Group position="center">
+        <Group justify="center">
           <Loader size="sm" />
           <Text>Lade Token-Informationen...</Text>
         </Group>
@@ -123,14 +123,14 @@ export default function UserTokens() {
   return (
     <>
       <Card withBorder padding="lg" radius="md">
-        <Stack spacing="md">
-          <Group position="apart">
+        <Stack gap="md">
+          <Group justify="space-between">
             <Title order={4}>Aktive Sessions</Title>
             <Badge>{tokens.length}</Badge>
           </Group>
 
           {tokens.length > 0 ? (
-            <Stack spacing="sm">
+            <Stack gap="sm">
               {tokens.map((tokenItem) => {
                 const isCurrentSession =
                   tokenItem.type === 'REFRESH' && tokenItem.id === currentParentTokenId;
@@ -149,9 +149,9 @@ export default function UserTokens() {
                         : {}
                     }
                   >
-                    <Group position="apart" align="flex-start">
-                      <Stack spacing="xs" style={{ flex: 1 }}>
-                        <Group spacing="xs">
+                    <Group justify="space-between" align="flex-start">
+                      <Stack gap="xs" style={{ flex: 1 }}>
+                        <Group gap="xs">
                           <Badge color={TOKEN_TYPE_COLORS[tokenItem.type] ?? 'gray'}>
                             {tokenItem.type}
                           </Badge>
@@ -168,23 +168,23 @@ export default function UserTokens() {
                           </Text>
                         )}
 
-                        <Stack spacing={4}>
+                        <Stack gap={4}>
                           {tokenItem.issuedAt && (
-                            <Group spacing="xs">
+                            <Group gap="xs">
                               <IconClock size={14} />
                               <Text size="xs">Erstellt: {formatDate(tokenItem.issuedAt)}</Text>
                             </Group>
                           )}
 
                           {tokenItem.expiration && (
-                            <Group spacing="xs">
+                            <Group gap="xs">
                               <IconClock size={14} />
                               <Text size="xs">Läuft ab: {formatDate(tokenItem.expiration)}</Text>
                             </Group>
                           )}
 
                           {tokenItem.lastUsed && (
-                            <Group spacing="xs">
+                            <Group gap="xs">
                               <IconClock size={14} />
                               <Text size="xs">
                                 Zuletzt benutzt: {formatDate(tokenItem.lastUsed)}
@@ -222,13 +222,13 @@ export default function UserTokens() {
         title="Session beenden"
         centered
       >
-        <Stack spacing="md">
+        <Stack gap="md">
           <Text>Möchten Sie diese Session wirklich beenden?</Text>
           {tokenToDelete && (
             <Card withBorder padding="sm" bg="var(--mantine-color-body)">
-              <Stack spacing={4}>
-                <Group spacing="xs">
-                  <Text size="sm" weight={500}>
+              <Stack gap={4}>
+                <Group gap="xs">
+                  <Text size="sm" fw={500}>
                     Typ:
                   </Text>
                   <Badge size="sm" color={tokenToDelete.type === 'REFRESH' ? 'blue' : 'green'}>
@@ -236,8 +236,8 @@ export default function UserTokens() {
                   </Badge>
                 </Group>
                 {tokenToDelete.userAgent && (
-                  <Group spacing="xs">
-                    <Text size="sm" weight={500}>
+                  <Group gap="xs">
+                    <Text size="sm" fw={500}>
                       Gerät:
                     </Text>
                     <Text size="sm" c="dimmed">
@@ -246,8 +246,8 @@ export default function UserTokens() {
                   </Group>
                 )}
                 {tokenToDelete.issuedAt && (
-                  <Group spacing="xs">
-                    <Text size="sm" weight={500}>
+                  <Group gap="xs">
+                    <Text size="sm" fw={500}>
                       Erstellt:
                     </Text>
                     <Text size="sm">{formatDate(tokenToDelete.issuedAt)}</Text>
@@ -256,7 +256,7 @@ export default function UserTokens() {
               </Stack>
             </Card>
           )}
-          <Group position="right">
+          <Group justify="flex-end">
             <Button
               variant="subtle"
               onClick={() => setDeleteModalOpened(false)}

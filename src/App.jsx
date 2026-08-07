@@ -3,6 +3,7 @@ import { Notifications } from '@mantine/notifications';
 import { DatesProvider } from '@mantine/dates';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import ErrorBoundary from './components/ErrorBoundary';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import SetPassword from './components/SetPassword';
@@ -28,13 +29,15 @@ function App() {
       <ThemeProvider>
         <DatesProvider settings={{ locale: 'de' }}>
           <Notifications position="top-right" />
-          {isSetPasswordRoute() ? (
-            <SetPassword />
-          ) : (
-            <AuthProvider>
-              <AppContent />
-            </AuthProvider>
-          )}
+          <ErrorBoundary>
+            {isSetPasswordRoute() ? (
+              <SetPassword />
+            ) : (
+              <AuthProvider>
+                <AppContent />
+              </AuthProvider>
+            )}
+          </ErrorBoundary>
         </DatesProvider>
       </ThemeProvider>
     </MantineProvider>
