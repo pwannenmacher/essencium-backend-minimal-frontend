@@ -16,23 +16,36 @@ export function useListLoader({ active, fetcher, errorMessage, initialData }) {
   const tokenRef = useAuthTokenRef();
   const [data, setData] = useState(initialData);
   const [loading, setLoading] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
-  const reload = useCallback(async () => {
-    setLoading(true);
-    try {
-      setData(await fetcher(tokenRef.current));
-    } catch {
-      notifications.show({ title: 'Fehler', message: errorMessage, color: 'red' });
-    } finally {
-      setLoading(false);
-    }
-  }, [fetcher, errorMessage, tokenRef]);
+  // Manuelles Neuladen stößt nur den Effect an; das Laden selbst passiert
+  // ausschließlich dort, damit Antworten bei Unmount/Tab-Wechsel verworfen
+  // werden können und kein setState nach dem Unmount stattfindet.
+  const reload = useCallback(() => setReloadKey((key) => key + 1), []);
 
   useEffect(() => {
-    if (active && isAuthenticated) {
-      reload();
-    }
-  }, [active, isAuthenticated, reload]);
+    if (!active || !isAuthenticated) return;
+
+    let cancelled = false;
+
+    (async () => {
+      setLoading(true);
+      try {
+        const result = await fetcher(tokenRef.current);
+        if (!cancelled) setData(result);
+      } catch {
+        if (!cancelled) {
+          notifications.show({ title: 'Fehler', message: errorMessage, color: 'red' });
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [active, isAuthenticated, reloadKey, fetcher, errorMessage, tokenRef]);
 
   return { data, loading, reload };
 }

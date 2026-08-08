@@ -47,25 +47,31 @@ export default function ApiTokenFormModal({ opened, onClose }) {
   });
 
   useEffect(() => {
-    if (opened) {
-      setLoading(false);
-      form.reset();
+    if (!opened) return;
 
-      const fetchExpirationInfo = async () => {
-        setLoadingExpiration(true);
-        try {
-          const info = await getTokenExpirationInfo(token);
-          setExpirationInfo(info);
-        } catch (error) {
+    // `loading` wird bereits von handleSubmit und handleClose zurückgesetzt.
+    form.reset();
+
+    let cancelled = false;
+
+    (async () => {
+      setLoadingExpiration(true);
+      try {
+        const info = await getTokenExpirationInfo(token);
+        if (!cancelled) setExpirationInfo(info);
+      } catch (error) {
+        if (!cancelled) {
           console.error('Fehler beim Laden der Token-Expiration-Info:', error);
           setExpirationInfo(null);
-        } finally {
-          setLoadingExpiration(false);
         }
-      };
+      } finally {
+        if (!cancelled) setLoadingExpiration(false);
+      }
+    })();
 
-      fetchExpirationInfo();
-    }
+    return () => {
+      cancelled = true;
+    };
   }, [opened, token]);
 
   const formatDuration = (seconds) => {

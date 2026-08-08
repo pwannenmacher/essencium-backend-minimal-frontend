@@ -1,4 +1,4 @@
-import { useEffect, useContext, useState, useCallback, useMemo } from 'react';
+import { useEffect, useContext, useState, useMemo } from 'react';
 import {
   Modal,
   TextInput,
@@ -40,45 +40,51 @@ export default function RoleFormModal({ opened, onClose, role }) {
     },
   });
 
-  const loadRights = useCallback(async () => {
-    setLoadingRights(true);
-    try {
-      const pageSize = 100;
-      let page = 0;
-      let totalPages = 1;
-      const rightAuthorities = [];
-
-      do {
-        const response = await getAllRights(token, { page, size: pageSize, sort: 'authority' });
-        const rights = response.content || [];
-        rights.forEach((right) => {
-          const authority = toAuthority(right);
-          if (authority) {
-            rightAuthorities.push(authority);
-          }
-        });
-        totalPages = response.totalPages ?? 1;
-        page += 1;
-      } while (page < totalPages);
-
-      setAvailableRights(rightAuthorities);
-    } catch {
-      notifications.show({
-        title: 'Fehler',
-        message: 'Rechte konnten nicht geladen werden',
-        color: 'red',
-      });
-      setAvailableRights([]);
-    } finally {
-      setLoadingRights(false);
-    }
-  }, [token]);
-
   useEffect(() => {
-    if (opened) {
-      loadRights();
-    }
-  }, [opened, loadRights]);
+    if (!opened) return;
+
+    let cancelled = false;
+
+    (async () => {
+      setLoadingRights(true);
+      try {
+        const pageSize = 100;
+        let page = 0;
+        let totalPages = 1;
+        const rightAuthorities = [];
+
+        do {
+          const response = await getAllRights(token, { page, size: pageSize, sort: 'authority' });
+          const rights = response.content || [];
+          rights.forEach((right) => {
+            const authority = toAuthority(right);
+            if (authority) {
+              rightAuthorities.push(authority);
+            }
+          });
+          totalPages = response.totalPages ?? 1;
+          page += 1;
+        } while (page < totalPages);
+
+        if (!cancelled) setAvailableRights(rightAuthorities);
+      } catch {
+        if (!cancelled) {
+          notifications.show({
+            title: 'Fehler',
+            message: 'Rechte konnten nicht geladen werden',
+            color: 'red',
+          });
+          setAvailableRights([]);
+        }
+      } finally {
+        if (!cancelled) setLoadingRights(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [opened, token]);
 
   useEffect(() => {
     if (role) {
