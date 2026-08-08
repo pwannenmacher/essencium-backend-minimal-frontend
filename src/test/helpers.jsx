@@ -75,7 +75,7 @@ export const mockUsers = {
 // JWTs sind Base64URL-kodiert (kein '+', '/' oder '='); btoa liefert
 // Standard-Base64 — ohne Umwandlung würde isValidJwt solche Tokens ablehnen.
 const toBase64Url = (value) =>
-  btoa(value).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  btoa(value).replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '');
 
 export function createMockToken(user, expiresIn = 3600) {
   const now = Math.floor(Date.now() / 1000);
