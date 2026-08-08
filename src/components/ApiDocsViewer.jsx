@@ -31,7 +31,24 @@ export default function ApiDocsViewer() {
   }, [token]);
 
   useEffect(() => {
-    loadSpec();
+    let cancelled = false;
+
+    (async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const apiSpec = await getOpenApiSpec();
+        if (!cancelled) setSpec(apiSpec);
+      } catch (err) {
+        if (!cancelled) setError(err.message);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -52,19 +69,6 @@ export default function ApiDocsViewer() {
       rapidoc.removeEventListener('spec-loaded', applyAccessToken);
     };
   }, [applyAccessToken, spec]);
-
-  const loadSpec = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const apiSpec = await getOpenApiSpec();
-      setSpec(apiSpec);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (loading) {
     return (
