@@ -19,8 +19,11 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN));
-  const [user, setUser] = useState(null);
+  const [fetchedUser, setFetchedUser] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  // Ohne Token gibt es keinen User – abgeleitet statt per Effect zurückgesetzt.
+  const user = token ? fetchedUser : null;
 
   // Zentrales 401-Handling: Weist der Server einen authentifizierten Request
   // zurück (Token serverseitig invalidiert), wird die Session lokal beendet,
@@ -38,7 +41,7 @@ export const AuthProvider = ({ children }) => {
         }
         return null;
       });
-      setUser(null);
+      setFetchedUser(null);
     });
     return () => setUnauthorizedHandler(null);
   }, []);
@@ -70,7 +73,7 @@ export const AuthProvider = ({ children }) => {
           // Refresh-Token serverseitig ungültig → Session beenden
           console.error('Token-Erneuerung abgelehnt:', error);
           setToken(null);
-          setUser(null);
+          setFetchedUser(null);
           return;
         }
         // Transienter Fehler (Netzwerkaussetzer, 5xx): mit Backoff erneut
@@ -106,10 +109,7 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   useEffect(() => {
-    if (!token) {
-      setUser(null);
-      return;
-    }
+    if (!token) return;
 
     let cancelled = false;
     let timeout;
@@ -118,13 +118,13 @@ export const AuthProvider = ({ children }) => {
       try {
         const userData = await getMe(token);
         // Out-of-order auflösende Antworten verwerfen (ST4)
-        if (!cancelled) setUser(userData);
+        if (!cancelled) setFetchedUser(userData);
       } catch (error) {
         if (cancelled) return;
         if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
           console.error('Fehler beim Laden der User-Daten:', error);
           setToken(null);
-          setUser(null);
+          setFetchedUser(null);
           return;
         }
         // Transienter Fehler: erneut versuchen statt Session beenden (ST5)
@@ -167,7 +167,7 @@ export const AuthProvider = ({ children }) => {
       console.error('Logout-Fehler:', error);
     } finally {
       setToken(null);
-      setUser(null);
+      setFetchedUser(null);
       setLoading(false);
     }
   };

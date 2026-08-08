@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Card,
   Text,
@@ -32,37 +32,41 @@ export default function UserTokens() {
   const [deleteModalOpened, setDeleteModalOpened] = useState(false);
   const [tokenToDelete, setTokenToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
-  const [currentParentTokenId, setCurrentParentTokenId] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  // Direkt aus dem Token abgeleitet – kein State/Effect nötig.
+  const currentParentTokenId = useMemo(
+    () => (token ? (parseJwt(token)?.parent_token_id ?? null) : null),
+    [token]
+  );
+
+  const fetchTokens = useCallback(() => setReloadKey((key) => key + 1), []);
 
   useEffect(() => {
-    if (token) {
-      const payload = parseJwt(token);
-      if (payload?.parent_token_id) {
-        setCurrentParentTokenId(payload.parent_token_id);
-      }
-    }
-  }, [token]);
-
-  const fetchTokens = useCallback(async () => {
     if (!token) return;
 
-    setLoading(true);
-    setError(null);
+    let cancelled = false;
 
-    try {
-      const tokensData = await getMyTokens(token);
-      setTokens(Array.isArray(tokensData) ? tokensData : []);
-    } catch (err) {
-      console.error('Fehler beim Laden der Tokens:', err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [token]);
+    (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const tokensData = await getMyTokens(token);
+        if (!cancelled) setTokens(Array.isArray(tokensData) ? tokensData : []);
+      } catch (err) {
+        if (!cancelled) {
+          console.error('Fehler beim Laden der Tokens:', err);
+          setError(err.message);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
 
-  useEffect(() => {
-    fetchTokens();
-  }, [token, fetchTokens]);
+    return () => {
+      cancelled = true;
+    };
+  }, [token, reloadKey]);
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
