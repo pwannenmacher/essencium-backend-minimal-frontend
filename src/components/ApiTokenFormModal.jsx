@@ -72,6 +72,9 @@ export default function ApiTokenFormModal({ opened, onClose }) {
     return () => {
       cancelled = true;
     };
+    // `form` bewusst nicht in den Deps: Mantines useForm liefert bei jedem
+    // Render eine neue Objekt-Identität, der Effekt würde endlos feuern.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [opened, token]);
 
   const formatDuration = (seconds) => {

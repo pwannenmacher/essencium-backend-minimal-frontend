@@ -10,6 +10,11 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
+      // Auch nie importierte Dateien in den Report aufnehmen: sonst fehlen
+      // ungetestete Komponenten komplett im lcov und die ausgewiesene Coverage
+      // ist höher als die tatsächliche. (In Vitest 4 steuert `include` das —
+      // das früher übliche `all: true` gibt es nicht mehr.)
+      include: ['src/**/*.{js,jsx}'],
       exclude: [
         'node_modules/',
         'src/test/',

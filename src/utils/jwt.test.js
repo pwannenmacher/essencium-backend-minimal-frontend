@@ -1,8 +1,19 @@
 import { describe, it, expect } from 'vitest';
-import { isValidJwt, parseJwt } from './jwt';
+import { isValidJwt, parseJwt, decodeJwt } from './jwt';
 
-const b64url = (obj) =>
-  btoa(JSON.stringify(obj)).replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '');
+// Echte JWT-Segmente sind UTF-8-Bytes in Base64URL. Nur so entstehen für
+// Nicht-ASCII-Payloads dieselben Bytes wie im Backend — btoa(JSON.stringify())
+// würde Latin-1 kodieren und am Decoder vorbeigehen.
+const toBase64Url = (bytes) =>
+  btoa(String.fromCharCode(...bytes))
+    .replaceAll('+', '-')
+    .replaceAll('/', '_')
+    .replaceAll('=', '');
+
+const b64url = (obj) => toBase64Url(new TextEncoder().encode(JSON.stringify(obj)));
+
+const stdBase64 = (obj) =>
+  btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(obj))));
 
 const makeToken = (payload) =>
   `${b64url({ alg: 'HS256', typ: 'JWT' })}.${b64url(payload)}.signature`;
@@ -41,5 +52,55 @@ describe('parseJwt', () => {
   it('returns null for an invalid token', () => {
     expect(parseJwt('not-a-token')).toBeNull();
     expect(parseJwt('a.!!!.c')).toBeNull();
+  });
+});
+
+describe('decodeJwt', () => {
+  it('decodes header, payload and signature segment', () => {
+    const payload = { sub: 'user@example.com', exp: 1234567890 };
+    const token = makeToken(payload);
+
+    expect(decodeJwt(token)).toEqual({
+      header: { alg: 'HS256', typ: 'JWT' },
+      payload,
+      signature: 'signature',
+    });
+  });
+
+  // Regression zu ST7: JwtViewer benutzte atob() ohne Base64URL-Ersetzung und
+  // zeigte für Tokens mit '-'/'_' fälschlich "konnte nicht dekodiert werden".
+  it('decodes segments that contain base64url characters', () => {
+    const payload = { note: 'ü?ÿ>>>' };
+
+    // Vorbedingung: dieses Payload erzeugt in Standard-Base64 '+' UND '/',
+    // die in Base64URL zu '-' und '_' werden — genau der Fall, an dem ST7 brach.
+    expect(stdBase64(payload)).toMatch(/\+/);
+    expect(stdBase64(payload)).toMatch(/\//);
+
+    const token = makeToken(payload);
+    expect(token).toMatch(/[-_]/);
+    expect(token).not.toMatch(/[+/=]/);
+    expect(decodeJwt(token)?.payload).toEqual(payload);
+  });
+
+  it('decodes umlauts and other multi-byte characters', () => {
+    const payload = { name: 'Jörg Müller', city: 'Zürich' };
+
+    expect(decodeJwt(makeToken(payload))?.payload).toEqual(payload);
+  });
+
+  it('returns null for falsy input', () => {
+    expect(decodeJwt(null)).toBeNull();
+    expect(decodeJwt(undefined)).toBeNull();
+    expect(decodeJwt('')).toBeNull();
+  });
+
+  it('returns null when the token does not have three segments', () => {
+    expect(decodeJwt('only.two')).toBeNull();
+    expect(decodeJwt('a.b.c.d')).toBeNull();
+  });
+
+  it('returns null when a segment is not decodable JSON', () => {
+    expect(decodeJwt('a.!!!.c')).toBeNull();
   });
 });

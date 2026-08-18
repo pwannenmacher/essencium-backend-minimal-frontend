@@ -67,6 +67,9 @@ export default function UserFormModal({ opened, onClose, onSubmit, user, roles, 
     } else if (mode === 'create') {
       form.reset();
     }
+    // `form` bewusst nicht in den Deps: Mantines useForm liefert bei jedem
+    // Render eine neue Objekt-Identität, der Effekt würde endlos feuern.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, mode, opened]);
 
   const handleSubmit = async (values) => {

@@ -172,33 +172,39 @@ export default function Login() {
               </>
             )}
 
-            <Divider label="Oder" labelPosition="center" />
+            {/* Nur im Dev-Build: die Backend-Default-Credentials sollen nicht
+                in einem echten Deployment sichtbar und klickbar sein. */}
+            {import.meta.env.DEV && (
+              <>
+                <Divider label="Oder" labelPosition="center" />
 
-            <Stack gap="xs">
-              <Text size="sm" c="dimmed" ta="center">
-                Schnell-Login für Entwicklung:
-              </Text>
-              <Group grow>
-                <Button
-                  variant="light"
-                  color="blue"
-                  leftSection={<IconUserShield size={16} />}
-                  onClick={() => handleQuickLogin('devnull@frachtwerk.de', 'adminAdminAdmin')}
-                  loading={loading}
-                >
-                  Admin-User
-                </Button>
-                <Button
-                  variant="light"
-                  color="grape"
-                  leftSection={<IconUser size={16} />}
-                  onClick={() => handleQuickLogin('devnull_user@frachtwerk.de', 'userUserUser')}
-                  loading={loading}
-                >
-                  Default-User
-                </Button>
-              </Group>
-            </Stack>
+                <Stack gap="xs">
+                  <Text size="sm" c="dimmed" ta="center">
+                    Schnell-Login für Entwicklung:
+                  </Text>
+                  <Group grow>
+                    <Button
+                      variant="light"
+                      color="blue"
+                      leftSection={<IconUserShield size={16} />}
+                      onClick={() => handleQuickLogin('devnull@frachtwerk.de', 'adminAdminAdmin')}
+                      loading={loading}
+                    >
+                      Admin-User
+                    </Button>
+                    <Button
+                      variant="light"
+                      color="grape"
+                      leftSection={<IconUser size={16} />}
+                      onClick={() => handleQuickLogin('devnull_user@frachtwerk.de', 'userUserUser')}
+                      loading={loading}
+                    >
+                      Default-User
+                    </Button>
+                  </Group>
+                </Stack>
+              </>
+            )}
           </Stack>
         </form>
       </Paper>

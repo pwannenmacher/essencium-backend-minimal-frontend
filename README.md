@@ -14,7 +14,7 @@ Diese SPA bietet eine vollständige Verwaltungsoberfläche für User, Rollen, Re
 - **Sessions**: Übersicht über aktive Refresh-Tokens mit Markierung der aktuellen Session
 - **Session-Token Admin**: Admin-Ansicht aller Session-Tokens aller Benutzer mit Löschfunktion (erfordert `SESSION_TOKEN_ADMIN` Recht)
 - **JWT-Viewer**: Live-Anzeige des aktuellen Access-Tokens mit Payload-Dekodierung
-- **Swagger-UI**: Anzeige der API-Dokumentation des Backends
+- **API-Dokumentation**: Anzeige der OpenAPI-Spec des Backends via RapiDoc
 
 Die UI passt sich automatisch an die Berechtigungen des angemeldeten Users an. Tabs und Aktionen werden nur angezeigt, wenn die entsprechenden Rechte vorhanden sind.
 
@@ -24,7 +24,13 @@ Die UI passt sich automatisch an die Berechtigungen des angemeldeten Users an. T
 src/
 ├── components/         # React-Komponenten (Dashboard, Listen, Formulare)
 ├── context/            # React Context (Auth, Theme)
-├── services/           # API-Layer (authService, userService, roleService, apiTokenService)
+├── services/           # API-Layer: apiClient (zentraler HTTP-Client) + auth,
+│                       #   user, role, apiToken, openApi, resetCredentials
+├── hooks/              # useListLoader, useAuthTokenRef
+├── utils/              # jwt, format, passwordValidation
+├── test/               # Vitest-Setup und Render-Helper
+├── config.js           # Runtime-/Env-Konfiguration
+├── constants.js        # RIGHTS, API_TOKEN_STATUS, STORAGE_KEYS
 ├── App.jsx             # Root-Komponente mit Providern
 └── main.jsx            # Entry Point
 ```
@@ -32,9 +38,10 @@ src/
 **Technologie-Stack:**
 
 - React 19 + Vite
-- Mantine v7 (UI Components, Forms, Notifications)
+- Mantine 9 (UI Components, Forms, Notifications, Dates)
 - Context API für Auth & Theme-Management
-- JWT-basierte Authentication mit HTTP-only Cookies
+- JWT-basierte Authentication: Access-Token im `localStorage`, Refresh-Token im
+  HTTP-only Cookie
 
 **Besonderheiten:**
 
@@ -109,12 +116,17 @@ docker build -t essencium-frontend .
 
 **Container starten:**
 
+Der Container läuft als nicht-privilegierter nginx und lauscht auf Port **8080**:
+
 ```bash
-docker run -p 8080:80 \
+docker run -p 8080:8080 \
   -e VITE_API_URL=http://localhost:8098 \
   -e VITE_FRONTEND_URL=http://localhost:8080 \
   essencium-frontend
 ```
+
+Beide URLs werden beim Start strikt validiert (`docker-entrypoint.sh`); bei einem
+ungültigen Wert bricht der Container-Start ab.
 
 **Mit Docker Compose:**
 
@@ -151,9 +163,12 @@ Der Coverage-Report wird in `coverage/` generiert. Öffne `coverage/index.html` 
 **Was wird getestet:**
 
 - **Config-Tests**: Runtime-Konfiguration und Umgebungsvariablen-Fallbacks
-- **Service-Tests**: API-Calls, Fehlerbehandlung, Request-Formate (authService, userService, roleService)
+- **Service-Tests**: API-Calls, Fehlerbehandlung, Request-Formate (apiClient, authService, userService, roleService, apiTokenService, openApiService, resetCredentialsService)
+- **Util-Tests**: JWT-Parsing/-Validierung, Passwort-Validierung
 - **AuthContext-Tests**: Token-Renewal, Permissions, OAuth-Flow, Login/Logout
-- **Component-Tests**: Permission-basiertes Rendering (Dashboard, UserList, Login)
+- **Component-Tests**: Login, SetPassword, ErrorBoundary, ApiTokenList sowie die
+  Listen-Komponenten UserList, RoleList, ApiTokenAdminList und
+  SessionTokenAdminList (Laden, Fehler, Empty-State, Rechte-Gating, Löschen)
 
 **Neue Tests hinzufügen:**
 
@@ -168,8 +183,10 @@ Erstelle `*.test.js` oder `*.test.jsx` Dateien neben den zu testenden Komponente
 
 ## Dependency-Updates
 
+Dependency-Updates laufen normalerweise automatisch über Dependabot (npm und
+GitHub Actions, täglich). Manuell:
+
 ```bash
-cd frontend
 npx npm-check-updates -u
 npm install
 ```
