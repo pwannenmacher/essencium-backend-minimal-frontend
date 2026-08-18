@@ -25,6 +25,24 @@ Object.defineProperty(window, 'RUNTIME_CONFIG', {
   value: {},
 });
 
+// jsdom kennt ResizeObserver nicht; Mantine-Komponenten mit Overflow-Erkennung
+// (Tabs, Select, Tooltip) greifen darauf zu und würden sonst beim Rendern werfen.
+class ResizeObserverStub {
+  observe() {
+    // Absichtlich ohne Funktion: in jsdom gibt es kein Layout, also nie ein Resize.
+  }
+
+  unobserve() {
+    // Absichtlich ohne Funktion, siehe observe().
+  }
+
+  disconnect() {
+    // Absichtlich ohne Funktion, siehe observe().
+  }
+}
+
+globalThis.ResizeObserver ??= ResizeObserverStub;
+
 // jsdom stellt in dieser Umgebung kein funktionsfähiges localStorage bereit.
 // Wir liefern eine einfache In-Memory-Implementierung, damit Komponenten,
 // die auf localStorage zugreifen (AuthContext, ThemeContext), testbar sind.
