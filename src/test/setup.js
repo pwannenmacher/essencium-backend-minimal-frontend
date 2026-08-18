@@ -28,9 +28,17 @@ Object.defineProperty(window, 'RUNTIME_CONFIG', {
 // jsdom kennt ResizeObserver nicht; Mantine-Komponenten mit Overflow-Erkennung
 // (Tabs, Select, Tooltip) greifen darauf zu und würden sonst beim Rendern werfen.
 class ResizeObserverStub {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
+  observe() {
+    // Absichtlich ohne Funktion: in jsdom gibt es kein Layout, also nie ein Resize.
+  }
+
+  unobserve() {
+    // Absichtlich ohne Funktion, siehe observe().
+  }
+
+  disconnect() {
+    // Absichtlich ohne Funktion, siehe observe().
+  }
 }
 
 globalThis.ResizeObserver ??= ResizeObserverStub;
