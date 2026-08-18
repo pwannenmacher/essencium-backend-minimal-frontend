@@ -66,8 +66,7 @@ describe('ConfirmActionModal', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  // Regression zu ST8: ohne Busy-State führte ein Doppelklick zu zwei Requests
-  // und damit zu einer 404-Fehlermeldung direkt nach der Erfolgsmeldung.
+  // Regression ST8: Doppelklick löste zwei Requests aus.
   it('führt onConfirm bei Doppelklick nur einmal aus', async () => {
     let resolveConfirm;
     const onConfirm = vi.fn(

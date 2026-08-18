@@ -51,8 +51,7 @@ describe('JwtViewer', () => {
     expect(screen.getByText('Token konnte nicht dekodiert werden')).toBeInTheDocument();
   });
 
-  // Regression zu ST7: mit atob() ohne Base64URL-Ersetzung landete dieser Token
-  // fälschlich im "konnte nicht dekodiert werden"-Zweig.
+  // Regression ST7: atob() ohne Base64URL-Ersetzung schlug hier fehl.
   it('dekodiert einen Token, dessen Segmente Base64URL-Zeichen enthalten', () => {
     const token = makeToken({ sub: 'ü?ÿ>>>@example.com', exp: now() + 3600 });
 

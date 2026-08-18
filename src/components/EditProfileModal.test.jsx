@@ -72,8 +72,7 @@ describe('EditProfileModal', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  // Vor- und Nachname sind als required markiert: bei leerem Feld blockt die
-  // native Validierung den Submit, Mantines Validator kommt nicht zum Zug.
+  // required blockt den Submit; Mantines Validator läuft hier nicht.
   it('speichert nicht, wenn der Vorname leer ist', () => {
     renderModal();
 

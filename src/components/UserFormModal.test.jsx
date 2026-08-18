@@ -36,11 +36,7 @@ function renderModal({ mode = 'create', user = null, onSubmit, onClose = vi.fn()
 const fill = (label, value) =>
   fireEvent.change(screen.getByLabelText(label), { target: { value } });
 
-/**
- * Wählt einen Eintrag im Mantine-Select/MultiSelect über das Dropdown.
- * Adressiert wird über den Placeholder: der MultiSelect hängt am Label sowohl
- * das Suchfeld als auch ein verstecktes Input, byLabelText wäre mehrdeutig.
- */
+// Über den Placeholder, weil byLabelText beim MultiSelect mehrdeutig ist.
 const pickOption = async (placeholder, option) => {
   fireEvent.click(screen.getByPlaceholderText(placeholder));
   fireEvent.click(await screen.findByRole('option', { name: option }));

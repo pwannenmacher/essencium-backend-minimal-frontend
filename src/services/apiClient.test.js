@@ -59,8 +59,7 @@ describe('apiClient', () => {
     });
   });
 
-  // Das Backend antwortet auf Fehler mit Problem Details nach RFC 9457
-  // (Spring ProblemDetail, Content-Type application/problem+json).
+  // Fehlerformat des Backends: Spring ProblemDetail (RFC 9457).
   describe('RFC-9457-Problem-Details', () => {
     const problemDetail = {
       detail: 'The following rights must not be used in API tokens: API_TOKEN_ADMIN',
@@ -99,8 +98,7 @@ describe('apiClient', () => {
       expect(error.problem.timestamp).toBe('2026-08-18T21:42:31.929312Z');
     });
 
-    // title ist bei Spring die englische HTTP-Reason-Phrase und damit schlechter
-    // als der deutsche Status-Fallback.
+    // title ist die englische Reason-Phrase, der Fallback ist besser.
     it('nutzt title nicht als Meldung, wenn detail fehlt', async () => {
       mockProblem({ detail: undefined });
 
@@ -117,8 +115,7 @@ describe('apiClient', () => {
       );
     });
 
-    // Kuratierte Meldungen des Aufrufers gewinnen: sonst wäre die deutsche
-    // Login-Meldung dauerhaft durch das englische detail ersetzt.
+    // Sonst ersetzt das englische detail dauerhaft die Login-Meldung.
     it('lässt statusMessages vor dem detail-Feld gewinnen', async () => {
       mockProblem({
         status: 401,
@@ -132,7 +129,7 @@ describe('apiClient', () => {
       }).catch((e) => e);
 
       expect(error.message).toBe('Benutzername oder Passwort ist falsch');
-      // Der maschinenlesbare Code bleibt trotzdem erhalten.
+      // Der Code bleibt trotzdem erhalten.
       expect(error.type).toBe('urn:frachtwerk:error:UNAUTHORIZED');
     });
 

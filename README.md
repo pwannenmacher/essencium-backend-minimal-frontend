@@ -176,8 +176,8 @@ Erstelle `*.test.js` oder `*.test.jsx` Dateien neben den zu testenden Komponente
 
 ## Fehlerbehandlung
 
-Alle API-Aufrufe laufen über `src/services/apiClient.js`. Das Backend liefert
-Fehler als Problem Details nach **RFC 9457** (Spring `ProblemDetail`):
+Alle API-Aufrufe laufen über `src/services/apiClient.js`. Fehlerantworten des
+Backends sind Problem Details nach **RFC 9457** (Spring `ProblemDetail`):
 
 ```json
 {
@@ -190,23 +190,14 @@ Fehler als Problem Details nach **RFC 9457** (Spring `ProblemDetail`):
 }
 ```
 
-Der Client wirft daraus einen `ApiError` mit `message`, `status`, `type`, `title`,
-`instance` und dem vollständigen `problem`-Objekt. Für Fallunterscheidungen im UI
-ist **`type`** zu verwenden, nicht `message` — der Text ist Anzeigetext und kann
-sich jederzeit ändern.
+Daraus entsteht ein `ApiError` mit `message`, `status`, `type`, `title`, `instance`
+und `problem`. Fallunterscheidungen im UI gehören an `type`, nicht an `message`.
 
-Reihenfolge der angezeigten Meldung:
-
-1. `statusMessages[status]`, falls der Aufrufer für diesen Endpunkt und Status
-   einen eigenen Text mitgibt (z. B. „Benutzername oder Passwort ist falsch" beim
-   Login — dort ist die Bedeutung eindeutig).
-2. `detail` aus dem Problem Detail; ersatzweise `message`/`error` von noch nicht
-   migrierten Endpunkten, ersatzweise ein Klartext-Body.
-3. Deutscher Fallback je Statuscode.
-
-`title` wird bewusst nicht angezeigt: Spring füllt es mit der englischen
-HTTP-Reason-Phrase („Bad Request"), die schlechter ist als der deutsche Fallback.
-HTML-Fehlerseiten und rohe JSON-Blobs erreichen die UI nie.
+Die angezeigte Meldung stammt aus `statusMessages[status]`, sonst aus `detail`
+(ersatzweise `message`/`error` oder Klartext-Body), sonst aus dem deutschen
+Status-Fallback. `title` wird nicht angezeigt — Spring füllt es mit der
+englischen HTTP-Reason-Phrase. HTML-Fehlerseiten und rohe JSON-Blobs erreichen
+die UI nie.
 
 ## Hinweise
 

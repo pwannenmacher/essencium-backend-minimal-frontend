@@ -172,8 +172,7 @@ export default function Login() {
               </>
             )}
 
-            {/* Nur im Dev-Build: die Backend-Default-Credentials sollen nicht
-                in einem echten Deployment sichtbar und klickbar sein. */}
+            {/* Default-Credentials nur im Dev-Build zeigen */}
             {import.meta.env.DEV && (
               <>
                 <Divider label="Oder" labelPosition="center" />

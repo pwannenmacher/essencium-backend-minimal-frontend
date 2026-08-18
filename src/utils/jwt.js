@@ -7,9 +7,7 @@ export function isValidJwt(value) {
   return typeof value === 'string' && JWT_PATTERN.test(value);
 }
 
-// Dekodiert ein einzelnes Base64URL-Segment eines JWT zu JSON.
-// Base64URL nutzt '-'/'_' statt '+'/'/' — ohne diese Ersetzung wirft atob()
-// bei jedem Token, das diese Zeichen enthält.
+// Base64URL nutzt '-'/'_' statt '+'/'/'; ohne die Ersetzung wirft atob().
 function decodeSegment(segment) {
   const base64 = segment.replaceAll('-', '+').replaceAll('_', '/');
   const json = decodeURIComponent(
@@ -30,10 +28,7 @@ export function parseJwt(token) {
   }
 }
 
-/**
- * Dekodiert einen JWT vollständig in Header, Payload und Signatur-Segment.
- * Gibt bei ungültigem Token null zurück.
- */
+// Dekodiert Header, Payload und Signatur-Segment. Bei ungültigem Token null.
 export function decodeJwt(token) {
   if (!token) return null;
 

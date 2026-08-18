@@ -20,9 +20,8 @@ export const requestPasswordReset = async (email) => {
  * Schritt 2 des Passwort-Resets: Neues Passwort mit dem Reset-Token setzen.
  * POST /v1/set-password – Body { password, verification } mit verification = Reset-Token.
  *
- * Kein kuratierter Text je Status: ein 400 kann hier "Token ungültig oder
- * abgelaufen" oder "Passwort verletzt die Policy" bedeuten. Nur das `detail`
- * des Backends unterscheidet die Fälle, ein fester Text würde in die Irre führen.
+ * Kein kuratierter Text je Status: ein 400 kann abgelaufener Token oder
+ * Passwort-Policy sein, nur das `detail` unterscheidet die Fälle.
  */
 export const setNewPassword = async (newPassword, resetToken) => {
   await request('/v1/set-password', {

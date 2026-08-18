@@ -25,16 +25,12 @@ export default [
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
-      // Debug-Logs sind zweimal als Datenleck aufgefallen (Cookies beim Login,
-      // Session-Token-Dump aller Benutzer). console.error/warn bleiben erlaubt.
+      // Debug-Logs waren zweimal ein Datenleck (Cookies, Session-Token-Dump).
       'no-console': ['error', { allow: ['error', 'warn'] }],
     },
   },
   {
-    // Context-Dateien exportieren bewusst Context + Hook neben der Provider-
-    // Komponente. Das kostet Fast Refresh in genau diesen zwei Dateien; ein
-    // Aufsplitten würde die Importe der halben App anfassen, ohne Laufzeit-
-    // oder Testnutzen.
+    // Context + Hook liegen bewusst neben dem Provider; kostet nur Fast Refresh.
     files: ['src/context/*.jsx'],
     rules: {
       'react-refresh/only-export-components': 'off',

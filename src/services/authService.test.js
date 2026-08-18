@@ -59,8 +59,7 @@ describe('authService', () => {
       await expect(login('test@example.com', TEST_PASSWORD_WRONG)).rejects.toThrow('Network error');
     });
 
-    // Das Backend liefert Fehler als RFC-9457-Problem-Detail mit englischem
-    // `detail`. Für den Login muss trotzdem die deutsche Meldung erscheinen.
+    // Trotz englischem detail im Problem-Detail bleibt die deutsche Meldung.
     it('zeigt bei falschem Passwort die deutsche Meldung statt des englischen detail', async () => {
       global.fetch.mockResolvedValueOnce({
         ok: false,

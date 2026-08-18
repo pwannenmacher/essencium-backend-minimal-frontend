@@ -4,14 +4,12 @@ import ApiDocsViewer from './ApiDocsViewer';
 import { renderWithProviders, createAuthContext } from '../test/helpers';
 import * as openApiService from '../services/openApiService';
 
-// rapidoc registriert ein Custom Element und zieht ~850 kB Code; im Test wird
-// nur das Zusammenspiel mit der Spec und dem Token geprüft.
+// rapidoc zieht ~850 kB; geprüft wird nur Spec- und Token-Übergabe.
 vi.mock('rapidoc', () => ({}));
 vi.mock('../services/openApiService');
 vi.mock('./ApiDocsViewer.css', () => ({}));
 
-// Ohne registriertes Custom Element wäre <rapi-doc> ein nacktes HTMLElement
-// ohne loadSpec(); der Effekt würde werfen und React die Komponente abräumen.
+// Ohne registriertes Element fehlt loadSpec() und der Effekt wirft.
 class RapiDocStub extends HTMLElement {
   loadSpec() {}
 }

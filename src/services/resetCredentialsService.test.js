@@ -78,9 +78,7 @@ describe('resetCredentialsService', () => {
       await expect(setNewPassword('pw', 'invalid')).rejects.toThrow('Interner Serverfehler');
     });
 
-    // Ein 400 kann hier "Token ungültig" oder "Passwort verletzt die Policy"
-    // bedeuten – nur das detail des Backends unterscheidet die Fälle, deshalb
-    // wird es unverändert durchgereicht.
+    // Ein 400 heißt Token abgelaufen oder Policy verletzt; nur detail trennt das.
     it('unterscheidet die 400-Fälle über das detail des Backends', async () => {
       const problem = (detail) => ({
         ok: false,
