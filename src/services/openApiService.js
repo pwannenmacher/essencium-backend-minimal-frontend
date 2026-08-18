@@ -1,16 +1,16 @@
-import { API_BASE_URL } from '../config';
+import { request } from './apiClient.js';
 
+/**
+ * Lädt die OpenAPI-Spec des Backends für den API-Doku-Tab.
+ * `credentials: 'include'`, weil der Endpunkt hinter der Session hängt.
+ */
 export async function getOpenApiSpec() {
-  const response = await fetch(`${API_BASE_URL}/v3/api-docs`, {
+  return request('/v3/api-docs', {
     credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
+    statusMessages: {
+      // Kein Problem-Detail-Fall: /v3/api-docs liefert bei Fehlern eine
+      // Springdoc-Fehlerseite statt application/problem+json.
+      404: 'Die API-Dokumentation ist auf diesem Backend nicht verfügbar',
     },
   });
-
-  if (!response.ok) {
-    throw new Error('Fehler beim Laden der API-Dokumentation');
-  }
-
-  return response.json();
 }

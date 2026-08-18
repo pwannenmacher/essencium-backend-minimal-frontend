@@ -58,6 +58,28 @@ describe('authService', () => {
 
       await expect(login('test@example.com', TEST_PASSWORD_WRONG)).rejects.toThrow('Network error');
     });
+
+    // Das Backend liefert Fehler als RFC-9457-Problem-Detail mit englischem
+    // `detail`. Für den Login muss trotzdem die deutsche Meldung erscheinen.
+    it('zeigt bei falschem Passwort die deutsche Meldung statt des englischen detail', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+        text: async () =>
+          JSON.stringify({
+            detail: 'Bad credentials',
+            instance: '/auth/token',
+            status: 401,
+            title: 'Unauthorized',
+            type: 'urn:frachtwerk:error:UNAUTHORIZED',
+          }),
+      });
+
+      const error = await login('wrong@example.com', TEST_PASSWORD_WRONG).catch((e) => e);
+
+      expect(error.message).toBe('Benutzername oder Passwort ist falsch');
+      expect(error.type).toBe('urn:frachtwerk:error:UNAUTHORIZED');
+    });
   });
 
   describe('logout', () => {

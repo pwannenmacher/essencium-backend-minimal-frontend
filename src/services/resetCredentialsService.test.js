@@ -36,7 +36,25 @@ describe('resetCredentialsService', () => {
 
     it('throws on a non-ok response', async () => {
       global.fetch.mockResolvedValueOnce({ ok: false, status: 400 });
-      await expect(requestPasswordReset('bad')).rejects.toThrow('Anfrage fehlgeschlagen: 400');
+      await expect(requestPasswordReset('bad')).rejects.toThrow('Ungültige Anfrage');
+    });
+
+    it('zeigt das detail aus dem Problem-Detail des Backends', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        text: async () =>
+          JSON.stringify({
+            detail: 'Username must be a valid email address',
+            status: 400,
+            title: 'Bad Request',
+            type: 'urn:frachtwerk:error:INVALID_INPUT',
+          }),
+      });
+
+      await expect(requestPasswordReset('bad')).rejects.toThrow(
+        'Username must be a valid email address'
+      );
     });
   });
 
@@ -57,8 +75,28 @@ describe('resetCredentialsService', () => {
 
     it('throws when the token is invalid/expired (backend error)', async () => {
       global.fetch.mockResolvedValueOnce({ ok: false, status: 500 });
-      await expect(setNewPassword('pw', 'invalid')).rejects.toThrow(
-        'Passwort konnte nicht gesetzt werden: 500'
+      await expect(setNewPassword('pw', 'invalid')).rejects.toThrow('Interner Serverfehler');
+    });
+
+    // Ein 400 kann hier "Token ungültig" oder "Passwort verletzt die Policy"
+    // bedeuten – nur das detail des Backends unterscheidet die Fälle, deshalb
+    // wird es unverändert durchgereicht.
+    it('unterscheidet die 400-Fälle über das detail des Backends', async () => {
+      const problem = (detail) => ({
+        ok: false,
+        status: 400,
+        text: async () =>
+          JSON.stringify({ detail, status: 400, type: 'urn:frachtwerk:error:INVALID_INPUT' }),
+      });
+
+      global.fetch.mockResolvedValueOnce(problem('Verification token is expired'));
+      await expect(setNewPassword('pw', 'expired')).rejects.toThrow(
+        'Verification token is expired'
+      );
+
+      global.fetch.mockResolvedValueOnce(problem('Password must be at least 8 characters long'));
+      await expect(setNewPassword('kurz', 'valid')).rejects.toThrow(
+        'Password must be at least 8 characters long'
       );
     });
   });
