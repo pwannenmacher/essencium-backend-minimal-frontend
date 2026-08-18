@@ -25,6 +25,31 @@ export function renderWithProviders(ui, options = {}) {
   return render(ui, { wrapper: Wrapper, ...renderOptions });
 }
 
+/**
+ * Baut einen Auth-Context-Wert für Komponententests.
+ * `rights` sind die Authority-Strings, die `hasPermission` bejahen soll —
+ * damit lässt sich das Rechte-Gating der Listen gezielt durchspielen.
+ */
+export function createAuthContext({ rights = [], token = 'jwt-token', user } = {}) {
+  return {
+    token,
+    isAuthenticated: true,
+    loading: false,
+    user: user ?? {
+      firstName: 'Test',
+      lastName: 'User',
+      email: 'test@example.com',
+      roles: [{ name: 'TEST', rights: rights.map((authority) => ({ authority })) }],
+    },
+    hasPermission: (permission) => rights.includes(permission),
+    hasRole: (roleName) => roleName === 'TEST',
+    login: vi.fn(),
+    logout: vi.fn(),
+    loginWithToken: vi.fn(),
+    forceRenewToken: vi.fn(),
+  };
+}
+
 export const mockUsers = {
   admin: {
     firstName: 'Admin',

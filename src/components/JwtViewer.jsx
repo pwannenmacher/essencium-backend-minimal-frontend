@@ -3,6 +3,7 @@ import { IconKey, IconClock, IconUser, IconRefresh } from '@tabler/icons-react';
 import { useContext, useMemo, useState, useEffect } from 'react';
 import { notifications } from '@mantine/notifications';
 import { AuthContext } from '../context/AuthContext';
+import { decodeJwt } from '../utils/jwt';
 
 export default function JwtViewer() {
   const { token, forceRenewToken } = useContext(AuthContext);
@@ -15,23 +16,6 @@ export default function JwtViewer() {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
-
-  const decodeJwt = (jwt) => {
-    if (!jwt) return null;
-
-    try {
-      const parts = jwt.split('.');
-      if (parts.length !== 3) return null;
-
-      const header = JSON.parse(atob(parts[0]));
-      const payload = JSON.parse(atob(parts[1]));
-
-      return { header, payload, signature: parts[2] };
-    } catch (error) {
-      console.error('JWT decode error:', error);
-      return null;
-    }
-  };
 
   const formatDate = (timestamp) => {
     if (!timestamp) return '-';

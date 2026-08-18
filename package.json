@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings 0",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
@@ -21,6 +21,9 @@
   "lint-staged": {
     "**/*.{js,jsx,css,md,html,json}": [
       "prettier --write"
+    ],
+    "**/*.{js,jsx}": [
+      "eslint --max-warnings 0"
     ]
   },
   "dependencies": {

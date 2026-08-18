@@ -7,18 +7,45 @@ export function isValidJwt(value) {
   return typeof value === 'string' && JWT_PATTERN.test(value);
 }
 
+// Dekodiert ein einzelnes Base64URL-Segment eines JWT zu JSON.
+// Base64URL nutzt '-'/'_' statt '+'/'/' — ohne diese Ersetzung wirft atob()
+// bei jedem Token, das diese Zeichen enthält.
+function decodeSegment(segment) {
+  const base64 = segment.replaceAll('-', '+').replaceAll('_', '/');
+  const json = decodeURIComponent(
+    atob(base64)
+      .split('')
+      .map((c) => '%' + ('00' + c.codePointAt(0).toString(16)).slice(-2))
+      .join('')
+  );
+  return JSON.parse(json);
+}
+
 // Dekodiert den Payload eines JWT (Base64URL). Gibt bei ungültigem Token null zurück.
 export function parseJwt(token) {
   try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replaceAll('-', '+').replaceAll('_', '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map((c) => '%' + ('00' + c.codePointAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-    return JSON.parse(jsonPayload);
+    return decodeSegment(token.split('.')[1]);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Dekodiert einen JWT vollständig in Header, Payload und Signatur-Segment.
+ * Gibt bei ungültigem Token null zurück.
+ */
+export function decodeJwt(token) {
+  if (!token) return null;
+
+  const parts = token.split('.');
+  if (parts.length !== 3) return null;
+
+  try {
+    return {
+      header: decodeSegment(parts[0]),
+      payload: decodeSegment(parts[1]),
+      signature: parts[2],
+    };
   } catch {
     return null;
   }
