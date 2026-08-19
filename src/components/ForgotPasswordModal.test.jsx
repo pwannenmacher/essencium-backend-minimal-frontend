@@ -32,8 +32,7 @@ describe('ForgotPasswordModal', () => {
     expect(screen.queryByRole('button', { name: 'Link anfordern' })).not.toBeInTheDocument();
   });
 
-  // Das leere Feld fängt die native required-Validierung ab: der Submit wird
-  // gar nicht ausgelöst, Mantines Validator kommt hier nicht zum Zug.
+  // required blockt den Submit; Mantines Validator läuft hier nicht.
   it('schickt bei leerem Feld keine Anfrage', () => {
     renderModal();
 
@@ -65,8 +64,7 @@ describe('ForgotPasswordModal', () => {
     expect(await screen.findByText('E-Mail versendet')).toBeInTheDocument();
   });
 
-  // Kein User-Enumeration: auch bei einem Fehler des Backends erscheint die
-  // gleiche generische Bestätigung.
+  // Kein User-Enumeration: gleiche Bestätigung auch im Fehlerfall.
   it('zeigt dieselbe Bestätigung, wenn das Backend einen Fehler liefert', async () => {
     resetCredentialsService.requestPasswordReset.mockRejectedValue(new Error('Anfrage 500'));
     renderModal();

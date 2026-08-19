@@ -25,11 +25,7 @@ export function renderWithProviders(ui, options = {}) {
   return render(ui, { wrapper: Wrapper, ...renderOptions });
 }
 
-/**
- * Baut einen Auth-Context-Wert für Komponententests.
- * `rights` sind die Authority-Strings, die `hasPermission` bejahen soll —
- * damit lässt sich das Rechte-Gating der Listen gezielt durchspielen.
- */
+/** Auth-Context-Wert für Komponententests; `rights` bejahen `hasPermission`. */
 export function createAuthContext({ rights = [], token = 'jwt-token', user } = {}) {
   return {
     token,

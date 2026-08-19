@@ -1,9 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { isValidJwt, parseJwt, decodeJwt } from './jwt';
 
-// Echte JWT-Segmente sind UTF-8-Bytes in Base64URL. Nur so entstehen für
-// Nicht-ASCII-Payloads dieselben Bytes wie im Backend — btoa(JSON.stringify())
-// würde Latin-1 kodieren und am Decoder vorbeigehen.
+// JWT-Segmente sind UTF-8-Bytes in Base64URL; btoa allein kodiert Latin-1.
 const toBase64Url = (bytes) =>
   btoa(String.fromCharCode(...bytes))
     .replaceAll('+', '-')
@@ -67,13 +65,11 @@ describe('decodeJwt', () => {
     });
   });
 
-  // Regression zu ST7: JwtViewer benutzte atob() ohne Base64URL-Ersetzung und
-  // zeigte für Tokens mit '-'/'_' fälschlich "konnte nicht dekodiert werden".
+  // Regression ST7: atob() ohne Base64URL-Ersetzung warf bei '-'/'_'.
   it('decodes segments that contain base64url characters', () => {
     const payload = { note: 'ü?ÿ>>>' };
 
-    // Vorbedingung: dieses Payload erzeugt in Standard-Base64 '+' UND '/',
-    // die in Base64URL zu '-' und '_' werden — genau der Fall, an dem ST7 brach.
+    // Vorbedingung: erzeugt in Standard-Base64 '+' und '/'.
     expect(stdBase64(payload)).toMatch(/\+/);
     expect(stdBase64(payload)).toMatch(/\//);
 

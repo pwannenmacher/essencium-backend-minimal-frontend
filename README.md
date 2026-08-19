@@ -174,6 +174,31 @@ Der Coverage-Report wird in `coverage/` generiert. Öffne `coverage/index.html` 
 
 Erstelle `*.test.js` oder `*.test.jsx` Dateien neben den zu testenden Komponenten/Services. Vitest findet diese automatisch.
 
+## Fehlerbehandlung
+
+Alle API-Aufrufe laufen über `src/services/apiClient.js`. Fehlerantworten des
+Backends sind Problem Details nach **RFC 9457** (Spring `ProblemDetail`):
+
+```json
+{
+  "detail": "The following rights must not be used in API tokens: API_TOKEN_ADMIN",
+  "instance": "/v1/api-tokens",
+  "status": 400,
+  "title": "Bad Request",
+  "type": "urn:frachtwerk:error:INVALID_INPUT",
+  "timestamp": "2026-08-18T21:42:31.929312Z"
+}
+```
+
+Daraus entsteht ein `ApiError` mit `message`, `status`, `type`, `title`, `instance`
+und `problem`. Fallunterscheidungen im UI gehören an `type`, nicht an `message`.
+
+Die angezeigte Meldung stammt aus `statusMessages[status]`, sonst aus `detail`
+(ersatzweise `message`/`error` oder Klartext-Body), sonst aus dem deutschen
+Status-Fallback. `title` wird nicht angezeigt — Spring füllt es mit der
+englischen HTTP-Reason-Phrase. HTML-Fehlerseiten und rohe JSON-Blobs erreichen
+die UI nie.
+
 ## Hinweise
 
 - Das Backend muss für CORS konfiguriert sein (`Access-Control-Allow-Origin`, `Access-Control-Allow-Credentials`)

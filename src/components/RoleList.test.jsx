@@ -16,21 +16,13 @@ const roles = [
   { name: 'USER', description: 'Standardrolle', editable: false, rights: [] },
 ];
 
-/**
- * Öffnet das Aktionen-Menü einer Tabellenzeile (0 = ADMIN/editierbar,
- * 1 = USER/geschützt). Die Menü-Trigger sind die einzigen Buttons ohne
- * Beschriftung; die Reihenfolge entspricht der Zeilenreihenfolge.
- */
+/** Aktionen-Menü einer Zeile (0 = ADMIN/editierbar, 1 = USER/geschützt). */
 async function openRowMenu(rowIndex = 0) {
   const menuButtons = await screen.findAllByRole('button', { name: '' });
   fireEvent.click(menuButtons[rowIndex]);
 }
 
-/**
- * Klickt "Löschen" im Bestätigungsdialog. Bewusst `findByRole`: das Menü
- * schließt beim Item-Klick, der Modal-Button erscheint erst danach — ein
- * synchrones `getByRole` greift ins Leere.
- */
+// findByRole, nicht getByRole: der Modal-Button erscheint erst nach dem Klick.
 async function confirmDeletion() {
   fireEvent.click(await screen.findByRole('button', { name: 'Löschen' }));
 }
@@ -125,8 +117,7 @@ describe('RoleList', () => {
     await openRowMenu();
     fireEvent.click(await screen.findByText('Löschen'));
 
-    // Der Bestätigungstext ist über mehrere Textknoten verteilt
-    // (Literal + {roleToDelete?.name} + Literal), daher Titel + Rollenname prüfen.
+    // Der Bestätigungstext ist über mehrere Textknoten verteilt.
     expect(await screen.findByText('Rolle löschen')).toBeInTheDocument();
     const dialog = await screen.findByRole('dialog');
     expect(within(dialog).getByText(/wirklich löschen/)).toBeInTheDocument();
@@ -135,7 +126,6 @@ describe('RoleList', () => {
 
     await waitFor(() => expect(roleService.deleteRole).toHaveBeenCalledWith('jwt-token', 'ADMIN'));
     expect(await screen.findByText('Rolle wurde gelöscht')).toBeInTheDocument();
-    // Reload nach erfolgreichem Löschen
     await waitFor(() => expect(roleService.getRoles).toHaveBeenCalledTimes(2));
   });
 

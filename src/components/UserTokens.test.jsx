@@ -65,8 +65,7 @@ describe('UserTokens', () => {
     expect(screen.getByText('2')).toBeInTheDocument();
   });
 
-  // Parent-Token-ID-Tracking: nur der Refresh-Token, dessen id der
-  // parent_token_id des Access-Tokens entspricht, ist die eigene Session.
+  // Eigene Session = Refresh-Token mit id == parent_token_id des Access-Tokens.
   it('markiert die eigene Session anhand der parent_token_id', async () => {
     render(tokenWithParent('refresh-1'));
 

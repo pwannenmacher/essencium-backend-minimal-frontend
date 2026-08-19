@@ -19,16 +19,29 @@ describe('openApiService', () => {
 
     expect(global.fetch).toHaveBeenCalledWith(
       'http://localhost:8098/v3/api-docs',
-      expect.objectContaining({
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-      })
+      expect.objectContaining({ method: 'GET', credentials: 'include' })
     );
     expect(result).toEqual(spec);
   });
 
   it('throws a descriptive error on a non-ok response', async () => {
     global.fetch.mockResolvedValueOnce({ ok: false, status: 500 });
-    await expect(getOpenApiSpec()).rejects.toThrow('Fehler beim Laden der API-Dokumentation');
+    await expect(getOpenApiSpec()).rejects.toThrow('Interner Serverfehler');
+  });
+
+  it('meldet einen fehlenden Doku-Endpunkt verständlich', async () => {
+    global.fetch.mockResolvedValueOnce({ ok: false, status: 404 });
+    await expect(getOpenApiSpec()).rejects.toThrow(
+      'Die API-Dokumentation ist auf diesem Backend nicht verfügbar'
+    );
+  });
+
+  it('reicht Springdocs HTML-Fehlerseiten nicht an die UI durch', async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      text: async () => '<html><body>Whitelabel Error Page</body></html>',
+    });
+    await expect(getOpenApiSpec()).rejects.toThrow('Interner Serverfehler');
   });
 });

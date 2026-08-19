@@ -5,8 +5,7 @@ import { renderWithProviders, createAuthContext } from '../test/helpers';
 import { RIGHTS } from '../constants';
 
 // Die Panel-Inhalte haben eigene Tests; hier geht es um Tabs und Rechte-Gating.
-// Die Factories müssen inline stehen: vi.mock wird an den Dateianfang gehoistet,
-// eine gemeinsame Hilfsfunktion wäre dort noch nicht initialisiert.
+// Factories inline: vi.mock wird gehoistet, ein Helper wäre noch undefined.
 vi.mock('./UserProfile', () => ({ default: () => <div>Stub-UserProfile</div> }));
 vi.mock('./UserRolesRights', () => ({ default: () => <div>Stub-UserRolesRights</div> }));
 vi.mock('./UserTokens', () => ({ default: () => <div>Stub-UserTokens</div> }));
@@ -97,8 +96,7 @@ describe('Dashboard', () => {
     expect(await screen.findByText('Stub-UserList')).toBeInTheDocument();
   });
 
-  // Das Panel rendert ApiDocsViewer bewusst erst, wenn der Tab aktiv ist –
-  // der rapidoc-Chunk soll nicht beim Login geladen werden.
+  // Der rapidoc-Chunk soll nicht schon beim Login geladen werden.
   it('lädt die API-Doku erst beim Öffnen ihres Tabs', async () => {
     render();
 

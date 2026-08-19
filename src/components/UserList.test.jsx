@@ -98,8 +98,7 @@ describe('UserList', () => {
     expect(await screen.findByText('Sitzung abgelaufen')).toBeInTheDocument();
   });
 
-  // Regression zu ST1: früher hing fetchUsers via useCallback an den Suchfeldern,
-  // jeder Tastendruck löste GET /users UND GET /roles aus.
+  // Regression ST1: fetchUsers hing an den Suchfeldern, jeder Tastendruck lud neu.
   it('löst pro Tastendruck im Suchfeld keinen Request aus', async () => {
     renderWithProviders(<UserList active />, { authContext: createAuthContext() });
     await screen.findByText('admin@example.com');
@@ -151,8 +150,7 @@ describe('UserList', () => {
     );
   });
 
-  // Regression zu ST1: der Seitenwechsel sprang früher sofort auf Seite 0 zurück,
-  // weil der Effekt nach setPage erneut mit fetchUsers(0) feuerte.
+  // Regression ST1: der Seitenwechsel sprang auf Seite 0 zurück.
   it('bleibt beim Seitenwechsel auf der gewählten Seite', async () => {
     userService.getUsers.mockResolvedValue(page(users, 3));
 
@@ -167,7 +165,6 @@ describe('UserList', () => {
         expect.objectContaining({ page: 1 })
       )
     );
-    // Kein Rücksprung auf Seite 1 (0-basiert 0)
     await waitFor(() =>
       expect(screen.getByRole('button', { name: '2' })).toHaveAttribute('data-active', 'true')
     );

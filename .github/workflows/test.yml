@@ -10,8 +10,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    # Auf Job-Ebene, damit der Wert in der `if`-Bedingung des Sonar-Steps
-    # sichtbar ist (step-eigenes env steht dort noch nicht zur Verfügung).
+    # Auf Job-Ebene, damit der Wert in der if-Bedingung des Sonar-Steps sichtbar ist.
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
@@ -39,14 +38,9 @@ jobs:
       - name: Build
         run: npm run build
 
-      # Dependabot- und Fork-PRs erhalten keine Repo-Secrets, SONAR_TOKEN ist
-      # dort leer. Der Scanner bricht dann mit "Not authorized or project not
-      # found" ab und färbt die CI rot, obwohl Lint, Tests und Build grün sind.
-      # Der Scan läuft nach dem Merge auf main ohnehin über denselben Workflow.
-      #
-      # Geprüft wird das Secret selbst, nicht der Actor: bei einem manuellen
-      # Re-Run ist github.actor der auslösende Mensch und nicht dependabot[bot],
-      # ein Actor-Vergleich greift dort also nicht.
+      # Dependabot- und Fork-PRs haben kein SONAR_TOKEN; der Scanner bricht dann
+      # ab und färbt die CI rot. Geprüft wird das Secret, nicht der Actor: bei
+      # einem Re-Run ist github.actor der auslösende Mensch.
       - name: SonarCloud Scan
         if: env.SONAR_TOKEN != ''
         uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f # v8
