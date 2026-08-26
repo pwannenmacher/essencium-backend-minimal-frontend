@@ -33,7 +33,7 @@
     "@mantine/hooks": "^9.5.2",
     "@mantine/notifications": "^9.5.2",
     "@tabler/icons-react": "^3.46.0",
-    "dayjs": "^1.11.22",
+    "dayjs": "^1.11.23",
     "prop-types": "^15.8.1",
     "rapidoc": "^9.3.8",
     "react": "^19.2.8",
