@@ -53,6 +53,40 @@ describe('config.js', () => {
     });
   });
 
+  describe('SHOW_DEV_LOGIN', () => {
+    it('should be enabled by runtime config', async () => {
+      window.RUNTIME_CONFIG = { VITE_SHOW_DEV_LOGIN: 'true' };
+
+      const { SHOW_DEV_LOGIN } = await import('./config.js?t=' + Date.now());
+
+      expect(SHOW_DEV_LOGIN).toBe(true);
+    });
+
+    it('should be disabled by runtime config even in dev build', async () => {
+      window.RUNTIME_CONFIG = { VITE_SHOW_DEV_LOGIN: 'false' };
+
+      const { SHOW_DEV_LOGIN } = await import('./config.js?t=' + Date.now());
+
+      expect(SHOW_DEV_LOGIN).toBe(false);
+    });
+
+    it('should fallback to the build mode if runtime config not set', async () => {
+      window.RUNTIME_CONFIG = {};
+
+      const { SHOW_DEV_LOGIN } = await import('./config.js?t=' + Date.now());
+
+      expect(SHOW_DEV_LOGIN).toBe(import.meta.env.DEV);
+    });
+
+    it('should ignore an empty runtime value', async () => {
+      window.RUNTIME_CONFIG = { VITE_SHOW_DEV_LOGIN: '' };
+
+      const { SHOW_DEV_LOGIN } = await import('./config.js?t=' + Date.now());
+
+      expect(SHOW_DEV_LOGIN).toBe(import.meta.env.DEV);
+    });
+  });
+
   describe('priority chain', () => {
     it('should prioritize runtime > env > default', async () => {
       window.RUNTIME_CONFIG = {

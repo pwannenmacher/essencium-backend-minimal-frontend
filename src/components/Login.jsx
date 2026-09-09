@@ -18,7 +18,7 @@ import { useForm } from '@mantine/form';
 import { IconAlertCircle, IconUser, IconUserShield } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
 import { getOAuthProviders } from '../services/authService';
-import { API_BASE_URL, FRONTEND_URL } from '../config.js';
+import { API_BASE_URL, FRONTEND_URL, SHOW_DEV_LOGIN } from '../config.js';
 import ForgotPasswordModal from './ForgotPasswordModal';
 
 export default function Login() {
@@ -172,8 +172,8 @@ export default function Login() {
               </>
             )}
 
-            {/* Default-Credentials nur im Dev-Build zeigen */}
-            {import.meta.env.DEV && (
+            {/* Default-Credentials: im Dev-Build bzw. per VITE_SHOW_DEV_LOGIN */}
+            {SHOW_DEV_LOGIN && (
               <>
                 <Divider label="Oder" labelPosition="center" />
 

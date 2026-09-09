@@ -45,7 +45,10 @@ USER nginx
 
 # Umgebungsvariablen mit Defaults
 ENV VITE_API_URL=http://localhost:8098
-ENV VITE_FRONTEND_URL=http://localhost:5173
+# Muss dem von außen erreichbaren Origin entsprechen (OAuth-Redirect-URI)
+ENV VITE_FRONTEND_URL=http://localhost:8080
+# Schnell-Login mit Default-Credentials: nur für lokale Setups auf true setzen
+ENV VITE_SHOW_DEV_LOGIN=false
 
 EXPOSE 8080
 

@@ -73,6 +73,9 @@ VITE_API_URL=http://localhost:8098
 
 # Frontend URL für OAuth-Redirects (Standard: window.location.origin)
 VITE_FRONTEND_URL=http://localhost:5173
+
+# Schnell-Login mit den Backend-Default-Credentials (Standard: nur im Dev-Build)
+VITE_SHOW_DEV_LOGIN=false
 ```
 
 Eine `.env.example`-Datei mit allen verfügbaren Variablen ist im Repository enthalten. Für die Entwicklung können die Defaults verwendet werden.
@@ -126,7 +129,21 @@ docker run -p 8080:8080 \
 ```
 
 Beide URLs werden beim Start strikt validiert (`docker-entrypoint.sh`); bei einem
-ungültigen Wert bricht der Container-Start ab.
+ungültigen Wert bricht der Container-Start ab. `VITE_FRONTEND_URL` muss dem von
+außen erreichbaren Origin entsprechen, da der Wert als OAuth-`redirect_uri` an
+das Backend übergeben wird.
+
+**Schnell-Login im Container einblenden:**
+
+Die Buttons für die Backend-Default-Credentials sind im Container standardmäßig
+ausgeblendet und lassen sich für lokale Setups aktivieren:
+
+```bash
+docker run -p 8080:8080 -e VITE_SHOW_DEV_LOGIN=true essencium-frontend
+```
+
+Erlaubt sind nur `true` und `false`; andere Werte brechen den Container-Start ab.
+Für produktive Deployments unbedingt auf `false` lassen.
 
 **Mit Docker Compose:**
 

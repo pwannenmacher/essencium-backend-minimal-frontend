@@ -14,17 +14,28 @@ for VAR_NAME in VITE_API_URL VITE_FRONTEND_URL; do
     fi
 done
 
+# Boolean-Flags ebenfalls strikt validieren (landen unescaped in runtime-config.js)
+case "${VITE_SHOW_DEV_LOGIN:-false}" in
+    true | false) SHOW_DEV_LOGIN="${VITE_SHOW_DEV_LOGIN:-false}" ;;
+    *)
+        echo "FEHLER: VITE_SHOW_DEV_LOGIN muss 'true' oder 'false' sein: '${VITE_SHOW_DEV_LOGIN}'" >&2
+        exit 1
+        ;;
+esac
+
 # Erstelle eine Runtime-Konfigurationsdatei für die Umgebungsvariablen
 cat > /usr/share/nginx/html/runtime-config.js << EOF
 window.RUNTIME_CONFIG = {
   VITE_API_URL: '${VITE_API_URL}',
-  VITE_FRONTEND_URL: '${VITE_FRONTEND_URL}'
+  VITE_FRONTEND_URL: '${VITE_FRONTEND_URL}',
+  VITE_SHOW_DEV_LOGIN: '${SHOW_DEV_LOGIN}'
 };
 EOF
 
 echo "Runtime-Konfiguration erstellt:"
 echo "  VITE_API_URL: ${VITE_API_URL}"
 echo "  VITE_FRONTEND_URL: ${VITE_FRONTEND_URL}"
+echo "  VITE_SHOW_DEV_LOGIN: ${SHOW_DEV_LOGIN}"
 
 # CSP: connect-src auf den API-Origin (Schema + Host + Port) einschränken.
 # Ableitung per POSIX-Parameter-Expansion (kein sed nötig, BusyBox-sicher):

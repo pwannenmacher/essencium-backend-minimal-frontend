@@ -10,4 +10,6 @@ services:
       - VITE_API_URL=http://localhost:8098
       # Frontend URL (für OAuth Redirects)
       - VITE_FRONTEND_URL=http://localhost:8080
+      # Schnell-Login mit den Backend-Default-Credentials einblenden (true/false)
+      - VITE_SHOW_DEV_LOGIN=true
     restart: unless-stopped
