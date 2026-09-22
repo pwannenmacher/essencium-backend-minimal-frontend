@@ -58,7 +58,7 @@
     "lint-staged": "^17.5.1",
     "prettier": "^3.9.8",
     "vite": "^8.3.0",
-    "vitest": "^4.1.11"
+    "vitest": "^5.0.1"
   },
   "allowScripts": {
     "@scarf/scarf@1.4.0": true,
