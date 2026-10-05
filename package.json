@@ -35,7 +35,7 @@
     "@tabler/icons-react": "^3.47.0",
     "dayjs": "^1.11.23",
     "prop-types": "^15.8.1",
-    "rapidoc": "^9.3.8",
+    "rapidoc": "^10.1.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   },
