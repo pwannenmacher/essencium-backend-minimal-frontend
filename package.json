@@ -27,15 +27,15 @@
     ]
   },
   "dependencies": {
-    "@mantine/core": "^9.6.2",
-    "@mantine/dates": "^9.6.2",
-    "@mantine/form": "^9.6.2",
-    "@mantine/hooks": "^9.6.2",
-    "@mantine/notifications": "^9.6.2",
+    "@mantine/core": "^9.7.1",
+    "@mantine/dates": "^9.7.1",
+    "@mantine/form": "^9.7.1",
+    "@mantine/hooks": "^9.7.1",
+    "@mantine/notifications": "^9.7.1",
     "@tabler/icons-react": "^3.49.0",
     "dayjs": "^1.11.23",
     "prop-types": "^15.8.1",
-    "rapidoc": "^9.3.8",
+    "rapidoc": "^10.1.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   },
@@ -46,27 +46,21 @@
     "@testing-library/user-event": "^14.6.7",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "@vitejs/plugin-react": "^6.1.1",
-    "@vitest/coverage-v8": "^5.0.1",
-    "@vitest/ui": "^5.0.1",
-    "eslint": "^10.11.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "@vitest/coverage-v8": "^5.0.3",
+    "@vitest/ui": "^5.0.3",
+    "eslint": "^10.12.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.7",
-    "globals": "^17.12.0",
+    "globals": "^17.13.0",
     "husky": "^9.1.7",
-    "jsdom": "^30.1.0",
-    "lint-staged": "^17.5.1",
-    "prettier": "^3.9.8",
-    "vite": "^8.3.0",
-    "vitest": "^5.0.1"
+    "jsdom": "^30.1.2",
+    "lint-staged": "^17.6.0",
+    "prettier": "^3.9.10",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.3"
   },
   "allowScripts": {
-    "@scarf/scarf@1.4.0": true,
-    "@tree-sitter-grammars/tree-sitter-yaml@0.7.1": true,
-    "tree-sitter@0.22.4": true,
-    "tree-sitter@0.21.1": true,
-    "core-js-pure@3.48.0": true,
-    "fsevents@2.3.3": true,
-    "tree-sitter-json@0.24.8": true
+    "fsevents@2.3.3": true
   }
 }

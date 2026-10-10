@@ -17,8 +17,5 @@ export default defineConfig({
         },
       },
     },
-    // Deckt nur den lazy geladenen rapidoc-Chunk (~850 kB) ab; alle eager
-    // geladenen Chunks liegen deutlich darunter.
-    chunkSizeWarningLimit: 900,
   },
 });

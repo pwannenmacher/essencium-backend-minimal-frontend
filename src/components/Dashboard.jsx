@@ -36,7 +36,7 @@ import ApiTokenAdminList from './ApiTokenAdminList';
 import SessionTokenAdminList from './SessionTokenAdminList';
 import JwtViewer from './JwtViewer';
 
-// Lazy geladen: rapidoc (~860 KB min) landet so in einem eigenen Chunk,
+// Lazy geladen: rapidoc (~480 KB min) landet so in einem eigenen Chunk,
 // der erst beim Öffnen des API-Docs-Tabs geladen wird.
 const ApiDocsViewer = lazy(() => import('./ApiDocsViewer'));
 

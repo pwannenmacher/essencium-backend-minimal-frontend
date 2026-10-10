@@ -4,7 +4,7 @@ import ApiDocsViewer from './ApiDocsViewer';
 import { renderWithProviders, createAuthContext } from '../test/helpers';
 import * as openApiService from '../services/openApiService';
 
-// rapidoc zieht ~850 kB; geprüft wird nur Spec- und Token-Übergabe.
+// rapidoc zieht ~480 kB; geprüft wird nur Spec- und Token-Übergabe.
 vi.mock('rapidoc', () => ({}));
 vi.mock('../services/openApiService');
 vi.mock('./ApiDocsViewer.css', () => ({}));
