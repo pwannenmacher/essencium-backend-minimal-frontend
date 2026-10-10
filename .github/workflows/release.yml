@@ -21,6 +21,16 @@ jobs:
   build-test:
     runs-on: ubuntu-latest
     steps:
+      # Das Trigger-Muster 'v*.*.*' ist ein Glob und lässt auch Tippfehler wie 'vß.0.3' durch
+      - name: Validate tag format
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          if ! [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Ungültiger Release-Tag '$TAG' – erwartet vMAJOR.MINOR.PATCH[-SUFFIX]"
+            exit 1
+          fi
+
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
