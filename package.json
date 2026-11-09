@@ -27,11 +27,11 @@
     ]
   },
   "dependencies": {
-    "@mantine/core": "^9.7.4",
-    "@mantine/dates": "^9.7.4",
-    "@mantine/form": "^9.7.4",
-    "@mantine/hooks": "^9.7.4",
-    "@mantine/notifications": "^9.7.4",
+    "@mantine/core": "^9.7.5",
+    "@mantine/dates": "^9.7.5",
+    "@mantine/form": "^9.7.5",
+    "@mantine/hooks": "^9.7.5",
+    "@mantine/notifications": "^9.7.5",
     "@tabler/icons-react": "^3.50.0",
     "dayjs": "^1.11.23",
     "prop-types": "^15.8.1",
