@@ -4,4 +4,18 @@
   overflow: hidden;
 }
 
-/* RapiDoc styling if needed */
+/* rapidoc 12 liest Farben aus CSS-Tokens; Regeln auf dem Host-Element
+   schlagen die :host-Defaults im Shadow DOM. Werte passend zu Mantine. */
+rapi-doc[color-scheme='dark'] {
+  --background: #1a1b1e;
+  --foreground: #c1c2c5;
+  --sidebar: #1a1b1e;
+  --sidebar-foreground: #c1c2c5;
+}
+
+rapi-doc[color-scheme='light'] {
+  --background: #ffffff;
+  --foreground: #000000;
+  --sidebar: #f8f9fa;
+  --sidebar-foreground: #495057;
+}
