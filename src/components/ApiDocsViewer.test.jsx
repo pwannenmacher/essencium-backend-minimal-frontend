@@ -4,7 +4,7 @@ import ApiDocsViewer from './ApiDocsViewer';
 import { renderWithProviders, createAuthContext } from '../test/helpers';
 import * as openApiService from '../services/openApiService';
 
-// rapidoc zieht ~480 kB; geprüft wird nur Spec- und Token-Übergabe.
+// rapidoc zieht ~640 kB; geprüft werden Spec-, Farbschema- und Token-Übergabe.
 vi.mock('rapidoc', () => ({}));
 vi.mock('../services/openApiService');
 vi.mock('./ApiDocsViewer.css', () => ({}));
@@ -46,6 +46,16 @@ describe('ApiDocsViewer', () => {
 
     await waitFor(() => expect(rapidocElement()).toBeInTheDocument());
     expect(openApiService.getOpenApiSpec).toHaveBeenCalledTimes(1);
+  });
+
+  // rapidoc 12 kennt theme="light|dark" nur noch als Legacy und die Farb-Attribute gar nicht mehr.
+  it('übergibt das Mantine-Farbschema als color-scheme statt als theme', async () => {
+    render();
+
+    await waitFor(() => expect(rapidocElement()).toBeInTheDocument());
+    expect(rapidocElement().getAttribute('color-scheme')).toBe('light');
+    expect(rapidocElement().hasAttribute('theme')).toBe(false);
+    expect(rapidocElement().hasAttribute('bg-color')).toBe(false);
   });
 
   it('zeigt die Fehlermeldung, wenn die Spec nicht geladen werden kann', async () => {

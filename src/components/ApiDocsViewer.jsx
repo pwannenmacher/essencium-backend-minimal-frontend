@@ -88,6 +88,7 @@ export default function ApiDocsViewer() {
 
   // RapiDoc configuration for better integration
   // render-style="read" gives a clean look similar to Redoc/Stoplight
+  // Farben kommen seit rapidoc 12 über CSS-Tokens (ApiDocsViewer.css), nicht mehr über Attribute.
   return (
     <div
       className="api-docs-viewer-container"
@@ -97,15 +98,11 @@ export default function ApiDocsViewer() {
         ref={rapidocRef}
         render-style="read"
         style={{ height: '100%', width: '100%' }}
-        theme={colorScheme}
+        color-scheme={colorScheme}
         show-header="false"
         show-info="true"
         allow-server-selection="false"
         allow-authentication="true"
-        nav-bg-color={colorScheme === 'dark' ? '#1A1B1E' : '#f8f9fa'}
-        nav-text-color={colorScheme === 'dark' ? '#c1c2c5' : '#495057'}
-        bg-color={colorScheme === 'dark' ? '#1A1B1E' : '#ffffff'}
-        text-color={colorScheme === 'dark' ? '#c1c2c5' : '#000000'}
         primary-color="#228be6"
         layout="row"
         schema-style="table"
