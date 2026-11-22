@@ -7,7 +7,7 @@ React-basierte Admin-Oberfläche für [Essencium Backend](https://github.com/Fra
 Diese SPA bietet eine vollständige Verwaltungsoberfläche für User, Rollen, Rechte und API-Tokens. Der Funktionsumfang orientiert sich an den Essencium-Backend-APIs und deckt folgende Bereiche ab:
 
 - **Authentication**: Login, automatische Token-Renewal (20s vor Ablauf), Logout
-- **OAuth2**: Unterstützung für OAuth2-Login (Google, GitHub) mit Redirect-Handling
+- **OAuth2**: Login über die im Backend registrierten OAuth2-Provider (`/auth/oauth-registrations`) mit Redirect-Handling
 - **User Management**: Anlegen, Bearbeiten, Löschen von Benutzern, Passwort-Änderung
 - **Rollen & Rechte**: Verwaltung von Rollen mit granularen Berechtigungen
 - **API-Tokens**: Erstellen und Widerrufen von API-Tokens (eigene + Admin-Ansicht)
@@ -183,9 +183,12 @@ Der Coverage-Report wird in `coverage/` generiert. Öffne `coverage/index.html` 
 - **Service-Tests**: API-Calls, Fehlerbehandlung, Request-Formate (apiClient, authService, userService, roleService, apiTokenService, openApiService, resetCredentialsService)
 - **Util-Tests**: JWT-Parsing/-Validierung, Passwort-Validierung
 - **AuthContext-Tests**: Token-Renewal, Permissions, OAuth-Flow, Login/Logout
-- **Component-Tests**: Login, SetPassword, ErrorBoundary, ApiTokenList sowie die
-  Listen-Komponenten UserList, RoleList, ApiTokenAdminList und
-  SessionTokenAdminList (Laden, Fehler, Empty-State, Rechte-Gating, Löschen)
+- **Component-Tests**: alle Komponenten in `src/components/` außer `TableBodyState`
+  — u. a. Dashboard (Tab-/Rechte-Gating), Listen (Laden, Fehler, Empty-State,
+  Löschen), Formular-Modals, Login, SetPassword, JwtViewer, ApiDocsViewer
+
+Ohne eigene Tests (nur indirekt abgedeckt): `useListLoader`, `useAuthTokenRef`,
+`ThemeContext`, `TableBodyState`, `App.jsx`.
 
 **Neue Tests hinzufügen:**
 
