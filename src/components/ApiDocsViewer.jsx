@@ -33,7 +33,7 @@ export default function ApiDocsViewer() {
   useEffect(() => {
     let cancelled = false;
 
-    (async () => {
+    void (async () => {
       try {
         setLoading(true);
         setError(null);

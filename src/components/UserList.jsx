@@ -103,8 +103,8 @@ export default function UserList({ active }) {
 
   useEffect(() => {
     if (active && isAuthenticated) {
-      fetchUsers(0, { email: searchEmail, name: searchName });
-      fetchRoles();
+      void fetchUsers(0, { email: searchEmail, name: searchName });
+      void fetchRoles();
     }
     // Suchbegriffe bewusst nicht in den Deps: Die Suche wird nur explizit
     // über Button/Enter ausgelöst, nicht bei jedem Tastendruck.
@@ -114,11 +114,11 @@ export default function UserList({ active }) {
   const currentFilters = () => ({ email: searchEmail, name: searchName });
 
   const handleSearch = () => {
-    fetchUsers(0, currentFilters());
+    void fetchUsers(0, currentFilters());
   };
 
   const handlePageChange = (newPage) => {
-    fetchUsers(newPage - 1, currentFilters()); // Mantine Pagination ist 1-basiert
+    void fetchUsers(newPage - 1, currentFilters()); // Mantine Pagination ist 1-basiert
   };
 
   const handleCreateUser = () => {
@@ -150,7 +150,7 @@ export default function UserList({ active }) {
       });
       setDeleteModalOpened(false);
       setUserToDelete(null);
-      fetchUsers(page, currentFilters());
+      void fetchUsers(page, currentFilters());
     } catch (err) {
       notifications.show({
         title: 'Fehler',
@@ -193,7 +193,7 @@ export default function UserList({ active }) {
         color: 'green',
       });
     }
-    fetchUsers(page, currentFilters());
+    void fetchUsers(page, currentFilters());
     setModalOpened(false);
   };
 
