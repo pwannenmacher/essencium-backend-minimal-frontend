@@ -37,7 +37,7 @@ export default function UserRolesRights() {
     };
 
     if (isAuthenticated) {
-      fetchData();
+      void fetchData();
     }
   }, [isAuthenticated, tokenRef]);
 

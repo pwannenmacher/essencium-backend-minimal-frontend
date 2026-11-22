@@ -96,7 +96,7 @@ export const AuthProvider = ({ children }) => {
       const renewTime = payload.exp * 1000 - 20000; // 20 Sekunden vor Ablauf
       const timeUntilRenew = renewTime - Date.now();
       if (timeUntilRenew <= 0) {
-        attemptRenew(5000);
+        void attemptRenew(5000);
       } else {
         timeout = setTimeout(() => attemptRenew(5000), timeUntilRenew);
       }
@@ -136,7 +136,7 @@ export const AuthProvider = ({ children }) => {
       }
     };
 
-    fetchUser(5000);
+    void fetchUser(5000);
 
     return () => {
       cancelled = true;

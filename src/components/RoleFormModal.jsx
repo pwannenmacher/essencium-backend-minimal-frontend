@@ -45,7 +45,7 @@ export default function RoleFormModal({ opened, onClose, role }) {
 
     let cancelled = false;
 
-    (async () => {
+    void (async () => {
       setLoadingRights(true);
       try {
         const pageSize = 100;

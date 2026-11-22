@@ -43,7 +43,7 @@ export default function Login() {
       const providers = await getOAuthProviders();
       setOauthProviders(providers);
     };
-    loadOAuthProviders();
+    void loadOAuthProviders();
   }, []);
 
   useEffect(() => {

@@ -28,7 +28,7 @@ export function useListLoader({ active, fetcher, errorMessage, initialData }) {
 
     let cancelled = false;
 
-    (async () => {
+    void (async () => {
       setLoading(true);
       try {
         const result = await fetcher(tokenRef.current);

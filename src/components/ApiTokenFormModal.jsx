@@ -54,7 +54,7 @@ export default function ApiTokenFormModal({ opened, onClose }) {
 
     let cancelled = false;
 
-    (async () => {
+    void (async () => {
       setLoadingExpiration(true);
       try {
         const info = await getTokenExpirationInfo(token);
